@@ -41,6 +41,7 @@ fun ModuleItemCompact(
     onClick: () -> Unit = {},
     enabled: Boolean = true,
     showLabels: Boolean = true,
+    showLastUpdated: Boolean = true,
     sourceProvider: String? = null,
 ) = Surface(
     onClick = onClick,
@@ -121,7 +122,7 @@ fun ModuleItemCompact(
                 )
             }
 
-            if (menu.showUpdatedTime) {
+            menu.showUpdatedTime.nullable(showLastUpdated) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = stringResource(
