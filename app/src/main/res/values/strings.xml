@@ -429,4 +429,7 @@
     <string name="available_modules">Available Modules</string>
     <string name="explore_repos_discover_text">Discover and install modules from [bold]%1$d[/bold] trusted repositories, featuring over [bold]%2$d[/bold] modules for your device.</string>
     <string name="module_repositories">Module Repositories</string>
+    <string name="latest_commit_id">Latest Commit ID</string>
+    <string name="build_tools_version">Build Tools Version</string>
+    <string name="compile_sdk">Compile SDK</string>
 </resources>
