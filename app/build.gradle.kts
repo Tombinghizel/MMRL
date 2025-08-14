@@ -19,7 +19,7 @@ val mmrlBaseApplicationId = "com.dergoogler.mmrl"
 val appVersion = commitCount + 31320
 
 android {
-    compileSdk = 35
+    compileSdk = COMPILE_SDK
     namespace = mmrlBaseApplicationId
 
     defaultConfig {
