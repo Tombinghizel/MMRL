@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.dergoogler.mmrl.database.entity.Repo.Companion.toRepo
 import com.dergoogler.mmrl.datastore.UserPreferencesRepository
 import com.dergoogler.mmrl.datastore.model.Option
 import com.dergoogler.mmrl.datastore.model.RepositoryMenu
@@ -15,6 +16,7 @@ import com.dergoogler.mmrl.model.state.OnlineState.Companion.createState
 import com.dergoogler.mmrl.repository.LocalRepository
 import com.dergoogler.mmrl.repository.ModulesRepository
 import com.dergoogler.mmrl.ext.panicString
+import com.dergoogler.mmrl.model.json.UpdateJson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -89,29 +91,34 @@ class RepositoryViewModel @AssistedInject constructor(
             onlineModules,
             repositoryMenu
         ) { list, menu ->
-            cacheFlow.value = list.map {
-                it.createState(
-                    local = localRepository.getLocalByIdOrNull(it.id),
-                    hasUpdatableTag = localRepository.hasUpdatableTag(it.id)
-                ) to it
-            }.sortedWith(
-                comparator(menu.option, menu.descending)
-            ).let { v ->
-                val a = if (menu.pinInstalled) {
-                    v.sortedByDescending { it.first.installed }
-                } else {
-                    v
+            cacheFlow.value = list.map { module ->
+                val local = localRepository.getLocalByIdOrNull(module.id)
+
+                val versionsList = module.versions.toMutableList()
+                if (local != null) {
+                    UpdateJson.loadToVersionItem(local.updateJson)?.let { es ->
+                        // no need to define here a repo name since we only need to for the last updated
+                        versionsList.add(0, es)
+                    }
                 }
 
-                if (menu.pinUpdatable) {
-                    a.sortedByDescending { it.first.updatable }
-                } else {
-                    a
-                }
+                module.copy(versions = versionsList).createState(
+                    local = local,
+                    hasUpdatableTag = localRepository.hasUpdatableTag(module.id)
+                ) to module.copy(versions = versionsList)
             }
+                .sortedWith(comparator(menu.option, menu.descending))
+                .let { v ->
+                    val a = if (menu.pinInstalled) {
+                        v.sortedByDescending { it.first.installed }
+                    } else v
+
+                    if (menu.pinUpdatable) {
+                        a.sortedByDescending { it.first.updatable }
+                    } else a
+                }
 
             isLoading = false
-
         }.launchIn(viewModelScope)
     }
 
