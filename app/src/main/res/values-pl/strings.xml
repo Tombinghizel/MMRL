@@ -399,4 +399,9 @@
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
     <string name="hook_mode">Tryb haka</string>
+    <string name="page_repos">Repozytoria</string>
+    <string name="count_with_plus">%1$d+</string>
+    <string name="available_modules">Dostępne moduły</string>
+    <string name="explore_repos_discover_text">Odkryj i zainstaluj moduły z [bold]%1$d[/bold] zaufanych repozytoriów, zawierających ponad [bold]%2$d[/bold] modułów dla Twojego urządzenia.</string>
+    <string name="module_repositories">Repozytoria modułów</string>
 </resources>
