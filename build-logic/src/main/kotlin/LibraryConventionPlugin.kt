@@ -14,11 +14,11 @@ class LibraryConventionPlugin : Plugin<Project> {
         apply(plugin = "org.jetbrains.kotlin.android")
 
         extensions.configure<LibraryExtension> {
-            compileSdk = 34
-            buildToolsVersion = "34.0.0"
+            compileSdk = COMPILE_SDK
+            buildToolsVersion = BUILD_TOOLS_VERSION
 
             defaultConfig {
-                minSdk = 26
+                minSdk = MIN_SDK
             }
 
             compileOptions {
