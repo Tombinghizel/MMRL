@@ -151,7 +151,7 @@ class LocalRepository @Inject constructor(
                     }
                 } else {
                     values.add(
-                        new.copy(versions = getVersionById(new.id))
+                        new.copy(versions = getVersionByIdAndUrl(new.id, repoUrl))
                     )
                 }
             }
