@@ -23,12 +23,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ActionActivity : TerminalActivity<ActionViewModel>() {
+class ActionActivity : TerminalActivity() {
+    private val viewModel by viewModels<ActionViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
-
-        viewModel = viewModels<ActionViewModel>().value
 
         val modId = intent.getModId()
 
@@ -48,6 +48,11 @@ class ActionActivity : TerminalActivity<ActionViewModel>() {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.runAction(modId)
         }
+    }
+
+    override fun onDestroy() {
+        viewModel.destroy()
+        super.onDestroy()
     }
 
     companion object {
