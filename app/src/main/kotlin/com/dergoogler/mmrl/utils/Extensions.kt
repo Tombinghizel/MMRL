@@ -15,6 +15,7 @@ import com.dergoogler.mmrl.platform.model.ModId.Companion.putModId
 import com.dergoogler.mmrl.platform.model.ModuleConfig.Companion.asModuleConfig
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.webui.helper.WebUILauncher
+import com.topjohnwu.superuser.NoShellException
 import com.topjohnwu.superuser.Shell
 
 val Float.toFormattedDateSafely: String
@@ -32,6 +33,7 @@ val Long.toFormattedDateSafely: String
     }
 
 
+@Throws(NoShellException::class)
 inline fun <T> withNewRootShell(
     globalMnt: Boolean = false,
     debug: Boolean = false,
@@ -41,6 +43,7 @@ inline fun <T> withNewRootShell(
     return createRootShell(globalMnt, debug, commands).use(block)
 }
 
+@Throws(NoShellException::class)
 fun createRootShell(
     globalMnt: Boolean = false,
     debug: Boolean = false,
