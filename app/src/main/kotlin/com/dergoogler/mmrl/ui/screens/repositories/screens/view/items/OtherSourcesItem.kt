@@ -48,6 +48,7 @@ fun OtherSourcesItem(items: List<OtherSources>) {
                         ModuleItemCompact(
                             sourceProvider = item.repo.name,
                             showLabels = false,
+                            showLastUpdated = false,
                             onClick = {
                                 navController.navigateSingleTopTo(
                                     route = RepositoriesScreen.View.route,
