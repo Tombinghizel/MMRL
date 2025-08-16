@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ActionScreen(
-    viewModel: ActionViewModel = hiltViewModel(),
+    viewModel: ActionViewModel,
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }

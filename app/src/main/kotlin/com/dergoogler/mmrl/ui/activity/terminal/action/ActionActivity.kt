@@ -40,7 +40,7 @@ class ActionActivity : TerminalActivity() {
         }
 
         setBaseContent {
-            ActionScreen()
+            ActionScreen(viewModel)
         }
     }
 
