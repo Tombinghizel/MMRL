@@ -578,7 +578,7 @@ object PlatformManager {
      * @see Service
      */
     fun <T : IService> addService(clazz: Class<T>): IBinder? = serviceOrNull {
-        addService(Service(clazz))
+        addService(Service<T>(clazz.name))
     }
 
     /**
@@ -612,7 +612,7 @@ object PlatformManager {
      * @see Service
      */
     fun <T : IService> Class<T>.addAsService(): IBinder? = serviceOrNull {
-        addService(Service(this@addAsService))
+        addService(Service<T>(this@addAsService.name))
     }
 
     /**
