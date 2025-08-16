@@ -89,6 +89,15 @@ open class ServiceManager(
 
         }.getOrNull()
 
+    override fun addServiceBinder(name: String, binder: IBinder) {
+        runCatching {
+            services[name] = binder
+        }.onFailure {
+            Log.e(TAG, Log.getStackTraceString(it))
+
+        }.getOrNull()
+    }
+
     override fun getService(name: String): IBinder? = services[name]
 
     override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int) =

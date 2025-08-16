@@ -98,6 +98,7 @@ object PlatformManager {
     val isAliveDeferred = CompletableDeferred<Boolean>()
 
     private val _isAliveFlow = MutableStateFlow(false)
+
     /**
      * A [StateFlow] that emits `true` if the [IServiceManager] is initialized and alive,
      * `false` otherwise. This is useful for observing the liveness state in a reactive way.
@@ -137,7 +138,10 @@ object PlatformManager {
         return try {
             Log.d(TAG, "Starting synchronous initialization.")
             mServiceOrNull = provider()
-            Log.d(TAG, "Sync provider executed. mServiceOrNull is: ${if (mServiceOrNull == null) "null" else "not null"}")
+            Log.d(
+                TAG,
+                "Sync provider executed. mServiceOrNull is: ${if (mServiceOrNull == null) "null" else "not null"}"
+            )
             state()
         } catch (e: Exception) {
             mServiceOrNull = null
@@ -181,7 +185,10 @@ object PlatformManager {
 
         return scope.async(Dispatchers.IO) {
             try {
-                Log.d(TAG, "Starting background initialization on thread: ${Thread.currentThread().name}")
+                Log.d(
+                    TAG,
+                    "Starting background initialization on thread: ${Thread.currentThread().name}"
+                )
                 mServiceOrNull = provider()
                 Log.d(
                     TAG,
@@ -230,7 +237,10 @@ object PlatformManager {
                     val service = IServiceManager.Stub.asInterface(binder)
                     if (continuation.isActive) {
                         continuation.resume(service) {
-                            Log.w(TAG, "Failed to resume onServiceConnected, coroutine likely cancelled for $name.")
+                            Log.w(
+                                TAG,
+                                "Failed to resume onServiceConnected, coroutine likely cancelled for $name."
+                            )
                         }
                     }
                 }
@@ -286,12 +296,17 @@ object PlatformManager {
                 Log.w(TAG, "Provider ${provider.name} not available.")
                 throw IllegalStateException("${provider.name} not available")
             }
+
             !provider.isAuthorized() -> {
                 Log.w(TAG, "Provider ${provider.name} not authorized.")
                 throw IllegalStateException("${provider.name} not authorized")
             }
+
             else -> {
-                Log.d(TAG, "Provider ${provider.name} is available and authorized. Getting service.")
+                Log.d(
+                    TAG,
+                    "Provider ${provider.name} is available and authorized. Getting service."
+                )
                 get(provider, timeoutMillis)
             }
         }
@@ -506,7 +521,10 @@ object PlatformManager {
      */
     fun setHiddenApiExemptions(vararg signaturePrefixes: String = arrayOf("")): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Log.d(TAG, "Setting Hidden API exemptions with prefixes: ${signaturePrefixes.joinToString()}")
+            Log.d(
+                TAG,
+                "Setting Hidden API exemptions with prefixes: ${signaturePrefixes.joinToString()}"
+            )
             HiddenApiBypass.addHiddenApiExemptions(*signaturePrefixes)
         } else {
             Log.d(TAG, "Hidden API exemptions not needed on SDK < P.")
@@ -520,10 +538,15 @@ object PlatformManager {
 
         override fun getInterfaceDescriptor(): String? = originalBinder.interfaceDescriptor
         override fun pingBinder(): Boolean = originalBinder.pingBinder()
-        override fun isBinderAlive(): Boolean = originalBinder.isBinderAlive && serviceBinder.isBinderAlive
+        override fun isBinderAlive(): Boolean =
+            originalBinder.isBinderAlive && serviceBinder.isBinderAlive
+
         override fun queryLocalInterface(descriptor: String): IInterface? = null
-        override fun dump(fd: FileDescriptor, args: Array<out String>?) = originalBinder.dump(fd, args)
-        override fun dumpAsync(fd: FileDescriptor, args: Array<out String>?) = originalBinder.dumpAsync(fd, args)
+        override fun dump(fd: FileDescriptor, args: Array<out String>?) =
+            originalBinder.dump(fd, args)
+
+        override fun dumpAsync(fd: FileDescriptor, args: Array<out String>?) =
+            originalBinder.dumpAsync(fd, args)
 
         override fun linkToDeath(recipient: IBinder.DeathRecipient, flags: Int) {
             originalBinder.linkToDeath(recipient, flags)
@@ -555,8 +578,7 @@ object PlatformManager {
             } catch (e: Exception) {
                 Log.e(TAG, "Exception during proxy transact", e)
                 throw e
-            }
-            finally {
+            } finally {
                 newData.recycle()
             }
             return result
@@ -598,6 +620,12 @@ object PlatformManager {
      */
     fun <T : IService> addService(service: Service<T>): IBinder? = serviceOrNull {
         addService(service)
+    }
+
+    fun <T : IInterface> addService(name: String, service: T) {
+        serviceOrNull {
+            addServiceBinder(name, service.asBinder())
+        }
     }
 
     /**
