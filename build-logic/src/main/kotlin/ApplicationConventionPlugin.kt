@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin

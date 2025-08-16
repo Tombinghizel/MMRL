@@ -1,3 +1,5 @@
+@file:Suppress("unused", "UnusedReceiverParameter")
+
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
 import java.io.File
