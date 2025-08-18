@@ -172,13 +172,13 @@ fun Card(
 }
 
 fun Modifier.card(
-    shape: Shape,
-    backgroundColor: Color,
-    border: BorderStroke?,
-    shadowElevation: Float,
+    shape: Shape = RoundedCornerShape(20.dp),
+    backgroundColor: Color = Color.Transparent,
+    border: BorderStroke? = null,
+    shadowElevation: Float? = null,
 ) = this
     .then(
-        if (shadowElevation > 0f) {
+        if (shadowElevation != null && shadowElevation > 0f) {
             Modifier.graphicsLayer(
                 shadowElevation = shadowElevation,
                 shape = shape,
