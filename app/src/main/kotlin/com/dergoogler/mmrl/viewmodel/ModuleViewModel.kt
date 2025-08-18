@@ -14,6 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.database.entity.Repo
+import com.dergoogler.mmrl.database.entity.Repo.Companion.UPDATE_JSON
 import com.dergoogler.mmrl.database.entity.Repo.Companion.toRepo
 import com.dergoogler.mmrl.datastore.UserPreferencesRepository
 import com.dergoogler.mmrl.ext.panicString
@@ -72,9 +73,14 @@ class ModuleViewModel @AssistedInject constructor(
     var repo: Repo by mutableStateOf(Repo.example())
         private set
     val lastVersionItem by derivedStateOf {
-        versions.firstOrNull()?.second
+        val firstRepo = versions.getOrNull(0)?.first
+        val item = if (firstRepo?.name == UPDATE_JSON) {
+            versions.getOrNull(1)
+        } else {
+            versions.getOrNull(0)
+        }
+        item?.second
     }
-
     val isEmptyAbout
         get() = online.homepage.orEmpty().isBlank()
                 && online.track.source.isBlank()
@@ -149,7 +155,7 @@ class ModuleViewModel @AssistedInject constructor(
 
         if (installed) {
             UpdateJson.loadToVersionItem(local!!.updateJson)?.let {
-                versions.add(0, "Update Json".toRepo() to it)
+                versions.add(0, UPDATE_JSON.toRepo() to it)
             }
         }
     }
