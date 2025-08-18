@@ -50,6 +50,8 @@ data class Repo(
     companion object {
         fun String.toRepo() = Repo(url = this)
         fun example() = RepoState.example().toRepo()
+
+        const val UPDATE_JSON = "Update Json"
     }
 }
 
