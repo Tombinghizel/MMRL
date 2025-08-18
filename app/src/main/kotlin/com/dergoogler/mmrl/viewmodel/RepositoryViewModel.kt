@@ -91,34 +91,29 @@ class RepositoryViewModel @AssistedInject constructor(
             onlineModules,
             repositoryMenu
         ) { list, menu ->
-            cacheFlow.value = list.map { module ->
-                val local = localRepository.getLocalByIdOrNull(module.id)
-
-                val versionsList = module.versions.toMutableList()
-                if (local != null) {
-                    UpdateJson.loadToVersionItem(local.updateJson)?.let { es ->
-                        // no need to define here a repo name since we only need to for the last updated
-                        versionsList.add(0, es)
-                    }
+            cacheFlow.value = list.map {
+                it.createState(
+                    local = localRepository.getLocalByIdOrNull(it.id),
+                    hasUpdatableTag = localRepository.hasUpdatableTag(it.id)
+                ) to it
+            }.sortedWith(
+                comparator(menu.option, menu.descending)
+            ).let { v ->
+                val a = if (menu.pinInstalled) {
+                    v.sortedByDescending { it.first.installed }
+                } else {
+                    v
                 }
 
-                module.copy(versions = versionsList).createState(
-                    local = local,
-                    hasUpdatableTag = localRepository.hasUpdatableTag(module.id)
-                ) to module.copy(versions = versionsList)
+                if (menu.pinUpdatable) {
+                    a.sortedByDescending { it.first.updatable }
+                } else {
+                    a
+                }
             }
-                .sortedWith(comparator(menu.option, menu.descending))
-                .let { v ->
-                    val a = if (menu.pinInstalled) {
-                        v.sortedByDescending { it.first.installed }
-                    } else v
-
-                    if (menu.pinUpdatable) {
-                        a.sortedByDescending { it.first.updatable }
-                    } else a
-                }
 
             isLoading = false
+
         }.launchIn(viewModelScope)
     }
 
