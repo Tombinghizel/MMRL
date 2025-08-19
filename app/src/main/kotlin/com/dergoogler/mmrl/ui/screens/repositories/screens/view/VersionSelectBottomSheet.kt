@@ -140,11 +140,13 @@ private fun VersionItem(
                 )
             }
 
-            Text(
-                text = item.timestamp.toFormattedDateSafely,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
+            if (!repo.isUpdateJson) {
+                Text(
+                    text = item.timestamp.toFormattedDateSafely,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
     }
 }

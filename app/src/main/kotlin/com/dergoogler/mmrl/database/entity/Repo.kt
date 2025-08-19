@@ -21,6 +21,8 @@ data class Repo(
 ) {
     val isCompatible get() = metadata.version == ModulesJson.CURRENT_VERSION
 
+    val isUpdateJson get() = name == UPDATE_JSON
+
     override fun equals(other: Any?): Boolean {
         return when (other) {
             is Repo -> url == other.url
