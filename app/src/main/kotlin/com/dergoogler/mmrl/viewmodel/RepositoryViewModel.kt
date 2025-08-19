@@ -50,9 +50,6 @@ class RepositoryViewModel @AssistedInject constructor(
     private val onlineFlow = MutableStateFlow(listOf<Pair<OnlineState, OnlineModule>>())
     val online get() = onlineFlow.asStateFlow()
 
-    private val onlineAllFlow = MutableStateFlow(listOf<Pair<OnlineState, OnlineModule>>())
-    val onlineAll get() = onlineAllFlow.asStateFlow()
-
     var isLoading by mutableStateOf(true)
         private set
 
@@ -60,24 +57,8 @@ class RepositoryViewModel @AssistedInject constructor(
 
     init {
         Timber.d("RepositoryViewModel init")
-        dataObserverAll()
         dataObserver()
         keyObserver()
-    }
-
-    private fun dataObserverAll() {
-        combine(
-            localRepository.getOnlineAllAsFlow()
-        ) { list ->
-            onlineAllFlow.value = list.first().map {
-                it.createState(
-                    local = localRepository.getLocalByIdOrNull(it.id),
-                    hasUpdatableTag = localRepository.hasUpdatableTag(it.id)
-                ) to it
-            }
-
-            isLoading = false
-        }.launchIn(viewModelScope)
     }
 
     private fun dataObserver() {

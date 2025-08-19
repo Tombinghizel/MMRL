@@ -132,10 +132,6 @@ fun NavGraphBuilder.moduleScreen(
         val moduleViewModel = hiltViewModel<ModuleViewModel, ModuleViewModel.Factory> { factory ->
             factory.create(arguments)
         }
-        val repositoryViewModel =
-            hiltViewModel<RepositoryViewModel, RepositoryViewModel.Factory> { factory ->
-                factory.create(arguments)
-            }
 
         CompositionLocalProvider(
             LocalPanicArguments provides arguments,
@@ -143,7 +139,6 @@ fun NavGraphBuilder.moduleScreen(
             NewViewScreen(
                 navController = navController.current,
                 viewModel = moduleViewModel,
-                repositoryViewModel = repositoryViewModel
             )
         }
     }

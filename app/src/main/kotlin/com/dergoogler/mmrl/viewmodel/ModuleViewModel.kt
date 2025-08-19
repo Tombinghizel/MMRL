@@ -25,6 +25,7 @@ import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.model.online.OtherSources
 import com.dergoogler.mmrl.model.online.TrackJson
 import com.dergoogler.mmrl.model.online.VersionItem
+import com.dergoogler.mmrl.model.state.OnlineState
 import com.dergoogler.mmrl.model.state.OnlineState.Companion.createState
 import com.dergoogler.mmrl.platform.PlatformManager
 import com.dergoogler.mmrl.platform.model.ModId
@@ -37,10 +38,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import kotlin.collections.first
 
 @HiltViewModel(assistedFactory = ModuleViewModel.Factory::class)
 class ModuleViewModel @AssistedInject constructor(
@@ -109,6 +115,7 @@ class ModuleViewModel @AssistedInject constructor(
     init {
         Timber.d("ModuleViewModel init: $moduleId")
         loadData()
+        modulesAll()
     }
 
     private fun loadData() = viewModelScope.launch {
@@ -158,6 +165,22 @@ class ModuleViewModel @AssistedInject constructor(
                 versions.add(0, UPDATE_JSON.toRepo() to it)
             }
         }
+    }
+
+    private val onlineAllFlow = MutableStateFlow(listOf<Pair<OnlineState, OnlineModule>>())
+    val onlineAll get() = onlineAllFlow.asStateFlow()
+
+    private fun modulesAll() {
+        combine(
+            localRepository.getOnlineAllAsFlow()
+        ) { list ->
+            onlineAllFlow.value = list.first().map {
+                it.createState(
+                    local = localRepository.getLocalByIdOrNull(it.id),
+                    hasUpdatableTag = localRepository.hasUpdatableTag(it.id)
+                ) to it
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun setUpdatesTag(updatable: Boolean) {

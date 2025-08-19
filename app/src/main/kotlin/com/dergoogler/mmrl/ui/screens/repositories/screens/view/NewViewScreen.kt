@@ -142,7 +142,6 @@ import timber.log.Timber
 @Composable
 fun NewViewScreen(
     viewModel: ModuleViewModel,
-    repositoryViewModel: RepositoryViewModel,
     navController: NavHostController,
 ) {
     val bulkInstallViewModel = LocalBulkInstall.current
@@ -150,10 +149,8 @@ fun NewViewScreen(
     val repositoryMenu = userPreferences.repositoryMenu
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val module = viewModel.online
+    val moduleAll by viewModel.onlineAll.collectAsStateWithLifecycle()
     val local = viewModel.local
-
-    val repositoryList by repositoryViewModel.onlineAll.collectAsStateWithLifecycle()
-
     val lastVersionItem = viewModel.lastVersionItem
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -197,9 +194,9 @@ fun NewViewScreen(
 
     val manager = module.manager(viewModel.platform)
     val requires = manager.require?.let {
-        repositoryList.filter { onlineModules ->
+        moduleAll.filter { onlineModules ->
             onlineModules.second.id in it
-        }.map { it.second }
+        }.map { it2 -> it2.second }
     } ?: emptyList()
 
     if (installConfirm) InstallConfirmDialog(
@@ -930,7 +927,7 @@ fun NewViewScreen(
                         requires.ifNotEmpty { requiredIds ->
                             CollapseItem(
                                 meta = { icon, rotation ->
-                                    Title(R.string.view_module_antifeatures)
+                                    Title(R.string.view_module_dependencies)
                                     Icon(
                                         slot = ListItemSlot.End,
                                         modifier = Modifier
