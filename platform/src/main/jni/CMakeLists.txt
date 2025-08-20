@@ -7,7 +7,9 @@ set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
 set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELEASE})
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
 
-add_link_options("-Wl,--build-id=none,-z,max-page-size=16384")
+# Define 16 KB page size
+set(MMRL_PAGE_SIZE 16384)
+add_link_options("-Wl,--build-id=none,-z,max-page-size=${MMRL_PAGE_SIZE}")
 
 include_directories(include)
 
@@ -18,6 +20,7 @@ add_library(mmrl-file-manager SHARED
         include/logging.hpp
 )
 target_link_libraries(mmrl-file-manager ${log-lib})
+target_link_options(mmrl-file-manager PRIVATE "-Wl,-z,max-page-size=${MMRL_PAGE_SIZE}")
 
 add_library(mmrl-kernelsu SHARED
         kernelsu/ksu.cpp
@@ -28,3 +31,4 @@ add_library(mmrl-kernelsu SHARED
         include/logging.hpp
 )
 target_link_libraries(mmrl-kernelsu ${log-lib})
+target_link_options(mmrl-kernelsu PRIVATE "-Wl,-z,max-page-size=${MMRL_PAGE_SIZE}")
