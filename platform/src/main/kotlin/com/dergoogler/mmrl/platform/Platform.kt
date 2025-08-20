@@ -1,9 +1,10 @@
+@file:Suppress("unused")
+
 package com.dergoogler.mmrl.platform
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.BadParcelableException
 import android.os.Build
 import android.util.Log
 
@@ -24,6 +25,7 @@ enum class Platform(val id: String) {
     MKSU("mksu"),
     SukiSU("sukisu"),
     RKSU("rksu"),
+    Shizuku("shizuku"),
     NonRoot("nonroot"),
     Unknown("unknown");
 
@@ -80,11 +82,16 @@ enum class Platform(val id: String) {
     val isMKSU get() = this == MKSU
     val isSukiSU get() = this == SukiSU
     val isRKSU get() = this == RKSU
+    val isShizuku get() = this == Shizuku
 
     val isNotMagisk get() = !isMagisk
     val isNotKernelSU get() = this != KernelSU && this != KsuNext
     val isNotKernelSuNext get() = !isKernelSuNext
     val isNotAPatch get() = !isAPatch
+    val isNotMKSU get() = !isMKSU
+    val isNotSukiSU get() = !isSukiSU
+    val isNotRKSU get() = !isRKSU
+    val isNotShizuku get() = !isShizuku
 
     val isNotNonRoot get() = this != NonRoot
     val isNonRoot get() = this == NonRoot
