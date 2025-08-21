@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.database.entity.Repo.Companion.toRepo
 import com.dergoogler.mmrl.datastore.UserPreferencesRepository
 import com.dergoogler.mmrl.datastore.model.Option
@@ -17,6 +18,7 @@ import com.dergoogler.mmrl.repository.LocalRepository
 import com.dergoogler.mmrl.repository.ModulesRepository
 import com.dergoogler.mmrl.ext.panicString
 import com.dergoogler.mmrl.model.json.UpdateJson
+import com.dergoogler.mmrl.model.state.RepoState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -46,6 +48,9 @@ class RepositoryViewModel @AssistedInject constructor(
     private val keyFlow = MutableStateFlow("")
     val query get() = keyFlow.asStateFlow()
 
+    private val repoFlow = MutableStateFlow<Repo?>(null)
+    val repo get() = repoFlow.asStateFlow()
+
     private val cacheFlow = MutableStateFlow(listOf<Pair<OnlineState, OnlineModule>>())
     private val onlineFlow = MutableStateFlow(listOf<Pair<OnlineState, OnlineModule>>())
     val online get() = onlineFlow.asStateFlow()
@@ -67,6 +72,10 @@ class RepositoryViewModel @AssistedInject constructor(
         } else {
             localRepository.getOnlineAllAsFlow()
         }
+
+        combine(localRepository.getRepoByUrlAsFlow(repoUrl)) {
+            repoFlow.value = it.firstOrNull()
+        }.launchIn(viewModelScope)
 
         combine(
             onlineModules,

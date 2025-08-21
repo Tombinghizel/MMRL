@@ -30,7 +30,6 @@ import com.dergoogler.mmrl.ext.iconSize
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.ui.providable.LocalModuleState
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 
 @Composable
@@ -118,10 +117,11 @@ fun ModuleItemCompactV2(
             Text(
                 text = module.author,
                 style = MaterialTheme.typography.bodyMedium.copy(),
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
+                maxLines = 1,
                 text = module.versionDisplay,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline

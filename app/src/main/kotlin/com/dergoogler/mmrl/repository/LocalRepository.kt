@@ -105,6 +105,8 @@ class LocalRepository @Inject constructor(
         repoDao.getByUrl(url)
     }
 
+    fun getRepoByUrlAsFlow(url: String) = repoDao.getByUrlAsFlow(url)
+
     suspend fun insertRepo(value: Repo) = withContext(Dispatchers.IO) {
         repoDao.insert(value)
     }
