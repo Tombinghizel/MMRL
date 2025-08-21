@@ -55,8 +55,6 @@ fun ScaffoldScope.ModulesList(
     val arguments = LocalPanicArguments.current
 
 
-    // Create a shuffled list with a maximum of 3 pages (9 items)
-    val randomModules = remember(list) { list.shuffled().take(9) }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -74,57 +72,10 @@ fun ScaffoldScope.ModulesList(
                 }
 
                 item {
-                    val pagerState =
-                        rememberPagerState(pageCount = { (randomModules.size + 2) / 3 })
-
-                    List {
-                        ButtonItem(
-                            onClick = {}
-                        ) {
-                            Title("Modules")
-                            Icon(
-                                slot = ListItemSlot.End,
-                                painter = painterResource(R.drawable.arrow_right)
-                            )
-                        }
-
-                        Spacer(Modifier.height(8.dp))
-
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateContentSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp)
-                        ) { page ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 6.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                for (i in 0 until 3) {
-                                    val itemIndex = page * 3 + i
-                                    if (itemIndex < randomModules.size) {
-                                        val item = randomModules[itemIndex]
-
-                                        CompositionLocalProvider(
-                                            LocalModule provides item.second,
-                                            LocalModuleState provides item.first
-                                        ) {
-                                            ModuleItemCompactV2(
-                                                modifier = Modifier.height(96.dp),
-                                                showLastUpdated = false,
-                                                onClick = {
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    TopPicks(
+                        label = "Modules",
+                        list = list
+                    )
                 }
 
                 after?.let {

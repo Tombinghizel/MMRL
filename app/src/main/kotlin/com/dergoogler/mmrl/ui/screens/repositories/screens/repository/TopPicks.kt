@@ -1,0 +1,88 @@
+package com.dergoogler.mmrl.ui.screens.repositories.screens.repository
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.model.online.OnlineModule
+import com.dergoogler.mmrl.model.state.OnlineState
+import com.dergoogler.mmrl.ui.component.listItem.dsl.List
+import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
+import com.dergoogler.mmrl.ui.providable.LocalModule
+import com.dergoogler.mmrl.ui.providable.LocalModuleState
+
+@Composable
+fun TopPicks(
+    label: String,
+    list: List<Pair<OnlineState, OnlineModule>>,
+) {
+    val randomModules = remember(list) { list.shuffled().take(9) }
+    val pagerState =
+        rememberPagerState(pageCount = { (randomModules.size + 2) / 3 })
+
+    List {
+        ButtonItem(
+            onClick = {}
+        ) {
+            Title(label)
+            Icon(
+                slot = ListItemSlot.End,
+                painter = painterResource(R.drawable.arrow_right)
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) { page ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                for (i in 0 until 3) {
+                    val itemIndex = page * 3 + i
+                    if (itemIndex < randomModules.size) {
+                        val item = randomModules[itemIndex]
+
+                        CompositionLocalProvider(
+                            LocalModule provides item.second,
+                            LocalModuleState provides item.first
+                        ) {
+                            ModuleItemCompactV2(
+                                modifier = Modifier.height(96.dp),
+                                onClick = {
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
