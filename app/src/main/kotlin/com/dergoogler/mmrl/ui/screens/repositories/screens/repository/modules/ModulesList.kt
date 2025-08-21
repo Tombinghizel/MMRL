@@ -1,15 +1,10 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.repository
+package com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -41,6 +36,9 @@ import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalModuleState
 import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
+import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompactV2
+import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemDetailed
 
 @Composable
 fun ScaffoldScope.ModulesList(
@@ -54,10 +52,6 @@ fun ScaffoldScope.ModulesList(
     val menu = userPreferences.repositoryMenu
     val arguments = LocalPanicArguments.current
 
-
-    // Create a shuffled list with a maximum of 3 pages (9 items)
-    val randomModules = remember(list) { list.shuffled().take(9) }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -65,6 +59,7 @@ fun ScaffoldScope.ModulesList(
             LazyColumn(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(if (menu.repoListMode == RepoListMode.Compact) 0.dp else 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 before?.let {
@@ -73,56 +68,32 @@ fun ScaffoldScope.ModulesList(
                     }
                 }
 
-                item {
-                    val pagerState =
-                        rememberPagerState(pageCount = { (randomModules.size + 2) / 3 })
-
-                    List {
-                        ButtonItem(
-                            onClick = {}
-                        ) {
-                            Title("Modules")
-                            Icon(
-                                slot = ListItemSlot.End,
-                                painter = painterResource(R.drawable.arrow_right)
+                items(
+                    items = list,
+                    key = { it.second.id }
+                ) { (moduleState, module) ->
+                    CompositionLocalProvider(
+                        LocalModuleState provides moduleState,
+                        LocalModule provides module
+                    ) {
+                        val click = {
+                            navController.navigateSingleTopTo(
+                                route = RepositoriesScreen.View.route,
+                                args = mapOf(
+                                    "moduleId" to module.id,
+                                    "repoUrl" to arguments.panicString("repoUrl")
+                                )
                             )
                         }
 
-                        Spacer(Modifier.height(8.dp))
+                        when (menu.repoListMode) {
+                            RepoListMode.Compact -> ModuleItemCompact(
+                                onClick = click
+                            )
 
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateContentSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp)
-                        ) { page ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 6.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                for (i in 0 until 3) {
-                                    val itemIndex = page * 3 + i
-                                    if (itemIndex < randomModules.size) {
-                                        val item = randomModules[itemIndex]
-
-                                        CompositionLocalProvider(
-                                            LocalModule provides item.second,
-                                            LocalModuleState provides item.first
-                                        ) {
-                                            ModuleItemCompactV2(
-                                                modifier = Modifier.height(96.dp),
-                                                showLastUpdated = false,
-                                                onClick = {
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                            RepoListMode.Detailed -> ModuleItemDetailed(
+                                onClick = click
+                            )
                         }
                     }
                 }
