@@ -279,6 +279,9 @@ dependencies {
     implementation(libs.square.logging.interceptor)
     implementation(libs.square.moshi)
     ksp(libs.square.moshi.kotlin)
+
+    implementation(libs.composedestinations.core)
+    ksp(libs.composedestinations.ksp)
 }
 
 tasks.register("version") {
