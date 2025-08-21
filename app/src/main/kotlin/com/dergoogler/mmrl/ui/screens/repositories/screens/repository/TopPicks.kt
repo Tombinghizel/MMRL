@@ -19,21 +19,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.model.online.OnlineModule
-import com.dergoogler.mmrl.model.state.OnlineState
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.ui.providable.LocalModuleState
 
 @Composable
 fun TopPicks(
     label: String,
-    list: List<Pair<OnlineState, OnlineModule>>,
+    list: List<OnlineModule>,
 ) {
-    val randomModules = remember(list) { list.shuffled().take(9) }
+    val randomModules = remember(list) {
+        list.shuffled()
+            .sortedBy { if (it == OnlineModule.example()) 1 else 0 }
+    }
+
     val pagerState =
         rememberPagerState(pageCount = { (randomModules.size + 2) / 3 })
 
@@ -62,7 +64,7 @@ fun TopPicks(
                     .fillMaxWidth()
                     .padding(horizontal = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 for (i in 0 until 3) {
                     val itemIndex = page * 3 + i
@@ -70,13 +72,16 @@ fun TopPicks(
                         val item = randomModules[itemIndex]
 
                         CompositionLocalProvider(
-                            LocalModule provides item.second,
-                            LocalModuleState provides item.first
+                            LocalModule provides item,
                         ) {
+                            if (item.id == "##==online_example==##") {
+                                Spacer(Modifier.height(96.dp))
+                                return@CompositionLocalProvider
+                            }
+
                             ModuleItemCompactV2(
                                 modifier = Modifier.height(96.dp),
-                                onClick = {
-                                }
+                                onClick = {}
                             )
                         }
                     }
@@ -84,5 +89,4 @@ fun TopPicks(
             }
         }
     }
-
 }

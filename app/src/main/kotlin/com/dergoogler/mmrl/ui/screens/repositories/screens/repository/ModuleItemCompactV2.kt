@@ -51,8 +51,6 @@ fun ModuleItemCompactV2(
     shape = RoundedCornerShape(20.dp)
 ) {
     val module = LocalModule.current
-    val state = LocalModuleState.current
-
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
     val isVerified = module.isVerified && menu.showVerified
