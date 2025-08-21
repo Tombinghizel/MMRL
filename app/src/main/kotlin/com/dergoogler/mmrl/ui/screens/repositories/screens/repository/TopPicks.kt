@@ -79,9 +79,8 @@ fun TopPicks(
                                 return@CompositionLocalProvider
                             }
 
-                            ModuleItemCompactV2(
+                            TopPickModule(
                                 modifier = Modifier.height(96.dp),
-                                onClick = {}
                             )
                         }
                     }
