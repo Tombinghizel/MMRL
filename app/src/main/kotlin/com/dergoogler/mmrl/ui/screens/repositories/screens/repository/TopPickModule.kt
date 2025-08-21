@@ -1,5 +1,6 @@
 package com.dergoogler.mmrl.ui.screens.repositories.screens.repository
 
+import android.R.attr.contentDescription
 import android.R.attr.onClick
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +35,7 @@ import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ext.panicString
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.card.Card
+import com.dergoogler.mmrl.ui.component.card.card
 import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalNavController
@@ -79,24 +83,27 @@ fun TopPickModule(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (menu.showIcon) {
-                if (module.icon != null) {
-                    AsyncImage(
-                        model = module.icon,
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(RoundedCornerShape(20.dp)),
-                        contentDescription = null,
-                    )
-                } else {
-                    Logo(
-                        icon = R.drawable.box,
-                        modifier = Modifier
-                            .size(64.dp),
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(20)
-                    )
-                }
+                Logo(
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.size(64.dp),
+                    shape = RoundedCornerShape(20),
+                    icon = {
+                        if (module.icon != null) {
+                            AsyncImage(
+                                model = module.icon,
+                                contentScale = ContentScale.Crop,
+                                contentDescription = null,
+                            )
+                        } else {
+                            Icon(
+                                modifier = it,
+                                painter = painterResource(id = R.drawable.box),
+                                contentDescription = null,
+                            )
+                        }
+                    }
+                )
 
                 Spacer(modifier = Modifier.width(10.dp))
             }
