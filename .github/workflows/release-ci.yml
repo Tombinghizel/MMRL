@@ -58,7 +58,7 @@ jobs:
     name: Release to Play Store
     runs-on: ubuntu-latest
     if: github.event.inputs.send_playstore == 'true'
-    needs: build-release
+    needs: build-official-release
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
