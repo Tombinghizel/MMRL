@@ -4,45 +4,54 @@ on:
   workflow_dispatch:
     inputs:
       send_telegram:
-        description: 'Release to Telegram'
+        description: "Release to Telegram"
         required: true
         default: false
         type: boolean
       send_playstore:
-        description: 'Release on Play Store'
+        description: "Release on Play Store"
         required: true
         default: false
         type: boolean
       send_github:
-        description: 'Release on GitHub'
+        description: "Release on GitHub"
         required: true
         default: false
         type: boolean
 
 jobs:
-  build-release:
-    name: Build Release
+  build-official-release:
+    name: Build Official Release
     uses: ./.github/workflows/build.yml
     with:
-      buildType: 'Release'
+      buildType: "OfficialRelease"
+    secrets: inherit
+  
+  build-spoofed-release:
+    name: Build Spoofed Release
+    uses: ./.github/workflows/build.yml
+    with:
+      buildType: "SpoofedRelease"
     secrets: inherit
 
   release-github:
     if: github.event.inputs.send_github == 'true'
-    name: Release to GitHub    
-    needs: [build-release]
+    name: Release to GitHub
+    needs: [build-official-release, build-spoofed-release]
     uses: ./.github/workflows/github.yml
     with:
-      releaseAssetName: ${{ needs.build-release.outputs.release-name }}
+      officialAssetName: ${{ needs.build-official-release.outputs.name }}
+      spoofedAssetName: ${{ needs.build-spoofed-release.outputs.name }}
     secrets: inherit
 
   release-telegram:
     if: github.event.inputs.send_telegram == 'true'
-    name: Release to Telegram    
-    needs: [build-release]
+    name: Release to Telegram
+    needs: [build-official-release, build-spoofed-release]
     uses: ./.github/workflows/telegram.yml
     with:
-      releaseAssetName: ${{ needs.build-release.outputs.release-name }}
+      officialAssetName: ${{ needs.build-official-release.outputs.name }}
+      spoofedAssetName: ${{ needs.build-spoofed-release.outputs.name }}
     secrets: inherit
 
   playstore:
@@ -54,33 +63,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
         with:
-            fetch-depth: 0
-    
+          fetch-depth: 0
+
       - name: Set up signing key
         run: |
-            if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-                echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-                echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
-                echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
-                echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
-                echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
-            fi
+          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+              echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
+              echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
+              echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
+              echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
+              echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+          fi
 
       - name: Set up JDK
         uses: actions/setup-java@v4.7.1
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 21
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4.3.1
         with:
-            validate-wrappers: true
-            cache-cleanup: always
+          validate-wrappers: true
+          cache-cleanup: always
 
       - name: Bundle with Gradle
-        run: chmod 755 ./gradlew && ./gradlew bundlePlaystore
-      
+        run: chmod 755 ./gradlew && ./gradlew bundleOfficialPlaystore
+
       - name: Find AAB
         id: find_aab
         run: |

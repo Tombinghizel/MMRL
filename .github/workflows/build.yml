@@ -13,7 +13,8 @@ jobs:
     name: Build APK
     runs-on: ubuntu-latest
     outputs:
-      release-name: ${{ steps.release-name.outputs.name }}
+      name: ${{ steps.apk.outputs.name }}
+      mapping: ${{inputs.buildType }}-mapping
     steps:
       - name: Parse input
         run: |
@@ -50,33 +51,24 @@ jobs:
       - name: Build APK
         run: chmod 755 gradlew && ./gradlew assemble${{ inputs.buildType }}
 
-      - name: Get release name
-        id: release-name
+      - name: Get APK Output
+        id: apk
         run: |
             name=`ls app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
-
-      - name: Find APK
-        id: find_apk
-        run: |
-          APK_PATH=$(find app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }} -name "*.apk" | head -n 1)
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_OUTPUT
-
-      - name: Find mapping file
-        if: inputs.buildType != 'Debug'
-        id: normal_mapping
-        run: |
-          MAPPING_PATH=$(find app/build/outputs/mapping/${{ env.BUILD_TYPE_CASED }} -name "mapping.txt" | head -n 1)
-          echo "MAPPING_PATH=$MAPPING_PATH" >> $GITHUB_OUTPUT
+            apk_path=$(find app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }} -name "*.apk" | head -n 1)
+            mapping_path=$(find app/build/outputs/mapping/${{ env.BUILD_TYPE_CASED }} -name "mapping.txt" | head -n 1)
+            echo "path=$apk_path" >> $GITHUB_OUTPUT
+            echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
       - name: Upload mapping as artifact
         if: inputs.buildType != 'Debug'
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: mapping
-          path: ${{ steps.normal_mapping.outputs.MAPPING_PATH }}
+          name: ${{inputs.buildType }}-mapping
+          path: ${{ steps.apk.outputs.mapping }}
 
       - name: Upload apk as artifact
         uses: actions/upload-artifact@v4.6.2
         with:
-            name: ${{ steps.release-name.outputs.name }}
-            path: ${{ steps.find_apk.outputs.APK_PATH }}
+            name: ${{ steps.apk.outputs.name }}
+            path: ${{ steps.apk.outputs.path }}

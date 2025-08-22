@@ -3,7 +3,10 @@ name: Release to GitHub
 on:
   workflow_call:
     inputs:
-      releaseAssetName:
+      officialAssetName:
+        type: string
+        required: true
+      spoofedAssetName:
         type: string
         required: true
 
@@ -15,31 +18,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
         with:
-            fetch-depth: 0
+          fetch-depth: 0
 
-      - name: Download Release APK
+      - name: Download Official Release APK
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.event.inputs.releaseAssetName }}
-          path: release-apk
+          name: ${{ github.event.inputs.officialAssetName }}
+          path: official-apk
 
-      - name: Download Mappings
+      - name: Download Spoofed Release APK
         uses: actions/download-artifact@v4
         with:
-          name: mapping
-          path: mapping
+          name: ${{ github.event.inputs.spoofedAssetName }}
+          path: spoofed-apk
 
-      - name: Find Release APK
-        id: find_release_apk
+      - name: Find APKs
+        id: find_apks
         run: |
-          APK_PATH=$(find release-apk -name "*.apk" | head -n 1)
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_OUTPUT
-
-      - name: Find mapping file
-        id: find_mapping
-        run: |
-          MAPPING_PATH=$(find mapping -name "mapping.txt" | head -n 1)
-          echo "MAPPING_PATH=$MAPPING_PATH" >> $GITHUB_OUTPUT
+          OFFICIAL_APK_PATH=$(find official-apk -name "*.apk" | head -n 1)
+          SPOOFED_APK_PATH=$(find spoofed-apk -name "*.apk" | head -n 1)
+          echo "OFFICIAL_APK_PATH=$OFFICIAL_APK_PATH" >> $GITHUB_OUTPUT
+          echo "SPOOFED_APK_PATH=$SPOOFED_APK_PATH" >> $GITHUB_OUTPUT
 
       - name: Get commit info and build timestamp
         id: meta
@@ -50,7 +49,7 @@ jobs:
           VERSION=$((31320 + COMMIT_COUNT))
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
-          
+
           echo "MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -65,7 +64,7 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+
       - name: Create GitHub Release
         if: steps.check_release.outputs.exists == 'false'
         id: create_release
@@ -75,31 +74,31 @@ jobs:
           release_name: v${{ env.VERSION }}
           body: |
             ## What's new?
-            
+
             ${{ env.MESSAGE }}
-            
+
             [Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-      - name: Upload Release APK to GitHub
+
+      - name: Upload Official Release APK to GitHub
         if: steps.check_release.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_release_apk.outputs.APK_PATH }}
-          asset_name: release.apk
+          asset_path: ${{ steps.find_apks.outputs.OFFICIAL_APK_PATH }}
+          asset_name: ${{ github.event.inputs.officialAssetName }}
           asset_content_type: application/vnd.android.package-archive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-      - name: Upload mapping to GitHub
+
+      - name: Upload Spoofed Release APK to GitHub
         if: steps.check_release.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_mapping.outputs.MAPPING_PATH }}
-          asset_name: mapping.txt
-          asset_content_type: text/plain
+          asset_path: ${{ steps.find_apks.outputs.SPOOFED_APK_PATH }}
+          asset_name: ${{ github.event.inputs.spoofedAssetName }}
+          asset_content_type: application/vnd.android.package-archive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
