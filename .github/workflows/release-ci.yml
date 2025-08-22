@@ -62,8 +62,8 @@ jobs:
           # also export to outputs
           source official.release.txt
           source spoofed.release.txt
-          echo "OFFICIAL_NAME=$OFFICIAL_NAME" >> $GITHUB_OUTPUT
-          echo "SPOOFED_NAME=$SPOOFED_NAME" >> $GITHUB_OUTPUT
+          echo "OFFICIAL_NAME=\"$OFFICIAL_NAME\"" >> $GITHUB_OUTPUT
+          echo "SPOOFED_NAME=\"$SPOOFED_NAME\"" >> $GITHUB_OUTPUT
 
   # Release to GitHub
   release-github:
