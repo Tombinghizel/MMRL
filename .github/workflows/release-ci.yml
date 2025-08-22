@@ -45,13 +45,13 @@ jobs:
       - name: Download Official APK Env
         uses: actions/download-artifact@v4
         with:
-          name: official.release.txt
+          name: official.release
           path: .
 
       - name: Download Spoofed APK Env
         uses: actions/download-artifact@v4
         with:
-          name: spoofed.release.txt
+          name: spoofed.release
           path: .
 
       - name: Export to env

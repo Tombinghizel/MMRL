@@ -88,5 +88,5 @@ jobs:
       - name: Upload env info
         uses: actions/upload-artifact@v4
         with:
-          name: apk-env
-          path: apk-env.txt
+          name: ${{ inputs.flavor }}.${{ inputs.buildType }}
+          path: ${{ inputs.flavor }}.${{ inputs.buildType }}.txt
