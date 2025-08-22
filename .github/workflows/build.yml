@@ -16,10 +16,6 @@ jobs:
   build:
     name: Build ${{ inputs.flavor }}-${{ inputs.buildType }}
     runs-on: ubuntu-latest
-    outputs:
-      name: ${{ steps.apk.outputs.name }}
-      path: ${{ steps.apk.outputs.path }}
-      mapping: ${{ steps.apk.outputs.mapping }}
 
     steps:
       - name: Set environment variables
@@ -73,6 +69,15 @@ jobs:
           echo "path=$apk_path" >> $GITHUB_OUTPUT
           echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
+          # Save env info for later jobs
+          if [ "${{ inputs.flavor }}" = "official" ]; then
+            echo "OFFICIAL_NAME=$name" >> apk-env.txt
+            echo "OFFICIAL_PATH=$apk_path" >> apk-env.txt
+          elif [ "${{ inputs.flavor }}" = "spoofed" ]; then
+            echo "SPOOFED_NAME=$name" >> apk-env.txt
+            echo "SPOOFED_PATH=$apk_path" >> apk-env.txt
+          fi
+
       - name: Upload mapping as artifact
         if: steps.apk.outputs.mapping != ''
         uses: actions/upload-artifact@v4
@@ -85,3 +90,9 @@ jobs:
         with:
           name: ${{ steps.apk.outputs.name }}
           path: ${{ steps.apk.outputs.path }}
+
+      - name: Upload env info
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-env
+          path: apk-env.txt
