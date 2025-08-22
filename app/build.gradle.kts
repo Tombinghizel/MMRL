@@ -62,6 +62,24 @@ android {
         signingConfigs.getByName("debug")
     }
 
+    flavorDimensions += "distribution"
+
+    productFlavors {
+        create("official") {
+            dimension = "distribution"
+            applicationId = mmrlBaseApplicationId
+            resValue("string", "app_name", baseAppName)
+            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "false")
+        }
+
+        create("spoofed") {
+            dimension = "distribution"
+            applicationId = generateRandomPackageName()
+            resValue("string", "app_name", generateRandomName())
+            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "true")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -73,7 +91,6 @@ android {
             resValue("string", "app_name", baseAppName)
             buildConfigField("Boolean", "IS_DEV_VERSION", "false")
             buildConfigField("Boolean", "IS_GOOGLE_PLAY_BUILD", "false")
-            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "false")
             isDebuggable = false
             isJniDebuggable = false
             versionNameSuffix = "-release"
@@ -90,40 +107,10 @@ android {
             versionNameSuffix = "-playstore"
         }
 
-        create("releaseCandidate") {
-            initWith(buildTypes.getByName("release"))
-            matchingFallbacks += listOf("debug", "release")
-            versionNameSuffix = "-rc"
-        }
-
-        create("beta") {
-            initWith(buildTypes.getByName("release"))
-            matchingFallbacks += listOf("debug", "release")
-            versionNameSuffix = "-beta"
-        }
-
-        create("spoofed") {
-            initWith(buildTypes.getByName("release"))
-            resValue("string", "app_name", generateRandomName())
-            matchingFallbacks += listOf("debug", "release")
-            versionNameSuffix = "-spoofed"
-
-            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "true")
-
-            defaultConfig.applicationId = generateRandomPackageName()
-        }
-
-        create("alpha") {
-            initWith(buildTypes.getByName("release"))
-            matchingFallbacks += listOf("debug", "release")
-            versionNameSuffix = "-alpha"
-        }
-
         debug {
             resValue("string", "app_name", "$baseAppName Debug")
             buildConfigField("Boolean", "IS_DEV_VERSION", "true")
             buildConfigField("Boolean", "IS_GOOGLE_PLAY_BUILD", "false")
-            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "true")
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             isJniDebuggable = true
@@ -135,18 +122,6 @@ android {
             manifestPlaceholders["webuiPermissionId"] = "$mmrlBaseApplicationId.debug"
         }
 
-        create("debugMin") {
-            initWith(buildTypes.getByName("debug"))
-            versionNameSuffix = "-debugMin"
-            isMinifyEnabled = true
-            isShrinkResources = true
-            matchingFallbacks += listOf("debug", "release")
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-
         all {
             signingConfig = releaseSigning
 
@@ -155,8 +130,7 @@ android {
             buildConfigField("String", "MIN_SDK", "\"$MIN_SDK\"")
             buildConfigField("String", "LATEST_COMMIT_ID", "\"${commitId}\"")
 
-            manifestPlaceholders["__packageName__"] = mmrlBaseApplicationId
-        }
+            manifestPlaceholders["__packageName__"] = mmrlBaseApplicationId}
     }
 
     buildFeatures {

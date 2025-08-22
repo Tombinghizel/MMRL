@@ -94,7 +94,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/install_activity"
-            android:taskAffinity="${__packageName__}.INSTALL">
+            android:taskAffinity="${applicationId}.INSTALL">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -122,7 +122,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/action_activity"
-            android:taskAffinity="${__packageName__}.ACTION">
+            android:taskAffinity="${applicationId}.ACTION">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -175,7 +175,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${__packageName__}.provider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

@@ -71,9 +71,6 @@ fun OtherScreen() {
                 value = userPreferences.webuixPackageName,
                 onConfirm = viewModel::setWebuixPackageName
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.sandbox)
-                )
                 Title("WebUI X Portable Package")
                 Description("Set a custom spoofed WebUI X Portable Package name.")
             }
