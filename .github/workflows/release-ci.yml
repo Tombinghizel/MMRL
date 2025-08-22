@@ -24,14 +24,16 @@ jobs:
     name: Build Official Release
     uses: ./.github/workflows/build.yml
     with:
-      buildType: "OfficialRelease"
+      flavor: "official"
+      buildType: "release"
     secrets: inherit
   
   build-spoofed-release:
     name: Build Spoofed Release
     uses: ./.github/workflows/build.yml
     with:
-      buildType: "SpoofedRelease"
+      flavor: "spoofed"
+      buildType: "release"
     secrets: inherit
 
   release-github:

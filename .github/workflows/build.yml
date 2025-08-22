@@ -3,6 +3,10 @@ name: Build APK
 on:
   workflow_call:
     inputs:
+      flavor:
+        description: "Flavor"
+        type: string
+        required: true
       buildType:
         description: "Build Type"
         type: string
@@ -17,10 +21,16 @@ jobs:
       mapping: ${{ steps.apk.outputs.mapping }}
       path: ${{ steps.apk.outputs.path }}
     steps:
-      - name: Parse input
+      - name: Setting Environment Variables
         run: |
-          BUILD_TYPE_CASED=$(echo "${{ inputs.buildType }}" | sed 's/^\(.\)/\L\1/')
-          echo "BUILD_TYPE_CASED=$BUILD_TYPE_CASED" >> $GITHUB_ENV
+          FLAVOR="${{ inputs.flavor }}"
+          echo "FLAVOR_CAPITALIZED=${FLAVOR^}" >> $GITHUB_ENV
+          echo "FLAVOR_LOWERCASE=${FLAVOR,,}" >> $GITHUB_ENV
+          BUILD_TYPE="${{ inputs.buildType }}"
+          echo "BUILD_TYPE_CAPITALIZED=${BUILD_TYPE^}" >> $GITHUB_ENV
+          echo "BUILD_TYPE_LOWERCASE=${BUILD_TYPE,,}" >> $GITHUB_ENV
+          BUILD_COMMAND="${FLAVOR_CAPITALIZED}${BUILD_TYPE_CAPITALIZED}"
+          echo "BUILD_COMMAND=${BUILD_COMMAND}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -50,14 +60,14 @@ jobs:
           cache-cleanup: always
 
       - name: Build APK
-        run: chmod 755 gradlew && ./gradlew assemble${{ inputs.buildType }}
+        run: chmod 755 gradlew && ./gradlew assemble${{ env.BUILD_COMMAND }}
 
       - name: Get APK Output
         id: apk
         run: |
-          name=`ls app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
-          apk_path=$(find app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }} -name "*.apk" | head -n 1)
-          mapping_path=$(find app/build/outputs/mapping/${{ env.BUILD_TYPE_CASED }} -name "mapping.txt" | head -n 1)
+          name=`ls app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
+          apk_path=$(find app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }} -name "*.apk" | head -n 1)
+          mapping_path=$(find app/build/outputs/mapping/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_CAPITALIZED }} -name "mapping.txt" | head -n 1)
           echo "path=$apk_path" >> $GITHUB_OUTPUT
           echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
