@@ -42,18 +42,26 @@ jobs:
       official_name: ${{ steps.export.outputs.OFFICIAL_NAME }}
       spoofed_name: ${{ steps.export.outputs.SPOOFED_NAME }}
     steps:
-      - name: Download env info
+      - name: Download Official APK Env
         uses: actions/download-artifact@v4
         with:
-          name: apk-env
+          name: official.release.txt
+          path: .
+
+      - name: Download Spoofed APK Env
+        uses: actions/download-artifact@v4
+        with:
+          name: spoofed.release.txt
           path: .
 
       - name: Export to env
         id: export
         run: |
-          cat apk-env.txt >> $GITHUB_ENV
+          cat official.release.txt >> $GITHUB_ENV
+          cat spoofed.release.txt >> $GITHUB_ENV
           # also export to outputs
-          source apk-env.txt
+          source official.release.txt
+          source spoofed.release.txt
           echo "OFFICIAL_NAME=$OFFICIAL_NAME" >> $GITHUB_OUTPUT
           echo "SPOOFED_NAME=$SPOOFED_NAME" >> $GITHUB_OUTPUT
 
@@ -64,8 +72,8 @@ jobs:
     needs: load-apk-env
     uses: ./.github/workflows/github.yml
     with:
-      officialAssetName: ${{ needs.load-apk-env.outputs.official_name }}
-      spoofedAssetName: ${{ needs.load-apk-env.outputs.spoofed_name }}
+      officialAssetName: ${{ needs.load-apk-env.outputs.OFFICIAL_NAME }}
+      spoofedAssetName: ${{ needs.load-apk-env.outputs.SPOOFED_NAME }}
     secrets: inherit
 
   # Release to Telegram
@@ -75,8 +83,8 @@ jobs:
     needs: load-apk-env
     uses: ./.github/workflows/telegram.yml
     with:
-      officialAssetName: ${{ needs.load-apk-env.outputs.official_name }}
-      spoofedAssetName: ${{ needs.load-apk-env.outputs.spoofed_name }}
+      officialAssetName: ${{ needs.load-apk-env.outputs.OFFICIAL_NAME }}
+      spoofedAssetName: ${{ needs.load-apk-env.outputs.SPOOFED_NAME }}
     secrets: inherit
 
   # Release to Play Store

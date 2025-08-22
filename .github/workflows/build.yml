@@ -24,6 +24,7 @@ jobs:
           BUILD_TYPE="${{ inputs.buildType }}"
 
           echo "FLAVOR_CAPITALIZED=${FLAVOR^}" >> $GITHUB_ENV
+          echo "FLAVOR_CAPITALIZED_ALL=${FLAVOR^^}" >> $GITHUB_ENV
           echo "FLAVOR_LOWERCASE=${FLAVOR,,}" >> $GITHUB_ENV
           echo "BUILD_TYPE_CAPITALIZED=${BUILD_TYPE^}" >> $GITHUB_ENV
           echo "BUILD_TYPE_LOWERCASE=${BUILD_TYPE,,}" >> $GITHUB_ENV
@@ -69,14 +70,7 @@ jobs:
           echo "path=$apk_path" >> $GITHUB_OUTPUT
           echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
-          # Save env info for later jobs
-          if [ "${{ inputs.flavor }}" = "official" ]; then
-            echo "OFFICIAL_NAME=$name" >> apk-env.txt
-            echo "OFFICIAL_PATH=$apk_path" >> apk-env.txt
-          elif [ "${{ inputs.flavor }}" = "spoofed" ]; then
-            echo "SPOOFED_NAME=$name" >> apk-env.txt
-            echo "SPOOFED_PATH=$apk_path" >> apk-env.txt
-          fi
+          echo "${{ env.FLAVOR_CAPITALIZED_ALL }}_NAME=$name" >> ${{ inputs.flavor }}.${{ inputs.buildType }}.txt
 
       - name: Upload mapping as artifact
         if: steps.apk.outputs.mapping != ''
