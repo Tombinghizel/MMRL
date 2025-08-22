@@ -7,8 +7,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Environment
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
+import com.dergoogler.mmrl.datastore.BuildConfig
 import com.dergoogler.mmrl.ui.theme.Colors
 import com.dergoogler.mmrl.ui.theme.Colors.Companion.getColorScheme
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -71,6 +70,7 @@ data class UserPreferences(
     @ProtoNumber(37) val webuiEngine: WebUIEngine = WebUIEngine.PREFER_MODULE,
     @ProtoNumber(38) val showTerminalLineNumbers: Boolean = true,
     @ProtoNumber(39) val devAlwaysShowUpdateAlert: Boolean = false,
+    @ProtoNumber(40) val webuixPackageName: String = "com.dergoogler.mmrl.wx${if (BuildConfig.DEBUG) ".debug" else ""}",
 ) {
     fun isDarkMode() = when (darkMode) {
         DarkMode.AlwaysOff -> false

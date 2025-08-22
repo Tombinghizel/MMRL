@@ -72,7 +72,6 @@ import com.dergoogler.mmrl.ui.component.lite.row.LiteRowScope
 import com.dergoogler.mmrl.ui.component.lite.row.VerticalAlignment
 import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
 import com.dergoogler.mmrl.ui.providable.LocalStoredModule
-import com.dergoogler.mmrl.utils.WebUIXPackageName
 import com.dergoogler.mmrl.utils.launchWebUI
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
@@ -104,7 +103,7 @@ fun ModuleItem(
     }
 
     val isWebUIXNotInstalled = remember(context) {
-        !context.isPackageInstalled(WebUIXPackageName)
+        !context.isPackageInstalled(userPreferences.webuixPackageName)
     }
 
     val clicker: (() -> Unit)? = remember(canWenUIAccessed) {

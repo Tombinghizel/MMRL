@@ -57,8 +57,6 @@ fun createRootShell(
     return builder.build(*commands)
 }
 
-internal val WebUIXPackageName = "com.dergoogler.mmrl.wx${if (BuildConfig.DEBUG) ".debug" else ""}"
-
 fun UserPreferences.launchWebUI(context: Context, modId: ModId) {
     val config = modId.asModuleConfig
 

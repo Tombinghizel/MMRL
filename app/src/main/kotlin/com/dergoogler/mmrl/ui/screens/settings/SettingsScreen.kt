@@ -30,7 +30,6 @@ import com.dergoogler.mmrl.ui.navigation.graphs.SettingsScreen
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.utils.WebUIXPackageName
 import com.jakewharton.processphoenix.ProcessPhoenix
 
 @Composable
@@ -46,7 +45,7 @@ fun SettingsScreen() {
         title = R.string.page_settings
     ) {
         List {
-            context.isPackageInstalled(WebUIXPackageName).takeFalse {
+            context.isPackageInstalled(userPreferences.webuixPackageName).takeFalse {
                 ButtonItem(
                     onClick = {
                         browser.openUri(
