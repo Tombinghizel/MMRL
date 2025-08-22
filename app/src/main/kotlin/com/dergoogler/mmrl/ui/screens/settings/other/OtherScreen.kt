@@ -3,11 +3,15 @@ package com.dergoogler.mmrl.ui.screens.settings.other
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.service.ProviderService
 import com.dergoogler.mmrl.ui.component.SettingsScaffold
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.SwitchItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
@@ -60,6 +64,16 @@ fun OtherScreen() {
         ) {
             Title(R.string.settings_provider_service)
             Description(R.string.settings_provider_service_desc)
+        }
+
+        if (BuildConfig.IS_DEV_VERSION || BuildConfig.IS_SPOOFED_BUILD) {
+            TextEditDialogItem(
+                value = userPreferences.webuixPackageName,
+                onConfirm = viewModel::setWebuixPackageName
+            ) {
+                Title("WebUI X Portable Package")
+                Description("Set a custom spoofed WebUI X Portable Package name.")
+            }
         }
     }
 }

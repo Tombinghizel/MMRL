@@ -170,6 +170,14 @@ class UserPreferencesDataSource @Inject constructor(
         }
     }
 
+    suspend fun setWebuixPackageName(value: String) = withContext(Dispatchers.IO) {
+        userPreferences.updateData {
+            it.copy(
+                webuixPackageName = value
+            )
+        }
+    }
+
     suspend fun setDeveloperMode(value: Boolean) = withContext(Dispatchers.IO) {
         userPreferences.updateData {
             it.copy(

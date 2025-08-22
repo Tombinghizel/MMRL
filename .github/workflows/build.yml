@@ -3,6 +3,10 @@ name: Build APK
 on:
   workflow_call:
     inputs:
+      flavor:
+        description: "Flavor"
+        type: string
+        required: true
       buildType:
         description: "Build Type"
         type: string
@@ -10,73 +14,79 @@ on:
 
 jobs:
   build:
-    name: Build APK
+    name: Build ${{ inputs.flavor }}-${{ inputs.buildType }}
     runs-on: ubuntu-latest
-    outputs:
-      release-name: ${{ steps.release-name.outputs.name }}
+
     steps:
-      - name: Parse input
+      - name: Set environment variables
         run: |
-            BUILD_TYPE_CASED=$(echo "${{ inputs.buildType }}" | sed 's/^\(.\)/\L\1/')
-            echo "BUILD_TYPE_CASED=$BUILD_TYPE_CASED" >> $GITHUB_ENV
+          FLAVOR="${{ inputs.flavor }}"
+          BUILD_TYPE="${{ inputs.buildType }}"
+
+          echo "FLAVOR_CAPITALIZED=${FLAVOR^}" >> $GITHUB_ENV
+          echo "FLAVOR_CAPITALIZED_ALL=${FLAVOR^^}" >> $GITHUB_ENV
+          echo "FLAVOR_LOWERCASE=${FLAVOR,,}" >> $GITHUB_ENV
+          echo "BUILD_TYPE_CAPITALIZED=${BUILD_TYPE^}" >> $GITHUB_ENV
+          echo "BUILD_TYPE_LOWERCASE=${BUILD_TYPE,,}" >> $GITHUB_ENV
+          echo "BUILD_COMMAND=${FLAVOR^}${BUILD_TYPE^}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
-            fetch-depth: 0
-    
+          fetch-depth: 0
+
       - name: Set up signing key
         run: |
-            if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-                echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-                echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
-                echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
-                echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
-                echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
-            fi
+          if [ -n "${{ secrets.KEY_STORE }}" ]; then
+              echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
+              echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
+              echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
+              echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
+              echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+          fi
 
       - name: Set up JDK
-        uses: actions/setup-java@v4.7.1
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4.3.1
+        uses: gradle/actions/setup-gradle@v4
         with:
-            validate-wrappers: true
-            cache-cleanup: always
+          validate-wrappers: true
 
       - name: Build APK
-        run: chmod 755 gradlew && ./gradlew assemble${{ inputs.buildType }}
+        run: chmod +x ./gradlew && ./gradlew assemble${{ env.BUILD_COMMAND }}
 
-      - name: Get release name
-        id: release-name
+      - name: Get APK output
+        id: apk
         run: |
-            name=`ls app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
+          apk_path=$(find app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }} -name "*.apk" -print -quit)
+          mapping_path=$(find app/build/outputs/mapping/${{ env.FLAVOR_LOWERCASE }}${{ env.BUILD_TYPE_CAPITALIZED }} -name "mapping.txt" -print -quit)
+          name=$(basename "$apk_path" .apk)
 
-      - name: Find APK
-        id: find_apk
-        run: |
-          APK_PATH=$(find app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }} -name "*.apk" | head -n 1)
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "name=$name" >> $GITHUB_OUTPUT
+          echo "path=$apk_path" >> $GITHUB_OUTPUT
+          echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
-      - name: Find mapping file
-        if: inputs.buildType != 'Debug'
-        id: normal_mapping
-        run: |
-          MAPPING_PATH=$(find app/build/outputs/mapping/${{ env.BUILD_TYPE_CASED }} -name "mapping.txt" | head -n 1)
-          echo "MAPPING_PATH=$MAPPING_PATH" >> $GITHUB_OUTPUT
+          echo "${{ env.FLAVOR_CAPITALIZED_ALL }}_NAME=\"$name\"" >> ${{ inputs.flavor }}.${{ inputs.buildType }}.txt
 
       - name: Upload mapping as artifact
-        if: inputs.buildType != 'Debug'
-        uses: actions/upload-artifact@v4.6.2
+        if: steps.apk.outputs.mapping != ''
+        uses: actions/upload-artifact@v4
         with:
-          name: mapping
-          path: ${{ steps.normal_mapping.outputs.MAPPING_PATH }}
+          name: ${{ inputs.flavor }}-${{ inputs.buildType }}-mapping
+          path: ${{ steps.apk.outputs.mapping }}
 
-      - name: Upload apk as artifact
-        uses: actions/upload-artifact@v4.6.2
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
         with:
-            name: ${{ steps.release-name.outputs.name }}
-            path: ${{ steps.find_apk.outputs.APK_PATH }}
+          name: ${{ steps.apk.outputs.name }}
+          path: ${{ steps.apk.outputs.path }}
+
+      - name: Upload env info
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.flavor }}.${{ inputs.buildType }}
+          path: ${{ inputs.flavor }}.${{ inputs.buildType }}.txt

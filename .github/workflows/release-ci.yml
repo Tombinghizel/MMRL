@@ -4,91 +4,134 @@ on:
   workflow_dispatch:
     inputs:
       send_telegram:
-        description: 'Release to Telegram'
-        required: true
-        default: false
-        type: boolean
-      send_playstore:
-        description: 'Release on Play Store'
+        description: "Release to Telegram"
         required: true
         default: false
         type: boolean
       send_github:
-        description: 'Release on GitHub'
+        description: "Release on GitHub"
+        required: true
+        default: false
+        type: boolean
+      send_playstore:
+        description: "Release on Play Store"
         required: true
         default: false
         type: boolean
 
 jobs:
+  # Build step for both official & spoofed flavors
   build-release:
-    name: Build Release
+    name: Build Matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [official, spoofed]
     uses: ./.github/workflows/build.yml
     with:
-      buildType: 'Release'
+      flavor: ${{ matrix.flavor }}
+      buildType: "release"
     secrets: inherit
 
+  # Collect environment from artifacts
+  load-apk-env:
+    name: Load APK Env
+    runs-on: ubuntu-latest
+    needs: build-release
+    outputs:
+      official_name: ${{ steps.export.outputs.OFFICIAL_NAME }}
+      spoofed_name: ${{ steps.export.outputs.SPOOFED_NAME }}
+    steps:
+      - name: Download Official APK Env
+        uses: actions/download-artifact@v4
+        with:
+          name: official.release
+          path: .
+
+      - name: Download Spoofed APK Env
+        uses: actions/download-artifact@v4
+        with:
+          name: spoofed.release
+          path: .
+
+      - name: Export to env
+        id: export
+        run: |
+          cat official.release.txt >> $GITHUB_ENV
+          cat spoofed.release.txt >> $GITHUB_ENV
+          # also export to outputs
+          source official.release.txt
+          source spoofed.release.txt
+          echo "OFFICIAL_NAME=\"$OFFICIAL_NAME\"" >> $GITHUB_OUTPUT
+          echo "SPOOFED_NAME=\"$SPOOFED_NAME\"" >> $GITHUB_OUTPUT
+
+  # Release to GitHub
   release-github:
     if: github.event.inputs.send_github == 'true'
-    name: Release to GitHub    
-    needs: [build-release]
+    name: Release to GitHub
+    needs: load-apk-env
     uses: ./.github/workflows/github.yml
     with:
-      releaseAssetName: ${{ needs.build-release.outputs.release-name }}
+      officialAssetName: ${{ needs.load-apk-env.outputs.OFFICIAL_NAME }}
+      spoofedAssetName: ${{ needs.load-apk-env.outputs.SPOOFED_NAME }}
     secrets: inherit
 
+  # Release to Telegram
   release-telegram:
     if: github.event.inputs.send_telegram == 'true'
-    name: Release to Telegram    
-    needs: [build-release]
+    name: Release to Telegram
+    needs: load-apk-env
     uses: ./.github/workflows/telegram.yml
     with:
-      releaseAssetName: ${{ needs.build-release.outputs.release-name }}
+      officialAssetName: ${{ needs.load-apk-env.outputs.OFFICIAL_NAME }}
+      spoofedAssetName: ${{ needs.load-apk-env.outputs.SPOOFED_NAME }}
     secrets: inherit
 
-  playstore:
+  # Release to Play Store
+  release-playstore:
+    if: github.event.inputs.send_playstore == 'true'
     name: Release to Play Store
     runs-on: ubuntu-latest
-    if: github.event.inputs.send_playstore == 'true'
-    needs: build-release
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
-            fetch-depth: 0
-    
+          fetch-depth: 0
+
       - name: Set up signing key
         run: |
-            if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-                echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-                echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
-                echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
-                echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
-                echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
-            fi
+          if [ -n "${{ secrets.KEY_STORE }}" ]; then
+              echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
+              echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
+              echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
+              echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
+              echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+          fi
 
       - name: Set up JDK
-        uses: actions/setup-java@v4.7.1
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4.3.1
+        uses: gradle/actions/setup-gradle@v4
         with:
-            validate-wrappers: true
-            cache-cleanup: always
+          validate-wrappers: true
+          cache-cleanup: true
 
       - name: Bundle with Gradle
-        run: chmod 755 ./gradlew && ./gradlew bundlePlaystore
-      
+        run: chmod +x ./gradlew && ./gradlew bundleOfficialPlaystore
+
       - name: Find AAB
         id: find_aab
         run: |
-          AAB_PATH=$(find app/build/outputs/bundle/playstore -name "*.aab" | head -n 1)
+          AAB_PATH=$(find app/build/outputs/bundle/playstore -name "*.aab" -print -quit)
           echo "AAB_PATH=$AAB_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload to Google Play
-        uses: r0adkll/upload-google-play@v1.1.3
+        uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.dergoogler.mmrl

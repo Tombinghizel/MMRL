@@ -166,6 +166,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setWebuixPackageName(value: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setWebuixPackageName(value)
+        }
+    }
+
     fun setDeveloperMode(value: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setDeveloperMode(value)

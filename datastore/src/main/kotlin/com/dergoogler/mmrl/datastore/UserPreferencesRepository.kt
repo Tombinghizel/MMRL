@@ -65,6 +65,9 @@ class UserPreferencesRepository @Inject constructor(
     suspend fun setWebUiDevUrl(value: String) =
         userPreferencesDataSource.setWebUiDevUrl(value)
 
+    suspend fun setWebuixPackageName(value: String) =
+        userPreferencesDataSource.setWebuixPackageName(value)
+
     suspend fun setDeveloperMode(value: Boolean) =
         userPreferencesDataSource.setDeveloperMode(value)
 
