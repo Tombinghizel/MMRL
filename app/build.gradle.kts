@@ -123,6 +123,7 @@ android {
             resValue("string", "app_name", "$baseAppName Debug")
             buildConfigField("Boolean", "IS_DEV_VERSION", "true")
             buildConfigField("Boolean", "IS_GOOGLE_PLAY_BUILD", "false")
+            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "true")
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             isJniDebuggable = true
