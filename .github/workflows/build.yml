@@ -70,7 +70,7 @@ jobs:
           echo "path=$apk_path" >> $GITHUB_OUTPUT
           echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
-          echo "${{ env.FLAVOR_CAPITALIZED_ALL }}_NAME=$name" >> ${{ inputs.flavor }}.${{ inputs.buildType }}.txt
+          echo "${{ env.FLAVOR_CAPITALIZED_ALL }}_NAME=\"$name\"" >> ${{ inputs.flavor }}.${{ inputs.buildType }}.txt
 
       - name: Upload mapping as artifact
         if: steps.apk.outputs.mapping != ''
