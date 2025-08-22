@@ -33,42 +33,26 @@ jobs:
       buildType: "release"
     secrets: inherit
 
-  # Aggregate outputs from matrix jobs
-  collect-build-outputs:
-    name: Collect Build Outputs
-    runs-on: ubuntu-latest
-    needs: build-release
-    outputs:
-      official_name: ${{ steps.set.outputs.official_name }}
-      spoofed_name: ${{ steps.set.outputs.spoofed_name }}
-    steps:
-      - name: Set outputs
-        id: set
-        run: |
-          # Grab outputs from matrix builds by index
-          echo "official_name=${{ needs.build-release[0].outputs.name }}" >> $GITHUB_OUTPUT
-          echo "spoofed_name=${{ needs.build-release[1].outputs.name }}" >> $GITHUB_OUTPUT
-
   # Release to GitHub
   release-github:
     if: github.event.inputs.send_github == 'true'
     name: Release to GitHub
-    needs: collect-build-outputs
+    needs: build-release
     uses: ./.github/workflows/github.yml
     with:
-      officialAssetName: ${{ needs.collect-build-outputs.outputs.official_name }}
-      spoofedAssetName: ${{ needs.collect-build-outputs.outputs.spoofed_name }}
+      officialAssetName: ${{ needs.build-release.outputs['official.name'] }}
+      spoofedAssetName: ${{ needs.build-release.outputs['spoofed.name'] }}
     secrets: inherit
 
   # Release to Telegram
   release-telegram:
     if: github.event.inputs.send_telegram == 'true'
     name: Release to Telegram
-    needs: collect-build-outputs
+    needs: build-release
     uses: ./.github/workflows/telegram.yml
     with:
-      officialAssetName: ${{ needs.collect-build-outputs.outputs.official_name }}
-      spoofedAssetName: ${{ needs.collect-build-outputs.outputs.spoofed_name }}
+      officialAssetName: ${{ needs.build-release.outputs['official.name'] }}
+      spoofedAssetName: ${{ needs.build-release.outputs['spoofed.name'] }}
     secrets: inherit
 
   # Release to Play Store
@@ -76,7 +60,7 @@ jobs:
     if: github.event.inputs.send_playstore == 'true'
     name: Release to Play Store
     runs-on: ubuntu-latest
-    needs: collect-build-outputs
+    needs: build-release
 
     steps:
       - name: Checkout
