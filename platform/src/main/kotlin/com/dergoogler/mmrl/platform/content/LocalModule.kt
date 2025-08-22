@@ -5,6 +5,7 @@ import com.dergoogler.mmrl.platform.model.ModId
 import com.dergoogler.mmrl.platform.model.ModId.Companion.actionFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.bootCompletedFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.disableFile
+import com.dergoogler.mmrl.platform.model.ModId.Companion.modconfDir
 import com.dergoogler.mmrl.platform.model.ModId.Companion.postFsDataFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.postMountFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.removeFile
@@ -36,6 +37,7 @@ data class LocalModule(
     companion object {
         val LocalModule.config get() = id.asModuleConfig
         val LocalModule.hasWebUI get() = id.webrootDir.let { it.exists() && it.isDirectory() }
+        val LocalModule.hasModConf get() = id.modconfDir.let { it.exists() && it.isDirectory() }
         val LocalModule.hasAction get() = id.actionFile.exists()
         val LocalModule.hasService get() = id.serviceFile.exists()
         val LocalModule.hasPostFsData get() = id.postFsDataFile.exists()
