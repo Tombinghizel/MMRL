@@ -34,7 +34,7 @@ jobs:
   release-github:
     if: github.event.inputs.send_github == 'true'
     name: Release to GitHub
-    needs: build
+    needs: [build]
     uses: ./.github/workflows/github.yml
     with:
       officialAssetName: ${{ needs.build.outputs.name }}
@@ -44,11 +44,11 @@ jobs:
   release-telegram:
     if: github.event.inputs.send_telegram == 'true'
     name: Release to Telegram
-    needs: [build-official-release, build-spoofed-release]
+    needs: [build]
     uses: ./.github/workflows/telegram.yml
     with:
-      officialAssetName: ${{ needs.build-official-release.outputs.name }}
-      spoofedAssetName: ${{ needs.build-spoofed-release.outputs.name }}
+      officialAssetName: ${{ needs.build.outputs.name }}
+      spoofedAssetName: ${{ needs.build.outputs.name }}
     secrets: inherit
 
   playstore:
