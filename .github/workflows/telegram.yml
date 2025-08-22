@@ -9,8 +9,9 @@ on:
       spoofedAssetName:
         type: string
         required: true
+
 env:
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 jobs:
   release-tg:
@@ -18,40 +19,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
-            fetch-depth: 0
+          fetch-depth: 0
 
       - name: Download Official Release APK
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.event.inputs.officialAssetName }}
+          name: ${{ inputs.officialAssetName }}
           path: official-apk
 
       - name: Download Spoofed Release APK
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.event.inputs.spoofedAssetName }}
+          name: ${{ inputs.spoofedAssetName }}
           path: spoofed-apk
-
-      - name: Find APKs
+      
+      - name: Find APKs by name
         id: find_apks
         run: |
-          OFFICIAL_APK_PATH=$(find official-apk -name "*.apk" | head -n 1)
-          SPOOFED_APK_PATH=$(find spoofed-apk -name "*.apk" | head -n 1)
+          # Look for official APK matching the artifact name
+          OFFICIAL_APK_PATH=$(find official-apk -maxdepth 1 -type f -name "${{ inputs.officialAssetName }}*.apk" -print -quit)
+          SPOOFED_APK_PATH=$(find spoofed-apk -maxdepth 1 -type f -name "${{ inputs.spoofedAssetName }}*.apk" -print -quit)
+
+          if [ -z "$OFFICIAL_APK_PATH" ]; then
+            echo "❌ No official APK found matching ${{ inputs.officialAssetName }}"
+            exit 1
+          fi
+
+          if [ -z "$SPOOFED_APK_PATH" ]; then
+            echo "❌ No spoofed APK found matching ${{ inputs.spoofedAssetName }}"
+            exit 1
+          fi
+
           echo "OFFICIAL_APK_PATH=$OFFICIAL_APK_PATH" >> $GITHUB_OUTPUT
           echo "SPOOFED_APK_PATH=$SPOOFED_APK_PATH" >> $GITHUB_OUTPUT
 
-      - name: Get commit info and build timestamp
+      - name: Get commit info and build metadata
         id: meta
         run: |
           BUILD_DATE=$(date +"%Y-%m-%d %H:%M:%S")
-          COMMIT_COUNT=$(git rev-list --count HEAD)
-          MESSAGE=$(bash commits.sh 950)
+          COMMIT_COUNT=$(git rev-list --count HEAD || echo 0)
           VERSION=$((31320 + COMMIT_COUNT))
+
+          if [ -f commits.sh ]; then
+            MESSAGE=$(bash commits.sh 950)
+          else
+            MESSAGE="Latest commits not available."
+          fi
+
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
-          
           echo "MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -64,10 +82,10 @@ jobs:
             **MMRL v${{ env.VERSION }}**
 
             **What's new?**
-
             ${{ env.MESSAGE }}
 
             Branch: ${{ env.BRANCH_NAME }}
+            Date: ${{ env.BUILD_DATE }}
             [Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           files: |
             ${{ steps.find_apks.outputs.OFFICIAL_APK_PATH }}
