@@ -8,13 +8,13 @@ on:
         required: true
         default: false
         type: boolean
-      send_playstore:
-        description: "Release on Play Store"
+      send_github:
+        description: "Release on GitHub"
         required: true
         default: false
         type: boolean
-      send_github:
-        description: "Release on GitHub"
+      send_playstore:
+        description: "Release on Play Store"
         required: true
         default: false
         type: boolean
