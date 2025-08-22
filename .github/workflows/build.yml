@@ -19,35 +19,35 @@ jobs:
     steps:
       - name: Parse input
         run: |
-            BUILD_TYPE_CASED=$(echo "${{ inputs.buildType }}" | sed 's/^\(.\)/\L\1/')
-            echo "BUILD_TYPE_CASED=$BUILD_TYPE_CASED" >> $GITHUB_ENV
+          BUILD_TYPE_CASED=$(echo "${{ inputs.buildType }}" | sed 's/^\(.\)/\L\1/')
+          echo "BUILD_TYPE_CASED=$BUILD_TYPE_CASED" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v4.2.2
         with:
-            fetch-depth: 0
-    
+          fetch-depth: 0
+
       - name: Set up signing key
         run: |
-            if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-                echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-                echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
-                echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
-                echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
-                echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
-            fi
+          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+              echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
+              echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
+              echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
+              echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
+              echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+          fi
 
       - name: Set up JDK
         uses: actions/setup-java@v4.7.1
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 21
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4.3.1
         with:
-            validate-wrappers: true
-            cache-cleanup: always
+          validate-wrappers: true
+          cache-cleanup: always
 
       - name: Build APK
         run: chmod 755 gradlew && ./gradlew assemble${{ inputs.buildType }}
@@ -55,20 +55,21 @@ jobs:
       - name: Get APK Output
         id: apk
         run: |
-            name=`ls app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
-            apk_path=$(find app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }} -name "*.apk" | head -n 1)
-            mapping_path=$(find app/build/outputs/mapping/${{ env.BUILD_TYPE_CASED }} -name "mapping.txt" | head -n 1)
-            echo "path=$apk_path" >> $GITHUB_OUTPUT
-            echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
+          name=`ls app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
+          apk_path=$(find app/build/outputs/apk/${{ env.BUILD_TYPE_CASED }} -name "*.apk" | head -n 1)
+          mapping_path=$(find app/build/outputs/mapping/${{ env.BUILD_TYPE_CASED }} -name "mapping.txt" | head -n 1)
+          echo "path=$apk_path" >> $GITHUB_OUTPUT
+          echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
       - name: Upload mapping as artifact
-        if: inputs.buildType != 'Debug'
+        needs: apk
         uses: actions/upload-artifact@v4.6.2
         with:
           name: ${{ inputs.buildType }}-Mapping
           path: ${{ steps.apk.outputs.mapping }}
 
       - name: Upload apk as artifact
+        needs: apk
         uses: actions/upload-artifact@v4.6.2
         with:
           name: ${{ steps.apk.outputs.name }}
