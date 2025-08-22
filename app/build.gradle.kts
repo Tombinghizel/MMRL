@@ -168,7 +168,7 @@ android {
     applicationVariants.configureEach {
         outputs.configureEach {
             (this as? ApkVariantOutputImpl)?.outputFileName =
-                "MMRL-$versionName.apk"
+                "MMRL-$versionName-($flavorName).apk"
         }
     }
 }
