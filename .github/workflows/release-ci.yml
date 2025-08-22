@@ -20,19 +20,14 @@ on:
         type: boolean
 
 jobs:
-  build-official-release:
-    name: Build Official Release
+  build:
+    name: Build Matrix
+    strategy:
+      matrix:
+        flavor: [official, spoofed]
     uses: ./.github/workflows/build.yml
     with:
-      flavor: "official"
-      buildType: "release"
-    secrets: inherit
-  
-  build-spoofed-release:
-    name: Build Spoofed Release
-    uses: ./.github/workflows/build.yml
-    with:
-      flavor: "spoofed"
+      flavor: ${{ matrix.flavor }}
       buildType: "release"
     secrets: inherit
 

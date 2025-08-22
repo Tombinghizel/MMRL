@@ -67,7 +67,7 @@ jobs:
         run: |
           name=`ls app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
           apk_path=$(find app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }} -name "*.apk" | head -n 1)
-          mapping_path=$(find app/build/outputs/mapping/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_CAPITALIZED }} -name "mapping.txt" | head -n 1)
+          mapping_path=$(find app/build/outputs/mapping/${{ env.FLAVOR_LOWERCASE }}${{ env.BUILD_TYPE_CAPITALIZED }} -name "mapping.txt" | head -n 1)
           echo "path=$apk_path" >> $GITHUB_OUTPUT
           echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
