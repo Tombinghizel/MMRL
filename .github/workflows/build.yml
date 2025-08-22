@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       name: ${{ steps.apk.outputs.name }}
-      mapping: ${{inputs.buildType }}-mapping
+      mapping: ${{ steps.apk.outputs.mapping }}
+      path: ${{ steps.apk.outputs.path }}
     steps:
       - name: Parse input
         run: |
@@ -64,7 +65,7 @@ jobs:
         if: inputs.buildType != 'Debug'
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: ${{inputs.buildType }}-mapping
+          name: ${{ inputs.buildType }}-Mapping
           path: ${{ steps.apk.outputs.mapping }}
 
       - name: Upload apk as artifact
