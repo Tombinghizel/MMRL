@@ -23,12 +23,12 @@
         android:maxSdkVersion="29" />
 
     <permission
-        android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="${__packageName__}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature"
         tools:node="remove" />
 
     <uses-permission
-        android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="${__packageName__}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         tools:node="remove" />
 
     <queries>
@@ -51,7 +51,7 @@
     </queries>
 
     <application
-        android:name=".App"
+        android:name="${__packageName__}.App"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/launcher"
         android:label="@string/app_name"
@@ -63,7 +63,7 @@
         tools:targetApi="34">
 
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name="${__packageName__}.ui.activity.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
@@ -90,11 +90,11 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.terminal.install.InstallActivity"
+            android:name="${__packageName__}.ui.activity.terminal.install.InstallActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/install_activity"
-            android:taskAffinity="${applicationId}.INSTALL">
+            android:taskAffinity="${__packageName__}.INSTALL">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -107,7 +107,7 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.ScreenshotsPreviewActivity"
+            android:name="${__packageName__}.ui.activity.ScreenshotsPreviewActivity"
             android:excludeFromRecents="true"
             android:exported="true">
             <intent-filter>
@@ -118,11 +118,11 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.terminal.action.ActionActivity"
+            android:name="${__packageName__}.ui.activity.terminal.action.ActionActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/action_activity"
-            android:taskAffinity="${applicationId}.ACTION">
+            android:taskAffinity="${__packageName__}.ACTION">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -131,7 +131,7 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.CrashHandlerActivity"
+            android:name="${__packageName__}.ui.activity.CrashHandlerActivity"
             android:excludeFromRecents="true"
             android:exported="true">
             <intent-filter>
@@ -141,31 +141,31 @@
         </activity>
 
         <service
-            android:name=".service.DownloadService"
+            android:name="${__packageName__}.service.DownloadService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
         <service
-            android:name=".service.RepositoryService"
+            android:name="${__packageName__}.service.RepositoryService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
         <service
-            android:name=".service.ModuleService"
+            android:name="${__packageName__}.service.ModuleService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
         <service
-            android:name=".service.ProviderService"
+            android:name="${__packageName__}.service.ProviderService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
 
         <service
-            android:name=".service.LogcatService"
+            android:name="${__packageName__}.service.LogcatService"
             android:exported="false" />
 
         <receiver
-            android:name=".receiver.LogcatReceiver"
+            android:name="${__packageName__}.receiver.LogcatReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -175,7 +175,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${__packageName__}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

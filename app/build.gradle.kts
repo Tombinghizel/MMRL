@@ -73,6 +73,7 @@ android {
             resValue("string", "app_name", baseAppName)
             buildConfigField("Boolean", "IS_DEV_VERSION", "false")
             buildConfigField("Boolean", "IS_GOOGLE_PLAY_BUILD", "false")
+            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "false")
             isDebuggable = false
             isJniDebuggable = false
             versionNameSuffix = "-release"
@@ -106,6 +107,10 @@ android {
             resValue("string", "app_name", generateRandomName())
             matchingFallbacks += listOf("debug", "release")
             versionNameSuffix = "-spoofed"
+
+            buildConfigField("Boolean", "IS_SPOOFED_BUILD", "true")
+
+            defaultConfig.applicationId = generateRandomPackageName()
         }
 
         create("alpha") {
@@ -143,10 +148,13 @@ android {
 
         all {
             signingConfig = releaseSigning
+
             buildConfigField("String", "COMPILE_SDK", "\"$COMPILE_SDK\"")
             buildConfigField("String", "BUILD_TOOLS_VERSION", "\"${BUILD_TOOLS_VERSION}\"")
             buildConfigField("String", "MIN_SDK", "\"$MIN_SDK\"")
             buildConfigField("String", "LATEST_COMMIT_ID", "\"${commitId}\"")
+
+            manifestPlaceholders["__packageName__"] = mmrlBaseApplicationId
         }
     }
 
