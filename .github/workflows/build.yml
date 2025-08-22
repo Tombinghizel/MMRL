@@ -14,32 +14,33 @@ on:
 
 jobs:
   build:
-    name: Build APK
+    name: Build ${{ inputs.flavor }}-${{ inputs.buildType }}
     runs-on: ubuntu-latest
     outputs:
       name: ${{ steps.apk.outputs.name }}
-      mapping: ${{ steps.apk.outputs.mapping }}
       path: ${{ steps.apk.outputs.path }}
+      mapping: ${{ steps.apk.outputs.mapping }}
+
     steps:
-      - name: Setting Environment Variables
+      - name: Set environment variables
         run: |
           FLAVOR="${{ inputs.flavor }}"
+          BUILD_TYPE="${{ inputs.buildType }}"
+
           echo "FLAVOR_CAPITALIZED=${FLAVOR^}" >> $GITHUB_ENV
           echo "FLAVOR_LOWERCASE=${FLAVOR,,}" >> $GITHUB_ENV
-          BUILD_TYPE="${{ inputs.buildType }}"
           echo "BUILD_TYPE_CAPITALIZED=${BUILD_TYPE^}" >> $GITHUB_ENV
           echo "BUILD_TYPE_LOWERCASE=${BUILD_TYPE,,}" >> $GITHUB_ENV
-          BUILD_COMMAND="${FLAVOR_CAPITALIZED}${BUILD_TYPE_CAPITALIZED}"
-          echo "BUILD_COMMAND=${BUILD_COMMAND}" >> $GITHUB_ENV
+          echo "BUILD_COMMAND=${FLAVOR^}${BUILD_TYPE^}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up signing key
         run: |
-          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+          if [ -n "${{ secrets.KEY_STORE }}" ]; then
               echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
               echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
               echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
@@ -48,37 +49,40 @@ jobs:
           fi
 
       - name: Set up JDK
-        uses: actions/setup-java@v4.7.1
+        uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4.3.1
+        uses: gradle/actions/setup-gradle@v4
         with:
           validate-wrappers: true
-          cache-cleanup: always
+          cache-cleanup: true
 
       - name: Build APK
-        run: chmod 755 gradlew && ./gradlew assemble${{ env.BUILD_COMMAND }}
+        run: chmod +x ./gradlew && ./gradlew assemble${{ env.BUILD_COMMAND }}
 
-      - name: Get APK Output
+      - name: Get APK output
         id: apk
         run: |
-          name=`ls app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }}/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
-          apk_path=$(find app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }} -name "*.apk" | head -n 1)
-          mapping_path=$(find app/build/outputs/mapping/${{ env.FLAVOR_LOWERCASE }}${{ env.BUILD_TYPE_CAPITALIZED }} -name "mapping.txt" | head -n 1)
+          apk_path=$(find app/build/outputs/apk/${{ env.FLAVOR_LOWERCASE }}/${{ env.BUILD_TYPE_LOWERCASE }} -name "*.apk" -print -quit)
+          mapping_path=$(find app/build/outputs/mapping/${{ env.FLAVOR_LOWERCASE }}${{ env.BUILD_TYPE_CAPITALIZED }} -name "mapping.txt" -print -quit)
+          name=$(basename "$apk_path" .apk)
+
+          echo "name=$name" >> $GITHUB_OUTPUT
           echo "path=$apk_path" >> $GITHUB_OUTPUT
           echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
       - name: Upload mapping as artifact
-        uses: actions/upload-artifact@v4.6.2
+        if: steps.apk.outputs.mapping != ''
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.buildType }}-Mapping
+          name: ${{ inputs.flavor }}-${{ inputs.buildType }}-mapping
           path: ${{ steps.apk.outputs.mapping }}
 
-      - name: Upload apk as artifact
-        uses: actions/upload-artifact@v4.6.2
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.apk.outputs.name }}
           path: ${{ steps.apk.outputs.path }}

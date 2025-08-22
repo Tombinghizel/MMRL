@@ -20,9 +20,11 @@ on:
         type: boolean
 
 jobs:
-  build:
+  # Build step for both official & spoofed flavors
+  build-release:
     name: Build Matrix
     strategy:
+      fail-fast: false
       matrix:
         flavor: [official, spoofed]
     uses: ./.github/workflows/build.yml
@@ -31,40 +33,60 @@ jobs:
       buildType: "release"
     secrets: inherit
 
+  # Aggregate outputs from matrix jobs
+  collect-build-outputs:
+    name: Collect Build Outputs
+    runs-on: ubuntu-latest
+    needs: build-release
+    outputs:
+      official_name: ${{ steps.set.outputs.official_name }}
+      spoofed_name: ${{ steps.set.outputs.spoofed_name }}
+    steps:
+      - name: Set outputs
+        id: set
+        run: |
+          # Grab outputs from matrix builds by index
+          echo "official_name=${{ needs.build-release[0].outputs.name }}" >> $GITHUB_OUTPUT
+          echo "spoofed_name=${{ needs.build-release[1].outputs.name }}" >> $GITHUB_OUTPUT
+
+  # Release to GitHub
   release-github:
     if: github.event.inputs.send_github == 'true'
     name: Release to GitHub
-    needs: [build]
+    needs: collect-build-outputs
     uses: ./.github/workflows/github.yml
     with:
-      officialAssetName: ${{ needs.build.outputs.name }}
-      spoofedAssetName: ${{ needs.build.outputs.name }}
+      officialAssetName: ${{ needs.collect-build-outputs.outputs.official_name }}
+      spoofedAssetName: ${{ needs.collect-build-outputs.outputs.spoofed_name }}
     secrets: inherit
 
+  # Release to Telegram
   release-telegram:
     if: github.event.inputs.send_telegram == 'true'
     name: Release to Telegram
-    needs: [build]
+    needs: collect-build-outputs
     uses: ./.github/workflows/telegram.yml
     with:
-      officialAssetName: ${{ needs.build.outputs.name }}
-      spoofedAssetName: ${{ needs.build.outputs.name }}
+      officialAssetName: ${{ needs.collect-build-outputs.outputs.official_name }}
+      spoofedAssetName: ${{ needs.collect-build-outputs.outputs.spoofed_name }}
     secrets: inherit
 
-  playstore:
+  # Release to Play Store
+  release-playstore:
+    if: github.event.inputs.send_playstore == 'true'
     name: Release to Play Store
     runs-on: ubuntu-latest
-    if: github.event.inputs.send_playstore == 'true'
-    needs: build-official-release
+    needs: collect-build-outputs
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up signing key
         run: |
-          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+          if [ -n "${{ secrets.KEY_STORE }}" ]; then
               echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
               echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
               echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
@@ -73,28 +95,28 @@ jobs:
           fi
 
       - name: Set up JDK
-        uses: actions/setup-java@v4.7.1
+        uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4.3.1
+        uses: gradle/actions/setup-gradle@v4
         with:
           validate-wrappers: true
-          cache-cleanup: always
+          cache-cleanup: true
 
       - name: Bundle with Gradle
-        run: chmod 755 ./gradlew && ./gradlew bundleOfficialPlaystore
+        run: chmod +x ./gradlew && ./gradlew bundleOfficialPlaystore
 
       - name: Find AAB
         id: find_aab
         run: |
-          AAB_PATH=$(find app/build/outputs/bundle/playstore -name "*.aab" | head -n 1)
+          AAB_PATH=$(find app/build/outputs/bundle/playstore -name "*.aab" -print -quit)
           echo "AAB_PATH=$AAB_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload to Google Play
-        uses: r0adkll/upload-google-play@v1.1.3
+        uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.dergoogler.mmrl
