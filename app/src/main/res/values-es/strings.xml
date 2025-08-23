@@ -403,4 +403,7 @@
     <string name="available_modules">Módulos disponibles</string>
     <string name="explore_repos_discover_text">Descubra e instale módulos de [bold]%1$d[/bold] repositorios de confianza con más de [bold]%2$d[/bold] módulos para su dispositivo.</string>
     <string name="module_repositories">Repositorios de módulos</string>
+    <string name="build_tools_version">Versión de Build Tools</string>
+    <string name="compile_sdk">Compilación de SDK</string>
+    <string name="latest_commit_id">ID del último commit</string>
 </resources>
