@@ -51,7 +51,7 @@
     <string name="dialog_attention">Uwaga</string>
     <string name="dialog_cancel">Anuluj</string>
     <string name="dialog_ok">OK</string>
-    <string name="message_download_success">Pobieranie zakończone sukcesem</string>
+    <string name="message_download_success">Pobrano</string>
     <string name="message_loading">Wczytywanie…</string>
     <string name="notification_name_download">Usługa pobierania</string>
     <string name="search_empty">Pusta lista</string>
