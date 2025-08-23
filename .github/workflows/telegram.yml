@@ -85,7 +85,6 @@ jobs:
             ${{ env.MESSAGE }}
 
             Branch: ${{ env.BRANCH_NAME }}
-            Date: ${{ env.BUILD_DATE }}
             [Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           files: |
             ${{ steps.find_apks.outputs.OFFICIAL_APK_PATH }}
