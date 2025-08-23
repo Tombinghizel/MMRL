@@ -191,7 +191,7 @@
     <string name="dialog_ok">确定</string>
     <!-- Menu -->
     <string name="menu_advanced_menu">高级菜单</string>
-    <string name="menu_sort_mode">排序模式</string>
+    <string name="menu_sort_mode">排序方式</string>
     <string name="menu_sort_option_name">名字</string>
     <string name="menu_sort_option_updated">更新时间</string>
     <string name="menu_descending">降序</string>
@@ -292,7 +292,7 @@
     <string name="settings_developer">开发者</string>
     <string name="settings_developer_desc">开发者调试工具</string>
     <string name="settings_webui_remote_url">WebUI 远程链接</string>
-    <string name="invalid_ip">本地地址不可用！</string>
+    <string name="invalid_ip">这不是一个有效的本地域！</string>
     <string name="settings_webui_remote_url_alert_desc">WebUI 指定一个网络地址，使所有模块可以忽略 SSL 错误，并阻止对于 /data/adb/modules/{ID}/webroot 的访问。注意以个人名义签署本地网页服务才需要使用此功能，仅用于调试，风险自负。</string>
     <string name="settings_webui_remote_url_desc">启动一个 localhost 页面以便于调试。参见上方的注意事项了解更多信息。</string>
     <string name="install_screen_cancel_title">取消安装？</string>
@@ -300,7 +300,7 @@
     <string name="action_screen_cancel_title">取消 Action 执行？</string>
     <string name="action_screen_cancel_text">你确定要取消当前 Action 执行？</string>
     <string name="home_storage_usage">占用空间</string>
-    <string name="menu_pin_action">可执行优先</string>
+    <string name="menu_pin_action">Action 优先</string>
     <string name="menu_pin_webui">WebUI 优先</string>
     <string name="learn_more">了解更多</string>
     <string name="settings_use_generic_action">­使用通用 Action</string>
@@ -379,12 +379,12 @@
     <string name="says">%1$s 说</string>
     <string name="exit">退出</string>
     <string name="shortcut_not_supported">您的设备或启动器不支持快捷方式</string>
-    <string name="welcome">欢迎！</string>
+    <string name="welcome">欢迎使用！</string>
     <string name="continue_with">以 %1$s 继续</string>
     <string name="select">选择</string>
     <string name="platform">平台</string>
     <string name="change_platform">切换平台</string>
-    <string name="select_your_platform">选择你的平台</string>
+    <string name="select_your_platform">选择你的工作方式</string>
     <string name="setup_root_note">你需要一台已获取 root 权限的安卓手机来使用 MMRL 的全部功能。MMRL 不提供获取 root 的方式与教程，且对获取 root 或对于 MMRL 的不当使用的风险概不负责。\n\n[link=https://mmrl.dev/legal/privacy]隐私政策[/link] • [link=https://mmrl.dev/legal/terms]服务条款[/link]</string>
     <string name="drawer_general">通用</string>
     <string name="drawer_legal">法律信息</string>
@@ -423,4 +423,12 @@
     <string name="settings_terminal_desc">根据您的喜好定制终端</string>
     <string name="hook_mode">Hook 模式</string>
     <string name="kpm_support">KPN 支持</string>
+    <string name="latest_commit_id">最新一次提交的ID</string>
+    <string name="build_tools_version">构建工具版本</string>
+    <string name="compile_sdk">编译SDK</string>
+    <string name="page_repos">仓库</string>
+    <string name="count_with_plus">%1$d+</string>
+    <string name="available_modules">可用模块</string>
+    <string name="explore_repos_discover_text">从 [bold]%1$d[/bold] 个受信任的仓库中发现并安装模块，为您的设备提供超过 [bold]%2$d[/bold] 个模块选择。</string>
+    <string name="module_repositories">模块仓库</string>
 </resources>
