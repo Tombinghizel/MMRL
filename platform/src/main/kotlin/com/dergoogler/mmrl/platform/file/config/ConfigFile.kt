@@ -31,11 +31,13 @@ enum class ConfigFileMergeStrategy {
      * When merging, the new value replaces the existing value.
      */
     REPLACE,
+
     /**
      * When merging lists, the new list is appended to the existing list.
      * For other types, it behaves like [REPLACE].
      */
     APPEND,
+
     /**
      * When merging lists, the new list is appended to the existing list,
      * and then duplicates are removed.
@@ -59,6 +61,7 @@ interface IConfig<T> {
      * @return The [ModId] of the module.
      */
     fun getModuleId(): ModId
+
     /**
      * Provides the primary configuration file for a given module ID.
      *
@@ -66,6 +69,7 @@ interface IConfig<T> {
      * @return A [SuFile] instance representing the configuration file.
      */
     fun getConfigFile(id: ModId): SuFile
+
     /**
      * Provides the override configuration file for a given module ID.
      * This file contains user-specific overrides for the base configuration.
@@ -75,6 +79,7 @@ interface IConfig<T> {
      * @return An [SuFile] instance representing the override configuration file, or null if not applicable or defined.
      */
     fun getOverrideConfigFile(id: ModId): SuFile?
+
     /**
      * Retrieves the class type of the configuration data.
      * This is used by Moshi for deserialization.
@@ -82,6 +87,7 @@ interface IConfig<T> {
      * @return The [Class] of the configuration data type [T].
      */
     fun getConfigType(): Class<T>
+
     /**
      * Provides a default instance of the configuration.
      * This is used as a fallback if loading or parsing fails.
@@ -90,6 +96,7 @@ interface IConfig<T> {
      * @return A default instance of the configuration.
      */
     fun getDefaultConfigFactory(id: ModId): T
+
     /**
      * Determines the strategy for merging list values in the configuration.
      * Defaults to [ConfigFileMergeStrategy.REPLACE].
