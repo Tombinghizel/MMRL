@@ -17,7 +17,7 @@ data class ModuleConfig(
     val webuiEngine: Any? = "wx",
     val cover: String? = null,
 ) {
-    val locale get() = Locale.getDefault().language
+    val locale: String get() = Locale.getDefault().language
 
     private fun get(prop: Any?, selector: String, default: String = "en"): String? = try {
         when (prop) {

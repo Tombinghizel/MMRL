@@ -78,6 +78,7 @@ dependencies {
     implementation(projects.compat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.hiddenApiBypass)
+    implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.apache.commons.compress)
     implementation(libs.square.retrofit.moshi)
