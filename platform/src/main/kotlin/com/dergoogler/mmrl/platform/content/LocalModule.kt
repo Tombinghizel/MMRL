@@ -16,7 +16,7 @@ import com.dergoogler.mmrl.platform.model.ModId.Companion.systemPropFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.uninstallFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.updateFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.webrootDir
-import com.dergoogler.mmrl.platform.model.ModuleConfig.Companion.asModuleConfig
+import com.dergoogler.mmrl.platform.model.toModuleConfig
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
@@ -35,7 +35,7 @@ data class LocalModule(
     val lastUpdated: Long,
 ) : Parcelable {
     companion object {
-        val LocalModule.config get() = id.asModuleConfig
+        val LocalModule.config get() = id.toModuleConfig()
         val LocalModule.hasWebUI get() = id.webrootDir.let { it.exists() && it.isDirectory() }
         val LocalModule.hasModConf get() = id.modconfDir.let { it.exists() && it.isDirectory() }
         val LocalModule.hasAction get() = id.actionFile.exists()
