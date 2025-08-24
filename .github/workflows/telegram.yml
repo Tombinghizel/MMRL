@@ -23,11 +23,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Official Release APK
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.officialAssetName }}
-          path: official-apk
+      # - name: Download Official Release APK
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: ${{ inputs.officialAssetName }}
+      #     path: official-apk
 
       - name: Download Spoofed Release APK
         uses: actions/download-artifact@v4
