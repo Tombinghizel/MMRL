@@ -58,7 +58,10 @@ fun createRootShell(
 fun UserPreferences.launchWebUI(context: Context, modId: ModId) {
     val config = modId.toModuleConfig()
 
-    val launcher = WebUILauncher(BuildConfig.DEBUG)
+    val launcher = WebUILauncher(
+        debug = BuildConfig.DEBUG,
+        packageName = webuixPackageName
+    )
 
     if (webuiEngine == WebUIEngine.PREFER_MODULE) {
         val configEngine = config.getWebuiEngine(context)
