@@ -25,15 +25,14 @@ data class ModuleConfig(
     @Json(name = "webui-engine")
     val webuiEngine: Any? = "wx",
     val cover: String? = null,
-) : ConfigFile<ModuleConfig>(
-    configFile = SuFile(__module__identifier__.moduleDir, "config.json"),
-    overrideConfigFile = SuFile(__module__identifier__.moduleConfigDir, "config.module.json"),
-    configType = ModuleConfig::class.java,
-    defaultConfigFactory = {
-        ModuleConfig(__module__identifier__)
-    }
-) {
-    override val moduleId: ModId = __module__identifier__
+) : ConfigFile<ModuleConfig>() {
+    override fun getModuleId(): ModId = __module__identifier__
+    override fun getConfigFile(id: ModId): SuFile = SuFile(id.moduleDir, "config.json")
+    override fun getOverrideConfigFile(id: ModId): SuFile? =
+        SuFile(id.moduleConfigDir, "config.module.json")
+
+    override fun getConfigType(): Class<ModuleConfig> = ModuleConfig::class.java
+    override fun getDefaultConfigFactory(id: ModId): ModuleConfig = ModuleConfig(id)
 
     val locale: String get() = Locale.getDefault().language
 
