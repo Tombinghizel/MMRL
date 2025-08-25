@@ -23,11 +23,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Official Release APK
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.officialAssetName }}
-          path: official-apk
+      # - name: Download Official Release APK
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: ${{ inputs.officialAssetName }}
+      #     path: official-apk
 
       - name: Download Spoofed Release APK
         uses: actions/download-artifact@v4
@@ -85,7 +85,6 @@ jobs:
             ${{ env.MESSAGE }}
 
             Branch: ${{ env.BRANCH_NAME }}
-            Date: ${{ env.BUILD_DATE }}
             [Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           files: |
             ${{ steps.find_apks.outputs.OFFICIAL_APK_PATH }}

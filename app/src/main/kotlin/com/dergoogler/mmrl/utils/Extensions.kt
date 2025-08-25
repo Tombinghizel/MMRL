@@ -9,10 +9,8 @@ import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.datastore.model.UserPreferences
 import com.dergoogler.mmrl.datastore.model.WebUIEngine
 import com.dergoogler.mmrl.ext.toFormattedDateSafely
-import com.dergoogler.mmrl.platform.Platform.Companion.putPlatform
 import com.dergoogler.mmrl.platform.model.ModId
-import com.dergoogler.mmrl.platform.model.ModId.Companion.putModId
-import com.dergoogler.mmrl.platform.model.ModuleConfig.Companion.asModuleConfig
+import com.dergoogler.mmrl.platform.model.toModuleConfig
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.webui.helper.WebUILauncher
 import com.topjohnwu.superuser.NoShellException
@@ -58,9 +56,12 @@ fun createRootShell(
 }
 
 fun UserPreferences.launchWebUI(context: Context, modId: ModId) {
-    val config = modId.asModuleConfig
+    val config = modId.toModuleConfig()
 
-    val launcher = WebUILauncher(BuildConfig.DEBUG)
+    val launcher = WebUILauncher(
+        debug = BuildConfig.DEBUG,
+        packageName = webuixPackageName
+    )
 
     if (webuiEngine == WebUIEngine.PREFER_MODULE) {
         val configEngine = config.getWebuiEngine(context)

@@ -432,4 +432,6 @@
     <string name="latest_commit_id">Latest Commit ID</string>
     <string name="build_tools_version">Build Tools Version</string>
     <string name="compile_sdk">Compile SDK</string>
+    <string name="settings_set_spoofed_wxp">WebUI X Portable Package</string>
+    <string name="settings_set_spoofed_wxp_desc">Set a custom spoofed WebUI X Portable Package name.</string>
 </resources>

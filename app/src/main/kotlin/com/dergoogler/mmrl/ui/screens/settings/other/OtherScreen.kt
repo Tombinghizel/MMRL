@@ -71,8 +71,8 @@ fun OtherScreen() {
                 value = userPreferences.webuixPackageName,
                 onConfirm = viewModel::setWebuixPackageName
             ) {
-                Title("WebUI X Portable Package")
-                Description("Set a custom spoofed WebUI X Portable Package name.")
+                Title(context.getString(R.string.settings_set_spoofed_wxp))
+                Description(context.getString(R.string.settings_set_spoofed_wxp_desc))
             }
         }
     }
