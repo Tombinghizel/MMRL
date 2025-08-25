@@ -24,7 +24,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.dergoogler.mmrl.ui.providable.LocalModule
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 
 @Composable
 fun TopPicks(
@@ -72,7 +72,7 @@ fun TopPicks(
                         val item = randomModules[itemIndex]
 
                         CompositionLocalProvider(
-                            LocalModule provides item,
+                            LocalOnlineModule provides item,
                         ) {
                             if (item.id == "##==online_example==##") {
                                 Spacer(Modifier.height(96.dp))

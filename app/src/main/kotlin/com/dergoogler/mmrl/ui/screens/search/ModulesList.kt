@@ -9,8 +9,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.model.online.OtherSources
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
-import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.ui.providable.LocalModuleState
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
 
 @Composable
@@ -29,8 +29,8 @@ fun ModulesList(
             key = { "${it.online.id}_${it.repo.url}_${it.repo.name}" }
         ) {
             CompositionLocalProvider(
-                LocalModuleState provides it.state,
-                LocalModule provides it.online
+                LocalOnlineModuleState provides it.state,
+                LocalOnlineModule provides it.online
             ) {
                 ModuleItemCompact(
                     sourceProvider = it.repo.name,

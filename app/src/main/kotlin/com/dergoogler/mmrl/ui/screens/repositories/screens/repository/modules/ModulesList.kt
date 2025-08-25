@@ -14,17 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dergoogler.mmrl.datastore.model.RepoListMode
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
-import com.dergoogler.mmrl.ext.panicString
 import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.model.state.OnlineState
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
-import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.ui.providable.LocalModuleState
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.ui.screens.repositories.screens.main.RepositoriesScreen
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemDetailed
 
@@ -61,8 +58,8 @@ fun ScaffoldScope.ModulesList(
                     key = { it.second.id }
                 ) { (moduleState, module) ->
                     CompositionLocalProvider(
-                        LocalModuleState provides moduleState,
-                        LocalModule provides module
+                        LocalOnlineModuleState provides moduleState,
+                        LocalOnlineModule provides module
                     ) {
                         val click = {
 //                            navController.navigateSingleTopTo(

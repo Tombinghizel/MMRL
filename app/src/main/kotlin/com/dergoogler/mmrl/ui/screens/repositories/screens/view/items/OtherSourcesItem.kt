@@ -10,12 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.CompositionLocalProvider
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.model.online.OtherSources
-import com.dergoogler.mmrl.ui.providable.LocalModuleState
-import com.dergoogler.mmrl.ui.providable.LocalModule
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalNavController
-import com.dergoogler.mmrl.ui.screens.repositories.screens.main.RepositoriesScreen
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
 
 @Composable
@@ -42,8 +40,8 @@ fun OtherSourcesItem(items: List<OtherSources>) {
                     val item = items[itemIndex]
 
                     CompositionLocalProvider(
-                        LocalModule provides item.online,
-                        LocalModuleState provides item.state
+                        LocalOnlineModule provides item.online,
+                        LocalOnlineModuleState provides item.state
                     ) {
                         ModuleItemCompact(
                             sourceProvider = item.repo.name,

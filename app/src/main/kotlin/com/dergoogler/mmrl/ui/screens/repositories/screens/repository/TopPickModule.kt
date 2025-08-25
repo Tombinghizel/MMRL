@@ -29,7 +29,7 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.iconSize
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.providable.LocalModule
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 
 @Composable
@@ -37,7 +37,7 @@ fun TopPickModule(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    val module = LocalModule.current
+    val module = LocalOnlineModule.current
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
     val isVerified = module.isVerified && menu.showVerified

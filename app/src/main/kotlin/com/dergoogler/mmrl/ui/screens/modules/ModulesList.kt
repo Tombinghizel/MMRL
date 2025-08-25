@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -31,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
-import com.dergoogler.mmrl.ext.rememberNullable
 import com.dergoogler.mmrl.ext.rememberTrue
 import com.dergoogler.mmrl.model.local.LocalModule
 import com.dergoogler.mmrl.model.local.State
@@ -44,7 +42,7 @@ import com.dergoogler.mmrl.viewmodel.ModulesViewModel
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasAction
 import com.dergoogler.mmrl.ui.activity.terminal.action.ActionActivity
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
-import com.dergoogler.mmrl.ui.providable.LocalStoredModule
+import com.dergoogler.mmrl.ui.providable.LocalModule
 
 @Composable
 fun ScaffoldScope.ModulesList(
@@ -69,7 +67,7 @@ fun ScaffoldScope.ModulesList(
                 contentType = { "module_item" }
             ) { module ->
                 CompositionLocalProvider(
-                    LocalStoredModule provides module
+                    LocalModule provides module
                 ) {
                     ModuleItem(
                         viewModel = viewModel,
@@ -94,7 +92,7 @@ private fun ModuleItem(
     isProviderAlive: Boolean,
 ) {
     val context = LocalContext.current
-    val module = LocalStoredModule.current
+    val module = LocalModule.current
     val userPreferences = LocalUserPreferences.current
 
     val ops by remember(userPreferences.useShellForModuleStateChange, module.state) {

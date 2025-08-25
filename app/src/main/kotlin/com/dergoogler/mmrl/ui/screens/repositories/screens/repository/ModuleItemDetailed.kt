@@ -14,10 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,15 +24,14 @@ import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.text.TextWithIcon
 import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.component.card.CardDefaults
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.isNotNullOrEmpty
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
 import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
-import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.ui.providable.LocalModuleState
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 
 @Composable
@@ -44,8 +41,8 @@ fun ModuleItemDetailed(
     decoration: TextDecoration = TextDecoration.None,
     enabled: Boolean = true,
 ) {
-    val module = LocalModule.current
-    val state = LocalModuleState.current
+    val module = LocalOnlineModule.current
+    val state = LocalOnlineModuleState.current
 
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu

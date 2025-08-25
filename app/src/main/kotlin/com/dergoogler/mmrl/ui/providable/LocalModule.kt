@@ -10,14 +10,14 @@ val LocalRepo = staticCompositionLocalOf<Repo> {
     error("CompositionLocal Repo not present")
 }
 
-val LocalModule = staticCompositionLocalOf<OnlineModule> {
+val LocalOnlineModule = staticCompositionLocalOf<OnlineModule> {
     error("CompositionLocal OnlineModule not present")
 }
 
-val LocalModuleState = staticCompositionLocalOf<OnlineState> {
+val LocalOnlineModuleState = staticCompositionLocalOf<OnlineState> {
     error("CompositionLocal OnlineState not present")
 }
 
-val LocalStoredModule = staticCompositionLocalOf<LocalModule> {
+val LocalModule = staticCompositionLocalOf<LocalModule> {
     error("CompositionLocal LocalModule not present")
 }

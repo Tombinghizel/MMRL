@@ -30,8 +30,8 @@ import com.dergoogler.mmrl.ui.component.LabelItemDefaults
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.text.TextWithIcon
 import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
-import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.ui.providable.LocalModuleState
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
+import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 
@@ -49,8 +49,8 @@ fun ModuleItemCompact(
     enabled = enabled,
     shape = RoundedCornerShape(10.dp)
 ) {
-    val module = LocalModule.current
-    val state = LocalModuleState.current
+    val module = LocalOnlineModule.current
+    val state = LocalOnlineModuleState.current
 
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
