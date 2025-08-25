@@ -59,9 +59,11 @@ import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ui.activity.MMRLComponentActivity
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.utils.log.LogText
 import com.dergoogler.mmrl.utils.log.LogText.Companion.toTextPriority
 import com.dergoogler.mmrl.utils.log.Logcat
+import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.launch
 
 private val priorities = listOf("VERBOSE", "DEBUG", "INFO", "WARN", "ERROR")
@@ -101,6 +103,7 @@ object LogColors {
     }
 }
 
+@Destination<MainGraph>
 @Composable
 fun LogScreen() {
     val context = LocalContext.current

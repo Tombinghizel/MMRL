@@ -57,12 +57,14 @@ import com.dergoogler.mmrl.viewmodel.RepositoriesViewModel
 import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainRoute
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
+import com.ramcosta.composedestinations.annotation.Destination
 import timber.log.Timber
 import kotlin.reflect.KFunction1
 
+@Destination<MainGraph>
 @Composable
 fun RepositoriesScreen(
     viewModel: RepositoriesViewModel,
@@ -274,7 +276,7 @@ private fun TopBar(
         actions = {
             IconButton(
                 onClick = {
-                    mainNavController.navigateSingleTopTo(MainRoute.GlobalSearch.route)
+//                    mainNavController.navigateSingleTopTo(MainRoute.GlobalSearch.route)
                 }
             ) {
                 Icon(

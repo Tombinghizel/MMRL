@@ -48,8 +48,11 @@ import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.SearchTopBar
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.viewmodel.ModulesViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination<MainGraph>
 @Composable
 fun ModulesScreen(
     viewModel: ModulesViewModel = hiltViewModel(),

@@ -7,9 +7,12 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.ScaffoldDefaults
 import com.dergoogler.mmrl.ui.component.SettingsScaffold
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.screens.settings.blacklist.items.ModuleItem
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination<MainGraph>
 @Composable
 fun BlacklistScreen() {
     val viewModel = LocalSettings.current

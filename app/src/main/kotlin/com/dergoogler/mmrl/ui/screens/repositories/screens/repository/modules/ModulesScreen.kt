@@ -34,7 +34,7 @@ import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
 import com.dergoogler.mmrl.viewmodel.RepositoryViewModel
 
 @Composable
-fun ModulesScreen(
+fun ModulfgesScreen(
     viewModel: RepositoryViewModel,
 ) {
     val list by viewModel.online.collectAsStateWithLifecycle()

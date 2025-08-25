@@ -12,11 +12,14 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogIte
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.DialogDescription
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.dergoogler.mmrl.ui.navigation.graphs.SettingsScreen
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.settings.NavButton
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.generated.destinations.AppThemeScreenDestination
 
+@Destination<MainGraph>
 @Composable
 fun AppearanceScreen() {
     val viewModel = LocalSettings.current
@@ -28,7 +31,7 @@ fun AppearanceScreen() {
         NavButton(
             title = R.string.settings_app_theme,
             desc = R.string.settings_app_theme_desc,
-            route = SettingsScreen.AppTheme.route
+            route = AppThemeScreenDestination
         )
 
         TextEditDialogItem(

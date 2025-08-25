@@ -12,10 +12,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.CompositionLocalProvider
 import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.model.online.OtherSources
-import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalModuleState
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalNavController
+import com.dergoogler.mmrl.ui.screens.repositories.screens.main.RepositoriesScreen
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
 
 @Composable
@@ -50,14 +50,14 @@ fun OtherSourcesItem(items: List<OtherSources>) {
                             showLabels = false,
                             showLastUpdated = false,
                             onClick = {
-                                navController.navigateSingleTopTo(
-                                    route = RepositoriesScreen.View.route,
-                                    args = mapOf(
-                                        "moduleId" to item.online.id,
-                                        "repoUrl" to item.repo.url
-                                    ),
-                                    launchSingleTop = false
-                                )
+//                                navController.navigateSingleTopTo(
+//                                    route = RepositoriesScreen.View.route,
+//                                    args = mapOf(
+//                                        "moduleId" to item.online.id,
+//                                        "repoUrl" to item.repo.url
+//                                    ),
+//                                    launchSingleTop = false
+//                                )
                             }
                         )
                     }

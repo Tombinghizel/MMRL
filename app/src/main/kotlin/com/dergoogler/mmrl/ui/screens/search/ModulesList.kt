@@ -7,13 +7,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.dp
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.model.online.OtherSources
-import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalModuleState
-import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
 
 @Composable
@@ -38,13 +35,13 @@ fun ModulesList(
                 ModuleItemCompact(
                     sourceProvider = it.repo.name,
                     onClick = {
-                        navController.navigateSingleTopTo(
-                            route = RepositoriesScreen.View.route,
-                            args = mapOf(
-                                "moduleId" to it.online.id,
-                                "repoUrl" to it.repo.url
-                            )
-                        )
+//                        navController.navigateSingleTopTo(
+//                            route = RepositoriesScreen.View.route,
+//                            args = mapOf(
+//                                "moduleId" to it.online.id,
+//                                "repoUrl" to it.repo.url
+//                            )
+//                        )
                     }
                 )
             }

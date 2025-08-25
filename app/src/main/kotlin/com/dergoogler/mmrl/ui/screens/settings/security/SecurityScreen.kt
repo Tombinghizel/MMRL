@@ -8,7 +8,10 @@ import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.SwitchItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
+import com.dergoogler.mmrl.ui.navigation.MainGraph
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination<MainGraph>
 @Composable
 fun SecurityScreen() {
     val viewModel = LocalSettings.current

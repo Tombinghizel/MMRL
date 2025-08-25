@@ -45,7 +45,6 @@ import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isNonRoot
 import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isRoot
 import com.dergoogler.mmrl.ext.currentScreenWidth
 import com.dergoogler.mmrl.ext.managerVersion
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeTrue
@@ -66,28 +65,32 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainRoute
-import com.dergoogler.mmrl.ui.providable.LocalMainNavController
+import com.dergoogler.mmrl.ui.navigation.MainGraph
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.home.items.NonRootItem
 import com.dergoogler.mmrl.ui.screens.home.items.RebootBottomSheet
 import com.dergoogler.mmrl.ui.screens.home.items.RootItem
 import com.dergoogler.mmrl.ui.screens.settings.changelogs.items.ChangelogBottomSheet
 import com.dergoogler.mmrl.viewmodel.HomeViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.generated.destinations.AboutScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ThankYouScreenDestination
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 val listItemContentPaddingValues: PaddingValues = PaddingValues(vertical = 8.dp, horizontal = 25.dp)
 
+@Destination<MainGraph>(start = true)
 @OptIn(ExperimentalComposeApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val navigator = LocalDestinationsNavigator.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val context = LocalContext.current
-    val navController = LocalMainNavController.current
     val userPreferences = LocalUserPreferences.current
     val browser = LocalUriHandler.current
 
@@ -103,10 +106,10 @@ fun HomeScreen(
             TopBar(
                 isProviderAlive = viewModel.isProviderAlive,
                 onInfoClick = {
-                    navController.navigateSingleTopTo(MainRoute.About.route)
+                    navigator.navigate(AboutScreenDestination)
                 },
                 onHeartClick = {
-                    navController.navigateSingleTopTo(MainRoute.ThankYou.route)
+                    navigator.navigate(ThankYouScreenDestination)
                 },
                 onRebootClick = {
                     openRebootSheet = true

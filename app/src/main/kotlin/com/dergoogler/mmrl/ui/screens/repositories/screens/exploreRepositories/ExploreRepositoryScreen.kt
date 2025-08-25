@@ -68,18 +68,22 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Item
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.navigation.MainGraph
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.launch
 
 val listItemContentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
 
+@Destination<MainGraph>
 @Composable
 fun ExploreRepositoryScreen(
     viewModel: RepositoriesViewModel = hiltViewModel(),
 ) {
+    val navigator = LocalDestinationsNavigator.current
     val scope = rememberCoroutineScope()
     val arguments = LocalPanicArguments.current
     val snackbarHostState = LocalSnackbarHost.current
-    val navController = LocalNavController.current
     val repo = arguments.panicMoshiParcelable<ExploreRepository>("repo")
     val browser = LocalUriHandler.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -124,7 +128,7 @@ fun ExploreRepositoryScreen(
                 ),
                 title = "",
                 scrollBehavior = scrollBehavior,
-                navController = navController,
+                navigator = navigator,
                 bottomBorder = false
             )
         },

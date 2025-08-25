@@ -19,9 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ext.navigateSingleTopTo
+import com.dergoogler.mmrl.ui.screens.repositories.screens.main.RepositoriesScreen
 
 @Composable
 fun ExploreReposCard() {
@@ -29,9 +29,9 @@ fun ExploreReposCard() {
 
     Card(
         onClick = {
-            navController.navigateSingleTopTo(
-                RepositoriesScreen.ExploreRepositories.route,
-            )
+//            navController.navigateSingleTopTo(
+//                RepositoriesScreen.ExploreRepositories.route,
+//            )
         },
         modifier = Modifier.fillMaxWidth().padding(20.dp)
     ) {

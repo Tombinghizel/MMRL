@@ -18,12 +18,15 @@ import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.ScaffoldDefaults
 import com.dergoogler.mmrl.ui.component.SettingsScaffold
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.settings.changelogs.items.ChangelogItem
+import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
+@Destination<MainGraph>
 @Composable
 fun ChangelogScreen() {
     val userPreferences = LocalUserPreferences.current

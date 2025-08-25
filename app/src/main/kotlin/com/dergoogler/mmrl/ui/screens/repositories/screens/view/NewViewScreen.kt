@@ -94,11 +94,7 @@ import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.PermissionItem
 import com.dergoogler.mmrl.ui.component.text.TextWithIcon
 import com.dergoogler.mmrl.ui.component.TopAppBar
-import com.dergoogler.mmrl.ui.component.listItem.ListButtonItem
-import com.dergoogler.mmrl.ui.component.listItem.ListCollapseItem
-import com.dergoogler.mmrl.ui.component.listItem.ListItem
 import com.dergoogler.mmrl.ui.component.listItem.ListItemTextStyle
-import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.InstallConfirmDialog
@@ -107,7 +103,6 @@ import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.VersionsIt
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.ViewTrackBottomSheet
 import com.dergoogler.mmrl.ui.screens.settings.blacklist.items.BlacklistBottomSheet
 import com.dergoogler.mmrl.viewmodel.ModuleViewModel
-import com.dergoogler.mmrl.viewmodel.RepositoryViewModel
 import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.panicString
@@ -115,7 +110,6 @@ import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.ifNotEmpty
 import com.dergoogler.mmrl.ext.ifNotNullOrBlank
 import com.dergoogler.mmrl.ext.isNotNullOrBlank
-import com.dergoogler.mmrl.ext.isNullOrFalse
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.repoId
 import com.dergoogler.mmrl.ext.shareText
@@ -133,17 +127,22 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.OtherSourcesItem
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@Destination<MainGraph>
 @Composable
 fun NewViewScreen(
     viewModel: ModuleViewModel,
-    navController: NavHostController,
 ) {
+    val navigator = LocalDestinationsNavigator.current
     val bulkInstallViewModel = LocalBulkInstall.current
     val userPreferences = LocalUserPreferences.current
     val repositoryMenu = userPreferences.repositoryMenu
@@ -407,7 +406,7 @@ fun NewViewScreen(
                         }
                     }
                 },
-                navController = navController,
+                navigator = navigator,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -497,14 +496,14 @@ fun NewViewScreen(
                             Text(
                                 modifier = Modifier.clickable(
                                     onClick = {
-                                        navController.navigateSingleTopTo(
-                                            route = RepositoriesScreen.RepoSearch.route,
-                                            args = mapOf(
-                                                "type" to "author",
-                                                "value" to module.author,
-                                                "repoUrl" to repoUrl
-                                            )
-                                        )
+//                                        navigator.navigateSingleTopTo(
+//                                            route = RepositoriesScreen.RepoSearch.route,
+//                                            args = mapOf(
+//                                                "type" to "author",
+//                                                "value" to module.author,
+//                                                "repoUrl" to repoUrl
+//                                            )
+//                                        )
                                     }
                                 ),
                                 text = module.author,
@@ -575,7 +574,7 @@ fun NewViewScreen(
                         }
 
                         Button(
-                            enabled = viewModel.isProviderAlive && lastVersionItem != null && ! isBlacklisted,
+                            enabled = viewModel.isProviderAlive && lastVersionItem != null && !isBlacklisted,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
@@ -702,13 +701,13 @@ fun NewViewScreen(
                         if (!module.readme.isNullOrBlank()) {
                             ButtonItem(
                                 onClick = {
-                                    navController.navigateSingleTopTo(
-                                        route = RepositoriesScreen.Description.route,
-                                        args = mapOf(
-                                            "moduleId" to module.id,
-                                            "repoUrl" to repoUrl
-                                        )
-                                    )
+//                                    navigator.navigateSingleTopTo(
+//                                        route = RepositoriesScreen.Description.route,
+//                                        args = mapOf(
+//                                            "moduleId" to module.id,
+//                                            "repoUrl" to repoUrl
+//                                        )
+//                                    )
                                 }
                             ) {
                                 Icon(
@@ -751,14 +750,14 @@ fun NewViewScreen(
                             items(it.size) { category ->
                                 AssistChip(
                                     onClick = {
-                                        navController.navigateSingleTopTo(
-                                            route = RepositoriesScreen.RepoSearch.route,
-                                            args = mapOf(
-                                                "type" to "category",
-                                                "value" to it[category],
-                                                "repoUrl" to repoUrl
-                                            )
-                                        )
+//                                        navigator.navigateSingleTopTo(
+//                                            route = RepositoriesScreen.RepoSearch.route,
+//                                            args = mapOf(
+//                                                "type" to "category",
+//                                                "value" to it[category],
+//                                                "repoUrl" to repoUrl
+//                                            )
+//                                        )
                                     },
                                     label = { Text(it[category]) }
                                 )
@@ -1163,14 +1162,14 @@ private fun ModuleInfoListItem(
 @Composable
 private fun TopBar(
     modifier: Modifier = Modifier,
-    navController: NavController,
+    navigator: DestinationsNavigator,
     scrollBehavior: TopAppBarScrollBehavior,
     actions: @Composable RowScope.() -> Unit = {},
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
 ) = TopAppBar(
     modifier = modifier,
     navigationIcon = {
-        IconButton(onClick = { navController.popBackStack() }) {
+        IconButton(onClick = { navigator.popBackStack() }) {
             Icon(
                 painter = painterResource(id = R.drawable.arrow_left), contentDescription = null
             )

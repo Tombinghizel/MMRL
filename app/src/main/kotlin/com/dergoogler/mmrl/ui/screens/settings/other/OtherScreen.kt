@@ -13,13 +13,16 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogIte
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
+import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.settings.appearance.items.DownloadPathItem
+import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@Destination<MainGraph>
 @Composable
 fun OtherScreen() {
     val context = LocalContext.current

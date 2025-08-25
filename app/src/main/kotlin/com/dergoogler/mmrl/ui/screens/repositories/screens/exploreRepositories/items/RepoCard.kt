@@ -24,20 +24,23 @@ import com.dergoogler.mmrl.model.online.ExploreRepository
 import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.component.card.component.Relative
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.screens.repositories.screens.main.RepositoriesScreen
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
+import com.ramcosta.composedestinations.generated.destinations.ExploreRepositoryScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.RepositoriesScreenDestination
 
 @Composable
 fun RepoCard(
     repo: ExploreRepository,
 ) {
-    val navController = LocalNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoriesMenu
@@ -45,10 +48,7 @@ fun RepoCard(
 
     Card(
         onClick = {
-            navController.navigateSingleTopTo(
-                route = RepositoriesScreen.ExploreRepository.route,
-                args = mapOf("repo" to repo.toJSON(true))
-            )
+            navigator.navigate(ExploreRepositoryScreenDestination)
         }
     ) {
         Column(

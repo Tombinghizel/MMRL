@@ -1,7 +1,5 @@
 package com.dergoogler.mmrl.ui.screens.repositories.screens.repository
 
-import android.R.attr.contentDescription
-import android.R.attr.onClick
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,8 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -31,16 +27,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.iconSize
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
-import com.dergoogler.mmrl.ext.panicString
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.component.card.card
-import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
-import com.dergoogler.mmrl.ui.providable.LocalRepo
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 
 @Composable
@@ -57,13 +48,13 @@ fun TopPickModule(
 
     Card(
         onClick = {
-            navController.navigateSingleTopTo(
-                route = RepositoriesScreen.View.route,
-                args = mapOf(
-                    "moduleId" to module.id,
-                    "repoUrl" to bundle.panicString("repoUrl")
-                )
-            )
+//            navController.navigateSingleTopTo(
+//                route = RepositoriesScreen.View.route,
+//                args = mapOf(
+//                    "moduleId" to module.id,
+//                    "repoUrl" to bundle.panicString("repoUrl")
+//                )
+//            )
         },
         modifier = modifier
             .fillMaxWidth()

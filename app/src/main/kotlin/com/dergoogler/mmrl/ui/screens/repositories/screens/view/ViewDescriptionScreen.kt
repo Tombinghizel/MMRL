@@ -23,7 +23,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.NavController
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.app.Event.Companion.isFailed
 import com.dergoogler.mmrl.app.Event.Companion.isLoading
@@ -33,10 +32,10 @@ import com.dergoogler.mmrl.ui.component.Failed
 import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.viewmodel.ModuleViewModel
-import androidx.navigation.NavHostController
 import com.dergoogler.mmrl.ui.activity.webui.interfaces.MarkdownInterface
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.navigation.MainGraph
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.webui.client.WXClient
 import com.dergoogler.mmrl.webui.handler.internalPathHandler
@@ -44,21 +43,24 @@ import com.dergoogler.mmrl.webui.model.Insets
 import com.dergoogler.mmrl.webui.util.WebUIOptions
 import com.dergoogler.mmrl.webui.view.WebUIView
 import com.dergoogler.mmrl.webui.wxAssetLoader
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 const val launchUrl = "https://mui.kernelsu.org/internal/assets/markdown.html"
 
 @SuppressLint("SetJavaScriptEnabled")
+@Destination<MainGraph>
 @Composable
 fun ViewDescriptionScreen(
-    viewModel: ModuleViewModel,
-    navController: NavHostController,
+    readmeUrl: String,
 ) {
+    val navigator = LocalDestinationsNavigator.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val userPrefs = LocalUserPreferences.current
 
     var readme by remember { mutableStateOf("") }
     val event = requestString(
-        url = viewModel.online.readme,
+        url = readmeUrl,
         onSuccess = { readme = it }
     )
 
@@ -67,7 +69,7 @@ fun ViewDescriptionScreen(
         topBar = {
             TopBar(
                 scrollBehavior = scrollBehavior,
-                navController = navController
+                navigator = navigator
             )
         },
         contentWindowInsets = WindowInsets.none
@@ -133,11 +135,11 @@ fun ViewDescriptionScreen(
 
 @Composable
 private fun TopBar(
-    navController: NavController,
+    navigator: DestinationsNavigator,
     scrollBehavior: TopAppBarScrollBehavior,
 ) = TopAppBar(
     navigationIcon = {
-        IconButton(onClick = { navController.popBackStack() }) {
+        IconButton(onClick = { navigator.popBackStack() }) {
             Icon(
                 painter = painterResource(id = R.drawable.arrow_left), contentDescription = null
             )

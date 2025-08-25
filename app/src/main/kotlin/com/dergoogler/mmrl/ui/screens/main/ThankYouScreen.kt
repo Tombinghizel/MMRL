@@ -32,7 +32,10 @@ import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.MemberCard
 import com.dergoogler.mmrl.viewmodel.ThankYouViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 
+@Destination<RootGraph>
 @Composable
 fun ThankYouScreen(
     vm: ThankYouViewModel = hiltViewModel(),

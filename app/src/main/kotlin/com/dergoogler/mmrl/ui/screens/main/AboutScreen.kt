@@ -35,8 +35,11 @@ import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.card.OutlinedCard
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 
+@Destination<RootGraph>
 @Composable
 fun AboutScreen() {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

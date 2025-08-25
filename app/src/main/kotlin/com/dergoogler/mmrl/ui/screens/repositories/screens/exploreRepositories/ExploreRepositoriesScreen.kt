@@ -29,18 +29,21 @@ import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.providable.LocalNavController
+import com.dergoogler.mmrl.ui.navigation.MainGraph
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.HeadlineCard
 import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.RepoCard
+import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
+@Destination<MainGraph>
 @Composable
 fun ExploreRepositoriesScreen() {
     var exploreRepositories by remember { mutableStateOf<List<ExploreRepository>?>(null) }
 
-    val navController = LocalNavController.current
+    val navigator = LocalDestinationsNavigator.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     LaunchedEffect(Unit) {
@@ -61,7 +64,7 @@ fun ExploreRepositoriesScreen() {
         topBar = {
             NavigateUpTopBar(
                 title = stringResource(id = R.string.explore_repositories),
-                navController = navController,
+                navigator = navigator,
             )
         },
         contentWindowInsets = WindowInsets.none

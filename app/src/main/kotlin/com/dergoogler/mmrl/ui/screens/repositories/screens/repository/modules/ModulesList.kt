@@ -20,11 +20,11 @@ import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.model.state.OnlineState
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
-import com.dergoogler.mmrl.ui.navigation.graphs.RepositoriesScreen
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalModuleState
 import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.ui.screens.repositories.screens.main.RepositoriesScreen
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemDetailed
 
@@ -65,13 +65,13 @@ fun ScaffoldScope.ModulesList(
                         LocalModule provides module
                     ) {
                         val click = {
-                            navController.navigateSingleTopTo(
-                                route = RepositoriesScreen.View.route,
-                                args = mapOf(
-                                    "moduleId" to module.id,
-                                    "repoUrl" to arguments.panicString("repoUrl")
-                                )
-                            )
+//                            navController.navigateSingleTopTo(
+//                                route = RepositoriesScreen.View.route,
+//                                args = mapOf(
+//                                    "moduleId" to module.id,
+//                                    "repoUrl" to arguments.panicString("repoUrl")
+//                                )
+//                            )
                         }
 
                         when (menu.repoListMode) {
