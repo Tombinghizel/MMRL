@@ -49,8 +49,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 const val launchUrl = "https://mui.kernelsu.org/internal/assets/markdown.html"
 
 @SuppressLint("SetJavaScriptEnabled")
-@Destination<RootGraph>
 @Composable
+@Destination<RootGraph>
 fun ViewDescriptionScreen(
     readmeUrl: String,
 ) {

@@ -1,3 +1,5 @@
+@file:Suppress("unused", "DEPRECATION")
+
 package com.dergoogler.mmrl.model.online
 
 import androidx.compose.runtime.Composable
@@ -8,7 +10,9 @@ import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.utils.Utils
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
+@Serializable
 @JsonClass(generateAdapter = true)
 data class OnlineModule(
     @Json(ignore = true) val repoUrl: String = "",

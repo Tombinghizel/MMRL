@@ -59,7 +59,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.datastore.model.RepositoryMenu
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.isNotNullOrBlank
@@ -90,13 +92,11 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 import kotlinx.html.InputType
 
-@Destination<RootGraph>
+@Destination<RootGraph>()
 @Composable
-fun RepositoryScreen(
-    viewModel: RepositoryViewModel,
-) {
+fun RepositoryScreen(repo: Repo) {
+    val viewModel = RepositoryViewModel.build(repo)
     val list by viewModel.online.collectAsStateWithLifecycle()
-    val repo by viewModel.repo.collectAsStateWithLifecycle()
 
     val browser = LocalUriHandler.current
     val density = LocalDensity.current
@@ -198,7 +198,7 @@ fun RepositoryScreen(
                         ) {
                             Text(
                                 text = repo?.name ?: "NULL",
-                                maxLines =2,
+                                maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.headlineMedium,

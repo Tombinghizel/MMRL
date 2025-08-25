@@ -30,6 +30,10 @@ import com.dergoogler.mmrl.ui.screens.repositories.screens.main.items.ExploreRep
 import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.ramcosta.composedestinations.generated.destinations.NewViewScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.RepositoriesScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.RepositoryScreenDestination
 
 @Composable
 fun ScaffoldScope.RepositoriesList(
@@ -40,7 +44,7 @@ fun ScaffoldScope.RepositoriesList(
 ) = Box(
     modifier = Modifier.fillMaxSize()
 ) {
-    val navController = LocalNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     this@RepositoriesList.ResponsiveContent {
         LazyColumn(
@@ -60,6 +64,7 @@ fun ScaffoldScope.RepositoriesList(
                 RepositoryItem(
                     repo = repo,
                     onClick = {
+                        navigator.navigate(RepositoryScreenDestination(repo.toRepo()))
 //                        navController.navigateSingleTopTo(
 //                            route = RepositoriesScreen.RepositoryView.route,
 //                            args = mapOf(

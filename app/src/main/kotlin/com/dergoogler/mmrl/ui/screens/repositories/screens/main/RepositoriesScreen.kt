@@ -37,7 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.datastore.model.RepositoriesMenu
 import com.dergoogler.mmrl.ext.currentScreenWidth
@@ -67,8 +69,9 @@ import kotlin.reflect.KFunction1
 @Destination<RootGraph>
 @Composable
 fun RepositoriesScreen(
-    viewModel: RepositoriesViewModel,
 ) {
+    val viewModel = hiltViewModel<RepositoriesViewModel>()
+
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val list by viewModel.repos.collectAsStateWithLifecycle()
     val bulkInstallViewModel = LocalBulkInstall.current

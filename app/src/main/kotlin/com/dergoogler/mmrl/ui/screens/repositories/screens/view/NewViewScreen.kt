@@ -76,6 +76,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.model.local.BulkModule
 import com.dergoogler.mmrl.model.local.State
 import com.dergoogler.mmrl.model.online.VersionItem
@@ -115,6 +116,7 @@ import com.dergoogler.mmrl.ext.repoId
 import com.dergoogler.mmrl.ext.shareText
 import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
 import com.dergoogler.mmrl.ext.takeTrue
+import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.platform.file.SuFile.Companion.toFormattedFileSize
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
@@ -132,16 +134,20 @@ import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.OtherSourcesItem
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
+import com.dergoogler.mmrl.viewmodel.ModulesViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@Destination<RootGraph>
 @Composable
+@Destination<RootGraph>
 fun NewViewScreen(
-    viewModel: ModuleViewModel,
+    repo: Repo,
+    module: OnlineModule,
 ) {
+    val viewModel = ModuleViewModel.build(repo, module)
+
     val navigator = LocalDestinationsNavigator.current
     val bulkInstallViewModel = LocalBulkInstall.current
     val userPreferences = LocalUserPreferences.current
