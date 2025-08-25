@@ -136,6 +136,7 @@ import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.OtherSourc
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 import com.dergoogler.mmrl.viewmodel.ModulesViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.generated.destinations.ViewDescriptionScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -160,8 +161,6 @@ fun NewViewScreen(
     val context = LocalContext.current
     val density = LocalDensity.current
     val browser = LocalUriHandler.current
-    val arguments = LocalPanicArguments.current
-    val repoUrl = arguments.panicString("repoUrl")
 
     val listItemContentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
     val subListItemContentPaddingValues = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
@@ -186,14 +185,6 @@ fun NewViewScreen(
             }
         }
     }
-
-    val subListItemStyle = ListItemTextStyle(
-        titleTextColor = LocalContentColor.current,
-        descTextColor = MaterialTheme.colorScheme.outline,
-        titleTextStyle = MaterialTheme.typography.bodyMedium,
-        descTextStyle = MaterialTheme.typography.bodyMedium,
-        iconSize = 20.dp
-    )
 
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -313,7 +304,7 @@ fun NewViewScreen(
                             },
                             onClick = {
                                 menuExpanded = false
-                                context.shareText("https://mmrl.dev/repository/${repoUrl.repoId}/${module.id}?utm_medium=share&utm_source=${context.packageName}")
+                                context.shareText("https://mmrl.dev/repository/${repo.url.repoId}/${module.id}?utm_medium=share&utm_source=${context.packageName}")
                             }
                         )
 
@@ -707,13 +698,7 @@ fun NewViewScreen(
                         if (!module.readme.isNullOrBlank()) {
                             ButtonItem(
                                 onClick = {
-//                                    navigator.navigateSingleTopTo(
-//                                        route = RepositoriesScreen.Description.route,
-//                                        args = mapOf(
-//                                            "moduleId" to module.id,
-//                                            "repoUrl" to repoUrl
-//                                        )
-//                                    )
+                                    navigator.navigate(ViewDescriptionScreenDestination(module.readme))
                                 }
                             ) {
                                 Icon(
