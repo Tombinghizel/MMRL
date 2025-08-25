@@ -130,7 +130,6 @@ fun FilteredSearchScreen(
                 },
                 list = list,
                 state = listState,
-                navController = navController,
             )
         }
     }

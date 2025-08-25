@@ -9,7 +9,7 @@ import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 @Composable
 fun rememberIsRoot(): Boolean {
     val userPreferences = LocalUserPreferences.current
-    return remember(userPreferences) {
+    return remember(userPreferences, PlatformManager.isAlive) {
         userPreferences.workingMode.isRoot && PlatformManager.isAlive
     }
 }

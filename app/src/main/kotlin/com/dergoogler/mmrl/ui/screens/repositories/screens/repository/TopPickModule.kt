@@ -30,8 +30,6 @@ import com.dergoogler.mmrl.ext.iconSize
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.ui.providable.LocalNavController
-import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 
 @Composable
@@ -39,9 +37,7 @@ fun TopPickModule(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    val navController = LocalNavController.current
     val module = LocalModule.current
-    val bundle = LocalPanicArguments.current
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
     val isVerified = module.isVerified && menu.showVerified
@@ -73,31 +69,30 @@ fun TopPickModule(
                 .relative(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (menu.showIcon) {
-                Logo(
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.size(64.dp),
-                    shape = RoundedCornerShape(20),
-                    icon = {
-                        if (module.icon != null) {
-                            AsyncImage(
-                                model = module.icon,
-                                contentScale = ContentScale.Crop,
-                                contentDescription = null,
-                            )
-                        } else {
-                            Icon(
-                                modifier = it,
-                                painter = painterResource(id = R.drawable.box),
-                                contentDescription = null,
-                            )
-                        }
+            Logo(
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.size(64.dp),
+                shape = RoundedCornerShape(20),
+                icon = {
+                    if (module.icon != null) {
+                        AsyncImage(
+                            model = module.icon,
+                            contentScale = ContentScale.Crop,
+                            contentDescription = null,
+                        )
+                    } else {
+                        Icon(
+                            modifier = it,
+                            painter = painterResource(id = R.drawable.box),
+                            contentDescription = null,
+                        )
                     }
-                )
+                }
+            )
 
-                Spacer(modifier = Modifier.width(10.dp))
-            }
+            Spacer(modifier = Modifier.width(10.dp))
+
 
             Column(
                 modifier = Modifier.weight(1f)

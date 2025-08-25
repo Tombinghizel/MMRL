@@ -28,12 +28,7 @@ fun ScaffoldScope.ModulesList(
     after: @Composable (() -> Unit)? = null,
     list: List<Pair<OnlineState, OnlineModule>>,
     state: LazyListState,
-    navController: NavController,
 ) {
-    val userPreferences = LocalUserPreferences.current
-    val menu = userPreferences.repositoryMenu
-    val arguments = LocalPanicArguments.current
-
     val modules = remember(list) { list.map { it.second } }
     val topCategories = remember(modules) { TopCategory.fromModuleList(modules) }
 

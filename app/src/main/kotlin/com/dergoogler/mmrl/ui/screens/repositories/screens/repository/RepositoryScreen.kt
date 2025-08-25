@@ -59,38 +59,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.database.entity.Repo
-import com.dergoogler.mmrl.datastore.model.RepositoryMenu
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.isNotNullOrBlank
 import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.PageIndicator
-import com.dergoogler.mmrl.ui.component.SearchTopBar
 import com.dergoogler.mmrl.ui.providable.LocalNavController
-import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
-import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.nullply
 import com.dergoogler.mmrl.ext.onClick
-import com.dergoogler.mmrl.ext.panicString
 import com.dergoogler.mmrl.ext.stripLinks
 import com.dergoogler.mmrl.model.ui.TopCategory
-import com.dergoogler.mmrl.platform.PlatformManager.state
-import com.dergoogler.mmrl.ui.component.CollapsingTopAppBarDefaults
 import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
 import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.component.lite.column.LiteColumnScopeInstance.align
-import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.text.BBCodeText
 import com.dergoogler.mmrl.viewmodel.RepositoryViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
-import kotlinx.html.InputType
 
 @Destination<RootGraph>()
 @Composable
@@ -139,7 +128,7 @@ fun RepositoryScreen(repo: Repo) {
                         .onGloballyPositioned { coordinates ->
                             coverHeight = coordinates.size.height
                         },
-                    url = repo?.cover ?: "ERROR ME",
+                    url = repo.cover ?: "ERROR ME",
                     errorIcon = R.drawable.box,
                 )
 
@@ -197,7 +186,7 @@ fun RepositoryScreen(repo: Repo) {
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Text(
-                                text = repo?.name ?: "NULL",
+                                text = repo.name,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 textAlign = TextAlign.Center,
@@ -207,7 +196,7 @@ fun RepositoryScreen(repo: Repo) {
                             )
 
                             BBCodeText(
-                                text = (repo?.description
+                                text = (repo.description
                                     ?: stringResource(R.string.view_module_no_description)).stripLinks(
                                     "<URL>"
                                 ),
