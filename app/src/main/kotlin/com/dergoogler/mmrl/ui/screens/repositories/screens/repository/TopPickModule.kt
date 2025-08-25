@@ -29,28 +29,27 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.iconSize
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.card.Card
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
+import com.dergoogler.mmrl.ui.providable.LocalRepo
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.ramcosta.composedestinations.generated.destinations.NewViewScreenDestination
 
 @Composable
 fun TopPickModule(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
+    val navigator = LocalDestinationsNavigator.current
     val module = LocalOnlineModule.current
+    val repo = LocalRepo.current
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
     val isVerified = module.isVerified && menu.showVerified
 
     Card(
         onClick = {
-//            navController.navigateSingleTopTo(
-//                route = RepositoriesScreen.View.route,
-//                args = mapOf(
-//                    "moduleId" to module.id,
-//                    "repoUrl" to bundle.panicString("repoUrl")
-//                )
-//            )
+            navigator.navigate(NewViewScreenDestination(repo, module))
         },
         modifier = modifier
             .fillMaxWidth()
