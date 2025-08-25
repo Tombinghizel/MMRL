@@ -2,6 +2,7 @@ package com.dergoogler.mmrl.ui.remember
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.produceState
@@ -25,8 +26,10 @@ fun rememberLocalModules(): State<List<LocalModule>> {
 @Composable
 fun rememberLocalModule(id: ModId): State<LocalModule?> {
     val modules by rememberLocalModules()
-    return produceState(initialValue = null, modules, id) {
-        value = modules.find { it.id == id }
+    return remember(modules, id) {
+        derivedStateOf {
+            modules.find { it.id == id }
+        }
     }
 }
 

@@ -1,7 +1,6 @@
 package com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules
 
 import androidx.compose.runtime.Composable
-import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModulesList
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.RepositoryMenu
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
@@ -15,51 +14,78 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.datastore.model.RepositoryMenu
-import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.SearchTopBar
-import com.dergoogler.mmrl.ui.providable.LocalNavController
-import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ext.panicString
+import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
-import com.dergoogler.mmrl.viewmodel.RepositoryViewModel
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.remember.rememberOnlineModules
+import com.dergoogler.mmrl.ui.remember.rememberUserPreferencesRepository
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import kotlinx.coroutines.launch
 
+@Destination<RootGraph>
 @Composable
-fun ModulfgesScreen(
-    viewModel: RepositoryViewModel,
+fun TypedModulesScreen(
+    searchKey: String,
+    repo: Repo,
+    disableSearch: Boolean = false,
 ) {
-    val list by viewModel.online.collectAsStateWithLifecycle()
-    val query by viewModel.query.collectAsStateWithLifecycle()
-
-    val navController = LocalNavController.current
-
+    var query by remember { mutableStateOf(searchKey) }
+    val modules by rememberOnlineModules(repo, query)
+    val userPreferencesRepository = rememberUserPreferencesRepository()
+    val scope = rememberCoroutineScope()
+    var isSearch by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
 
+    val openSearch = fun() {
+        isSearch = true
+    }
+
+    val closeSearch = fun() {
+        isSearch = false
+        query = ""
+    }
+
+    val search = fun(data: String) {
+        query = data
+    }
+
+    val setRepositoryMenu = fun(value: RepositoryMenu) {
+        scope.launch {
+            userPreferencesRepository.setRepositoryMenu(value)
+        }
+    }
+
     BackHandler(
-        enabled = viewModel.isSearch,
-        onBack = viewModel::closeSearch
+        enabled = isSearch,
+        onBack = closeSearch
     )
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                isSearch = viewModel.isSearch,
+                disableSearch = disableSearch,
+                repo = repo,
+                isSearch = isSearch,
                 query = query,
-                onQueryChange = viewModel::search,
-                onOpenSearch = viewModel::openSearch,
-                onCloseSearch = viewModel::closeSearch,
-                setMenu = viewModel::setRepositoryMenu,
+                onQueryChange = search,
+                onOpenSearch = openSearch,
+                onCloseSearch = closeSearch,
+                setMenu = setRepositoryMenu,
             )
         },
         contentWindowInsets = WindowInsets.none
@@ -67,21 +93,17 @@ fun ModulfgesScreen(
         Box(
             modifier = Modifier.padding(innerPadding)
         ) {
-            if (viewModel.isLoading) {
-                Loading()
-            }
-
-            if (list.isEmpty() && !viewModel.isLoading) {
+            if (modules.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.cloud,
-                    text = if (viewModel.isSearch) R.string.search_empty else R.string.repository_empty,
+                    text = if (isSearch) R.string.search_empty else R.string.repository_empty,
                 )
             }
 
-            this@Scaffold.ModulesList(
-                list = list,
+            this@Scaffold.TypedModulesList(
+                repo = repo,
+                list = modules,
                 state = listState,
-                navController = navController
             )
         }
     }
@@ -89,18 +111,34 @@ fun ModulfgesScreen(
 
 @Composable
 private fun TopBar(
+    repo: Repo,
     isSearch: Boolean,
     query: String,
     onQueryChange: (String) -> Unit,
     onOpenSearch: () -> Unit,
     onCloseSearch: () -> Unit,
     setMenu: (RepositoryMenu) -> Unit,
+    disableSearch: Boolean,
 ) {
-    val arguments = LocalPanicArguments.current
+    val navigator = LocalDestinationsNavigator.current
 
     var currentQuery by remember { mutableStateOf(query) }
     DisposableEffect(isSearch) {
         onDispose { currentQuery = "" }
+    }
+
+    if (disableSearch) {
+        val title = remember {
+            query.replace(Regex("^((author|category|id):)(.+)", RegexOption.IGNORE_CASE), "$3")
+        }
+
+        NavigateUpTopBar(
+            title = title,
+            subtitle = repo.name,
+            navigator = navigator
+        )
+
+        return
     }
 
     SearchTopBar(
@@ -113,9 +151,10 @@ private fun TopBar(
         onClose = {
             onCloseSearch()
             currentQuery = ""
-        }, title = {
+        },
+        title = {
             ToolbarTitle(
-                title = arguments.panicString("repoName")
+                title = repo.name
             )
         },
         actions = {

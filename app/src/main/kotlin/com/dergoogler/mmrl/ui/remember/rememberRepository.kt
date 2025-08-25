@@ -3,6 +3,7 @@ package com.dergoogler.mmrl.ui.remember
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.dergoogler.mmrl.datastore.UserPreferencesRepository
 import com.dergoogler.mmrl.repository.LocalRepository
 import com.dergoogler.mmrl.repository.ModulesRepository
 import com.dergoogler.mmrl.repository.RepositoryEntryPoints
@@ -30,5 +31,11 @@ fun rememberLocalRepository(): LocalRepository {
 fun rememberModulesRepository(): ModulesRepository {
     val repository = rememberRepository()
     return remember(repository) { repository.modulesRepository() }
+}
+
+@Composable
+fun rememberUserPreferencesRepository(): UserPreferencesRepository {
+    val repository = rememberRepository()
+    return remember(repository) { repository.userPreferencesRepository() }
 }
 

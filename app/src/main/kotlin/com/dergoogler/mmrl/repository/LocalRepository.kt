@@ -172,6 +172,10 @@ class LocalRepository @Inject constructor(
         onlineDao.getAllById(id).map { it.toModule() }
     }
 
+    suspend fun getOnlineAllByUrl(url: String) = withContext(Dispatchers.IO) {
+        onlineDao.getAllByUrl(url).map { it.toModule() }
+    }
+
     suspend fun getOnlineAllByIdAndUrl(id: String, repoUrl: String) = withContext(Dispatchers.IO) {
         onlineDao.getAllByIdAndUrl(id, repoUrl).map { it.toModule() }
     }

@@ -1,5 +1,6 @@
 package com.dergoogler.mmrl.repository
 
+import com.dergoogler.mmrl.datastore.UserPreferencesRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -9,4 +10,5 @@ import dagger.hilt.components.SingletonComponent
 interface RepositoryEntryPoints {
     fun localRepository(): LocalRepository
     fun modulesRepository(): ModulesRepository
+    fun userPreferencesRepository(): UserPreferencesRepository
 }

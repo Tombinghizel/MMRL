@@ -33,7 +33,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -72,8 +71,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.database.entity.Repo
@@ -95,8 +92,6 @@ import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.PermissionItem
 import com.dergoogler.mmrl.ui.component.text.TextWithIcon
 import com.dergoogler.mmrl.ui.component.TopAppBar
-import com.dergoogler.mmrl.ui.component.listItem.ListItemTextStyle
-import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.InstallConfirmDialog
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.LicenseItem
@@ -104,9 +99,7 @@ import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.VersionsIt
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.ViewTrackBottomSheet
 import com.dergoogler.mmrl.ui.screens.settings.blacklist.items.BlacklistBottomSheet
 import com.dergoogler.mmrl.viewmodel.ModuleViewModel
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ext.panicString
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.ifNotEmpty
 import com.dergoogler.mmrl.ext.ifNotNullOrBlank
@@ -134,8 +127,8 @@ import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.OtherSourcesItem
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
-import com.dergoogler.mmrl.viewmodel.ModulesViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.generated.destinations.TypedModulesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ViewDescriptionScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -493,14 +486,13 @@ fun NewViewScreen(
                             Text(
                                 modifier = Modifier.clickable(
                                     onClick = {
-//                                        navigator.navigateSingleTopTo(
-//                                            route = RepositoriesScreen.RepoSearch.route,
-//                                            args = mapOf(
-//                                                "type" to "author",
-//                                                "value" to module.author,
-//                                                "repoUrl" to repoUrl
-//                                            )
-//                                        )
+                                        navigator.navigate(
+                                            TypedModulesScreenDestination(
+                                                searchKey = "author:${module.author}",
+                                                repo = repo,
+                                                disableSearch = true
+                                            )
+                                        )
                                     }
                                 ),
                                 text = module.author,
@@ -741,14 +733,13 @@ fun NewViewScreen(
                             items(it.size) { category ->
                                 AssistChip(
                                     onClick = {
-//                                        navigator.navigateSingleTopTo(
-//                                            route = RepositoriesScreen.RepoSearch.route,
-//                                            args = mapOf(
-//                                                "type" to "category",
-//                                                "value" to it[category],
-//                                                "repoUrl" to repoUrl
-//                                            )
-//                                        )
+                                        navigator.navigate(
+                                            TypedModulesScreenDestination(
+                                                searchKey = "category:${it[category]}",
+                                                repo = repo,
+                                                disableSearch = true
+                                            )
+                                        )
                                     },
                                     label = { Text(it[category]) }
                                 )

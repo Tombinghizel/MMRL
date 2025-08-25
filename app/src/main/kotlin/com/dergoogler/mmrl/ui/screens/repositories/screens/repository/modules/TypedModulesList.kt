@@ -12,47 +12,40 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.datastore.model.RepoListMode
 import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.model.state.OnlineState
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
-import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemDetailed
+import com.ramcosta.composedestinations.generated.destinations.NewViewScreenDestination
 
 @Composable
-fun ScaffoldScope.ModulesList(
-    before: @Composable (() -> Unit)? = null,
-    after: @Composable (() -> Unit)? = null,
+fun ScaffoldScope.TypedModulesList(
+    repo: Repo,
     list: List<Pair<OnlineState, OnlineModule>>,
     state: LazyListState,
-    navController: NavController,
 ) {
+    val navigator = LocalDestinationsNavigator.current
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
-    val arguments = LocalPanicArguments.current
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        this@ModulesList.ResponsiveContent {
+        this@TypedModulesList.ResponsiveContent {
             LazyColumn(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(if (menu.repoListMode == RepoListMode.Compact) 0.dp else 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                before?.let {
-                    item {
-                        it()
-                    }
-                }
-
                 items(
                     items = list,
                     key = { it.second.id }
@@ -61,14 +54,10 @@ fun ScaffoldScope.ModulesList(
                         LocalOnlineModuleState provides moduleState,
                         LocalOnlineModule provides module
                     ) {
-                        val click = {
-//                            navController.navigateSingleTopTo(
-//                                route = RepositoriesScreen.View.route,
-//                                args = mapOf(
-//                                    "moduleId" to module.id,
-//                                    "repoUrl" to arguments.panicString("repoUrl")
-//                                )
-//                            )
+                        val click = fun() {
+                            navigator.navigate(
+                                NewViewScreenDestination(repo, module)
+                            )
                         }
 
                         when (menu.repoListMode) {
@@ -80,12 +69,6 @@ fun ScaffoldScope.ModulesList(
                                 onClick = click
                             )
                         }
-                    }
-                }
-
-                after?.let {
-                    item {
-                        it()
                     }
                 }
             }
