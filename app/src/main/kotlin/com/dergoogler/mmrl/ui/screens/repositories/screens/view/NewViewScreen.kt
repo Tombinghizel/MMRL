@@ -127,7 +127,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
-import com.dergoogler.mmrl.ui.navigation.MainGraph
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.OtherSourcesItem
@@ -137,7 +137,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun NewViewScreen(
     viewModel: ModuleViewModel,

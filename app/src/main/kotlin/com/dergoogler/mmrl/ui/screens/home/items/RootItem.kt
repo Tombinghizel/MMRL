@@ -20,25 +20,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.model.local.FeaturedManager
+import com.dergoogler.mmrl.platform.PlatformManager.isAlive
+import com.dergoogler.mmrl.platform.PlatformManager.platform
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.text.TextRow
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.ui.remember.isLkmMode
+import com.dergoogler.mmrl.ui.remember.versionCode
 import com.dergoogler.mmrl.viewmodel.HomeViewModel
 
 @Composable
 internal fun RootItem(
     developerMode: Boolean = false,
-    viewModel: HomeViewModel,
 ) {
     val userPreferences = LocalUserPreferences.current
-    val platform = viewModel.platform
-    val isAlive = viewModel.isProviderAlive
-    val versionCode = viewModel.versionCode
 
     val manager =
         FeaturedManager.managers.find { userPreferences.workingMode == it.workingMode }
@@ -92,7 +93,7 @@ internal fun RootItem(
                     verticalAlignment = Alignment.CenterVertically,
                     leadingContent = (developerMode && platform.isKernelSuOrNext) nullable {
                         LabelItem(
-                            text = when (viewModel.isLkmMode.value) {
+                            text = when (isLkmMode.value) {
                                 null -> "LTS"
                                 true -> "LKM"
                                 else -> "GKI"

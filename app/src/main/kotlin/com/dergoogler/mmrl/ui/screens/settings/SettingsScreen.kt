@@ -26,12 +26,12 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.jakewharton.processphoenix.ProcessPhoenix
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AppearanceScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.BlacklistScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ChangelogScreenDestination
@@ -44,7 +44,7 @@ import com.ramcosta.composedestinations.generated.destinations.TerminalScreenDes
 import com.ramcosta.composedestinations.generated.destinations.UpdatesScreenDestination
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun SettingsScreen() {
     val userPreferences = LocalUserPreferences.current

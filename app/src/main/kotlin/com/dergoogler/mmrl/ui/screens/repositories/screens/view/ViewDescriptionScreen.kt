@@ -34,7 +34,6 @@ import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ui.activity.webui.interfaces.MarkdownInterface
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.webui.client.WXClient
@@ -44,12 +43,13 @@ import com.dergoogler.mmrl.webui.util.WebUIOptions
 import com.dergoogler.mmrl.webui.view.WebUIView
 import com.dergoogler.mmrl.webui.wxAssetLoader
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 const val launchUrl = "https://mui.kernelsu.org/internal/assets/markdown.html"
 
 @SuppressLint("SetJavaScriptEnabled")
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun ViewDescriptionScreen(
     readmeUrl: String,

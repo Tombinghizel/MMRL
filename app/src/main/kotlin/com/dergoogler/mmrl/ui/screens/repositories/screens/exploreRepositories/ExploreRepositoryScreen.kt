@@ -68,14 +68,14 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Item
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.launch
 
 val listItemContentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun ExploreRepositoryScreen(
     viewModel: RepositoriesViewModel = hiltViewModel(),

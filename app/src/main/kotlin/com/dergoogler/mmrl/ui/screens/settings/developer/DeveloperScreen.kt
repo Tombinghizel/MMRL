@@ -12,10 +12,10 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Section
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.SwitchItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 
 @Composable
 fun ListScope.DeveloperSwitch(
@@ -34,7 +34,7 @@ fun ListScope.DeveloperSwitch(
     )
 }
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun DeveloperScreen() {
     val viewModel = LocalSettings.current

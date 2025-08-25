@@ -21,6 +21,7 @@ import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isSetup
 import com.dergoogler.mmrl.network.NetworkUtils
 import com.dergoogler.mmrl.ui.activity.terminal.action.ActionActivity
 import com.dergoogler.mmrl.ui.activity.terminal.install.InstallActivity
+import com.dergoogler.mmrl.ui.screens.main.MainScreen
 import com.dergoogler.mmrl.ui.screens.main.RootScreen
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -73,7 +74,7 @@ class MainActivity : MMRLComponentActivity() {
                         setWorkingMode = ::setWorkingMode
                     )
                 } else {
-                    RootScreen()
+                    MainScreen()
                 }
             }
         }

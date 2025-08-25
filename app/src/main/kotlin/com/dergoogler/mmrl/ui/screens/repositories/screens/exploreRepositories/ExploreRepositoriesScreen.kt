@@ -29,16 +29,16 @@ import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.HeadlineCard
 import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.RepoCard
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun ExploreRepositoriesScreen() {
     var exploreRepositories by remember { mutableStateOf<List<ExploreRepository>?>(null) }

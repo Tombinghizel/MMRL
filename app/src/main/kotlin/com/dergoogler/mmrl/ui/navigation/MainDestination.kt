@@ -10,8 +10,8 @@ import com.ramcosta.composedestinations.generated.destinations.RepositoriesScree
 import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
-@NavHostGraph
-annotation class MainGraph
+//@NavHostGraph
+//annotation class MainGraph
 
 enum class MainDestination(
     val direction: DirectionDestinationSpec,
@@ -36,7 +36,7 @@ enum class MainDestination(
     ),
 
     Modules(
-        direction = ModulesScreenDestination,
+        direction = HomeScreenDestination,
         label = R.string.page_modules,
         icon = R.drawable.keyframes,
         iconFilled = R.drawable.keyframes_filled,

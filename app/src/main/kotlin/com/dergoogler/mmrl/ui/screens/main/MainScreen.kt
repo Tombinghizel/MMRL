@@ -1,6 +1,9 @@
 package com.dergoogler.mmrl.ui.screens.main
 
 import android.net.http.SslCertificate.restoreState
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -27,28 +30,41 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.ext.currentScreenWidth
 import com.dergoogler.mmrl.ext.none
+import com.dergoogler.mmrl.platform.PlatformManager
 import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.navigation.MainDestination
+import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalNavController
+import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
+import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.remember.rememberIsRoot
-import com.dergoogler.mmrl.viewmodel.MainViewModel
+import com.dergoogler.mmrl.ui.remember.rememberUpdatableModuleCount
+import com.dergoogler.mmrl.utils.initPlatform
+import com.dergoogler.mmrl.viewmodel.BulkInstallViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.NavHostAnimatedDestinationStyle
 import com.ramcosta.composedestinations.annotation.Destination
@@ -56,88 +72,124 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.utils.isRouteOnBackStackAsState
 
-@Destination<RootGraph>(start = true)
+@Destination<RootGraph>
 @Composable
-fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen() {
     val width = currentScreenWidth()
+    val userPrefs = LocalUserPreferences.current
     val navigator = LocalDestinationsNavigator.current
-    val updates by viewModel.updatableModuleCount.collectAsState()
+    val context = LocalContext.current
+    val updates by rememberUpdatableModuleCount()
 
-    if (width.isLarge) {
-        Scaffold(
-            contentWindowInsets = WindowInsets.none
-        ) { paddingValues ->
-            val navController = LocalNavController.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val bulkInstallViewModel: BulkInstallViewModel = hiltViewModel()
 
-            PermanentNavigationDrawer(
-                drawerContent = {
-                    PermanentDrawerSheet(
-                        modifier = Modifier
-                            .width(240.dp)
-                    ) {
-                        TopAppBar(
-                            title = {
-                                TopAppBarEventIcon()
-                            },
-                        )
-
-                        LazyColumn(
-                            contentPadding = PaddingValues(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            items(
-                                items = MainDestination.entries,
-                                key = { it.direction }
-                            ) { screen ->
-                                val isSelected by navController.isRouteOnBackStackAsState(screen.direction)
-
-                                NavigationDrawerItem(
-                                    icon = {
-                                        BaseNavIcon(screen, isSelected, updates)
-                                    },
-                                    label = {
-                                        Text(
-                                            text = stringResource(id = screen.label),
-                                            style = MaterialTheme.typography.labelLarge
-                                        )
-                                    },
-                                    selected = isSelected,
-                                    onClick = {
-                                        if (isSelected) {
-                                            navigator.popBackStack(screen.direction, false)
-                                        }
-                                        navigator.navigate(screen.direction) {
-                                            popUpTo(NavGraphs.root) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    }
-                                )
-                            }
-                        }
-
-                    }
-                }
-            ) {
-                CurrentNavHost(paddingValues)
-            }
-        }
-
-        return
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { result: Map<String, Boolean> ->
+        Log.d("MainScreen", "launcher: $result")
     }
 
-    ResponsiveScaffold(
-        bottomBar = {
-            BottomNav(updates)
-        },
-        railBar = {
-            RailNav(updates)
-        },
-        contentWindowInsets = WindowInsets.none
-    ) { paddingValues ->
-        CurrentNavHost(paddingValues)
+    LaunchedEffect(Unit) {
+        if (PlatformManager.platform.isNotNonRoot) {
+            launcher.launch(
+                if (BuildConfig.IS_DEV_VERSION) {
+                    arrayOf(
+                        "com.dergoogler.mmrl.debug.permission.WEBUI_X",
+                        "com.dergoogler.mmrl.debug.permission.WEBUI_LEGACY"
+                    )
+                } else {
+                    arrayOf(
+                        "com.dergoogler.mmrl.permission.WEBUI_X",
+                        "com.dergoogler.mmrl.permission.WEBUI_LEGACY"
+                    )
+                }
+            )
+        }
+
+        initPlatform(context, userPrefs.workingMode.toPlatform())
+    }
+
+    CompositionLocalProvider(
+        LocalSnackbarHost provides snackbarHostState,
+        LocalBulkInstall provides bulkInstallViewModel
+    ) {
+        if (width.isLarge) {
+            Scaffold(
+                contentWindowInsets = WindowInsets.none
+            ) { paddingValues ->
+                val navController = LocalNavController.current
+
+                PermanentNavigationDrawer(
+                    drawerContent = {
+                        PermanentDrawerSheet(
+                            modifier = Modifier
+                                .width(240.dp)
+                        ) {
+                            TopAppBar(
+                                title = {
+                                    TopAppBarEventIcon()
+                                },
+                            )
+
+                            LazyColumn(
+                                contentPadding = PaddingValues(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                items(
+                                    items = MainDestination.entries,
+                                    key = { it.direction }
+                                ) { screen ->
+                                    val isSelected by navController.isRouteOnBackStackAsState(screen.direction)
+
+                                    NavigationDrawerItem(
+                                        icon = {
+                                            BaseNavIcon(screen, isSelected, updates)
+                                        },
+                                        label = {
+                                            Text(
+                                                text = stringResource(id = screen.label),
+                                                style = MaterialTheme.typography.labelLarge
+                                            )
+                                        },
+                                        selected = isSelected,
+                                        onClick = {
+                                            if (isSelected) {
+                                                navigator.popBackStack(screen.direction, false)
+                                            }
+                                            navigator.navigate(screen.direction) {
+                                                popUpTo(NavGraphs.root) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+
+                        }
+                    }
+                ) {
+                    CurrentNavHost(paddingValues)
+                }
+            }
+
+            return@CompositionLocalProvider
+        }
+
+        ResponsiveScaffold(
+            bottomBar = {
+                BottomNav(updates)
+            },
+            railBar = {
+                RailNav(updates)
+            },
+            contentWindowInsets = WindowInsets.none
+        ) { paddingValues ->
+            CurrentNavHost(paddingValues)
+        }
     }
 }
 
@@ -146,7 +198,7 @@ private fun CurrentNavHost(paddingValues: PaddingValues) {
     val navController = LocalNavController.current
     DestinationsNavHost(
         modifier = Modifier.padding(paddingValues),
-        navGraph = NavGraphs.main,
+        navGraph = NavGraphs.root,
         navController = navController,
         defaultTransitions = object : NavHostAnimatedDestinationStyle() {
             override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition

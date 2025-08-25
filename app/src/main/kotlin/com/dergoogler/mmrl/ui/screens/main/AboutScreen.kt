@@ -34,6 +34,7 @@ import com.dergoogler.mmrl.ui.component.MarkdownText
 import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.card.OutlinedCard
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -44,14 +45,14 @@ import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 fun AboutScreen() {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val browser = LocalUriHandler.current
-    val mainNavController = LocalMainNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             NavigateUpTopBar(
                 title = stringResource(id = R.string.settings_about),
-                navController = mainNavController
+                navigator = navigator,
             )
         },
         contentWindowInsets = WindowInsets(0.dp)

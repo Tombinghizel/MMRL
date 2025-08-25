@@ -84,15 +84,13 @@ import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.lite.column.LiteColumnScopeInstance.align
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.text.BBCodeText
-import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
-import com.dergoogler.mmrl.ui.navigation.MainGraph
-import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.StatBox
 import com.dergoogler.mmrl.viewmodel.RepositoryViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 import kotlinx.html.InputType
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun RepositoryScreen(
     viewModel: RepositoryViewModel,

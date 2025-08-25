@@ -57,14 +57,14 @@ import com.dergoogler.mmrl.viewmodel.RepositoriesViewModel
 import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import timber.log.Timber
 import kotlin.reflect.KFunction1
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun RepositoriesScreen(
     viewModel: RepositoriesViewModel,

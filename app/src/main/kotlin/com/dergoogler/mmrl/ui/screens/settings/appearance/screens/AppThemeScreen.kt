@@ -9,7 +9,6 @@ import androidx.compose.ui.res.stringResource
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ui.component.ScaffoldDefaults
 import com.dergoogler.mmrl.ui.component.SettingsScaffold
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.settings.appearance.items.DarkModeItem
@@ -17,8 +16,9 @@ import com.dergoogler.mmrl.ui.screens.settings.appearance.items.ExampleItem
 import com.dergoogler.mmrl.ui.screens.settings.appearance.items.ThemePaletteItem
 import com.dergoogler.mmrl.ui.screens.settings.appearance.items.TitleItem
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 
-@Destination<MainGraph>
+@Destination<RootGraph>
 @Composable
 fun AppThemeScreen() {
     val userPreferences = LocalUserPreferences.current

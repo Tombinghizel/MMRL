@@ -40,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isNonRoot
 import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isRoot
@@ -50,6 +51,7 @@ import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.model.online.Changelog
 import com.dergoogler.mmrl.network.runRequest
+import com.dergoogler.mmrl.platform.PlatformManager
 import com.dergoogler.mmrl.platform.file.SuFile.Companion.toFormattedFileSize
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.stub.IMMRLApiManager
@@ -65,15 +67,17 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainGraph
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.ui.remember.seLinuxContext
+import com.dergoogler.mmrl.ui.remember.superUserCount
+import com.dergoogler.mmrl.ui.remember.versionName
 import com.dergoogler.mmrl.ui.screens.home.items.NonRootItem
 import com.dergoogler.mmrl.ui.screens.home.items.RebootBottomSheet
 import com.dergoogler.mmrl.ui.screens.home.items.RootItem
 import com.dergoogler.mmrl.ui.screens.settings.changelogs.items.ChangelogBottomSheet
-import com.dergoogler.mmrl.viewmodel.HomeViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AboutScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ThankYouScreenDestination
 import kotlinx.coroutines.Dispatchers
@@ -82,12 +86,10 @@ import timber.log.Timber
 
 val listItemContentPaddingValues: PaddingValues = PaddingValues(vertical = 8.dp, horizontal = 25.dp)
 
-@Destination<MainGraph>(start = true)
+@Destination<RootGraph>(start = true)
 @OptIn(ExperimentalComposeApi::class)
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
-) {
+fun HomeScreen() {
     val navigator = LocalDestinationsNavigator.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val context = LocalContext.current
@@ -104,7 +106,6 @@ fun HomeScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                isProviderAlive = viewModel.isProviderAlive,
                 onInfoClick = {
                     navigator.navigate(AboutScreenDestination)
                 },
@@ -130,7 +131,6 @@ fun HomeScreen(
                 when {
                     userPreferences.workingMode.isRoot -> RootItem(
                         developerMode = userPreferences.developerMode,
-                        viewModel = viewModel,
                     )
 
                     userPreferences.workingMode.isNonRoot -> NonRootItem(
@@ -233,17 +233,17 @@ fun HomeScreen(
 
                             scope.SELinuxStatus()
 
-                            viewModel.platform.isKernelSuOrNext.takeTrue {
+                            PlatformManager.platform.isKernelSuOrNext.takeTrue {
                                 scope.Item {
                                     Icon(painter = painterResource(R.drawable.user_outlined))
                                     Title(R.string.super_user_apps)
-                                    Description(viewModel.superUserCount.toString())
+                                    Description(superUserCount.toString())
                                 }
                             }
                         }
                     }
 
-                    viewModel.isProviderAlive.takeTrue {
+                    PlatformManager.isAlive.takeTrue {
                         userPreferences.developerMode.takeTrue {
                             Card(
                                 modifier = Modifier.padding(vertical = 16.dp)
@@ -253,15 +253,15 @@ fun HomeScreen(
                                 ) {
                                     scope.Item {
                                         Title(R.string.home_root_provider_version_name)
-                                        Description(viewModel.versionName)
+                                        Description(versionName)
                                     }
 
                                     scope.Item {
                                         Title(R.string.home_root_provider_se_linux_context)
-                                        Description(viewModel.seLinuxContext)
+                                        Description(seLinuxContext)
                                     }
 
-                                    if (viewModel.platform.isKernelSuNext) {
+                                    if (PlatformManager.platform.isKernelSuNext) {
                                         KsuNative.getHookMode().nullable {
                                             scope.Item {
                                                 Title(R.string.hook_mode)
@@ -270,7 +270,7 @@ fun HomeScreen(
                                         }
                                     }
 
-                                    if (viewModel.platform.isSukiSU) {
+                                    if (PlatformManager.platform.isSukiSU) {
                                         KsuNative.getHookType().nullable {
                                             scope.Item {
                                                 Title(R.string.hook_mode)
@@ -288,105 +288,105 @@ fun HomeScreen(
                         }
                     }
 
-                    if (viewModel.platform.isValid) {
-                        viewModel.analytics(context).nullable {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Card(
-                                    modifier = Modifier
-                                        .padding(vertical = 16.dp)
-                                        .weight(1f)
-                                ) {
-                                    Relative {
-                                        scope.Item {
-                                            Title(R.string.home_installed_modules)
-                                            Description(it.totalModules.toString())
-                                        }
-                                    }
-                                }
-
-                                Card(
-                                    modifier = Modifier
-                                        .padding(vertical = 16.dp)
-                                        .weight(1f)
-                                ) {
-                                    Relative {
-                                        scope.Item {
-                                            Title(R.string.home_updated_modules)
-                                            Description(it.totalUpdated.toString())
-                                        }
-                                    }
-                                }
-                            }
-
-                            Card(
-                                modifier = Modifier
-                                    .padding(vertical = 16.dp)
-                            ) {
-                                Relative {
-                                    scope.Item {
-                                        Title(R.string.home_storage_usage)
-
-                                        Description {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                            ) {
-                                                Text(
-                                                    text = it.totalModulesUsageBytes.toFormattedFileSize(),
-                                                )
-
-                                                LinearProgressIndicator(
-                                                    progress = {
-                                                        it.totalStorageUsage
-                                                    },
-                                                    modifier = Modifier
-                                                        .height(10.dp)
-                                                        .weight(1f),
-                                                    drawStopIndicator = {}
-                                                )
-
-                                                Text(
-                                                    text = it.totalDeviceStorageBytes.toFormattedFileSize(),
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Card(
-                                    modifier = Modifier
-                                        .padding(vertical = 16.dp)
-                                        .weight(1f)
-                                ) {
-                                    Relative {
-                                        scope.Item {
-                                            Title(R.string.home_enabled_modules)
-                                            Description(it.totalEnabled.toString())
-                                        }
-                                    }
-                                }
-
-                                Card(
-                                    modifier = Modifier
-                                        .padding(vertical = 16.dp)
-                                        .weight(1f)
-                                ) {
-                                    Relative {
-                                        scope.Item {
-                                            Title(R.string.home_disabled_modules)
-                                            Description(it.totalDisabled.toString())
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+//                    if (PlatformManager.platform.isValid) {
+//                        viewModel.analytics(context).nullable {
+//                            Row(
+//                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+//                            ) {
+//                                Card(
+//                                    modifier = Modifier
+//                                        .padding(vertical = 16.dp)
+//                                        .weight(1f)
+//                                ) {
+//                                    Relative {
+//                                        scope.Item {
+//                                            Title(R.string.home_installed_modules)
+//                                            Description(it.totalModules.toString())
+//                                        }
+//                                    }
+//                                }
+//
+//                                Card(
+//                                    modifier = Modifier
+//                                        .padding(vertical = 16.dp)
+//                                        .weight(1f)
+//                                ) {
+//                                    Relative {
+//                                        scope.Item {
+//                                            Title(R.string.home_updated_modules)
+//                                            Description(it.totalUpdated.toString())
+//                                        }
+//                                    }
+//                                }
+//                            }
+//
+//                            Card(
+//                                modifier = Modifier
+//                                    .padding(vertical = 16.dp)
+//                            ) {
+//                                Relative {
+//                                    scope.Item {
+//                                        Title(R.string.home_storage_usage)
+//
+//                                        Description {
+//                                            Row(
+//                                                verticalAlignment = Alignment.CenterVertically,
+//                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                                            ) {
+//                                                Text(
+//                                                    text = it.totalModulesUsageBytes.toFormattedFileSize(),
+//                                                )
+//
+//                                                LinearProgressIndicator(
+//                                                    progress = {
+//                                                        it.totalStorageUsage
+//                                                    },
+//                                                    modifier = Modifier
+//                                                        .height(10.dp)
+//                                                        .weight(1f),
+//                                                    drawStopIndicator = {}
+//                                                )
+//
+//                                                Text(
+//                                                    text = it.totalDeviceStorageBytes.toFormattedFileSize(),
+//                                                )
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//
+//                            Row(
+//                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+//                            ) {
+//                                Card(
+//                                    modifier = Modifier
+//                                        .padding(vertical = 16.dp)
+//                                        .weight(1f)
+//                                ) {
+//                                    Relative {
+//                                        scope.Item {
+//                                            Title(R.string.home_enabled_modules)
+//                                            Description(it.totalEnabled.toString())
+//                                        }
+//                                    }
+//                                }
+//
+//                                Card(
+//                                    modifier = Modifier
+//                                        .padding(vertical = 16.dp)
+//                                        .weight(1f)
+//                                ) {
+//                                    Relative {
+//                                        scope.Item {
+//                                            Title(R.string.home_disabled_modules)
+//                                            Description(it.totalDisabled.toString())
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
 
                     Card(
                         modifier = Modifier
@@ -424,7 +424,6 @@ fun HomeScreen(
 
 @Composable
 private fun TopBar(
-    isProviderAlive: Boolean,
     onRebootClick: () -> Unit = {},
     onInfoClick: () -> Unit = {},
     onHeartClick: () -> Unit = {},
@@ -438,7 +437,7 @@ private fun TopBar(
             TopAppBarEventIcon()
         },
         actions = {
-            if (isProviderAlive) {
+            if (PlatformManager.isAlive) {
                 IconButton(onClick = onRebootClick) {
                     Icon(
                         painter = painterResource(id = R.drawable.refresh),

@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,11 +26,14 @@ import androidx.navigation.NavBackStackEntry
 import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.platform.PlatformManager
+import com.dergoogler.mmrl.platform.model.ModId.Companion.toModId
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.ui.remember.rememberLocalModule
+import com.dergoogler.mmrl.ui.remember.rememberLocalModules
 import com.dergoogler.mmrl.utils.initPlatform
 import com.dergoogler.mmrl.viewmodel.BulkInstallViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost

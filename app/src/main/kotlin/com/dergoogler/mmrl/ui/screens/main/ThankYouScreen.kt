@@ -29,6 +29,7 @@ import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.toDollars
 import com.dergoogler.mmrl.ui.component.HorizontalDividerWithText
 import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.MemberCard
 import com.dergoogler.mmrl.viewmodel.ThankYouViewModel
@@ -41,7 +42,7 @@ fun ThankYouScreen(
     vm: ThankYouViewModel = hiltViewModel(),
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val mainNavController = LocalMainNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     val sponsors by vm.sponsors.collectAsStateWithLifecycle()
     val contributors by vm.contributors.collectAsStateWithLifecycle()
@@ -51,7 +52,7 @@ fun ThankYouScreen(
         topBar = {
             NavigateUpTopBar(
                 title = stringResource(id = R.string.thank_you),
-                navController = mainNavController
+                navigator = navigator,
             )
         },
         contentWindowInsets = WindowInsets.none
