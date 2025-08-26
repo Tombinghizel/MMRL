@@ -2,13 +2,10 @@ name: Release to GitHub
 
 on:
   workflow_call:
-    inputs:
-      officialAssetName:
-        type: string
-        required: true
-      spoofedAssetName:
-        type: string
-        required: true
+
+env:
+  OFFICIAL_NAME: "official-release-apk"
+  SPOOFED_NAME: "spoofed-release-apk"
 
 jobs:
   release-gh:
@@ -35,18 +32,9 @@ jobs:
       - name: Find APKs by name
         id: find_apks
         run: |
-          OFFICIAL_APK_PATH=$(find official-apk -maxdepth 1 -type f -name "${{ inputs.officialAssetName }}*.apk" -print -quit)
-          SPOOFED_APK_PATH=$(find spoofed-apk -maxdepth 1 -type f -name "${{ inputs.spoofedAssetName }}*.apk" -print -quit)
-
-          if [ -z "$OFFICIAL_APK_PATH" ]; then
-            echo "❌ No official APK found matching ${{ inputs.officialAssetName }}"
-            exit 1
-          fi
-
-          if [ -z "$SPOOFED_APK_PATH" ]; then
-            echo "❌ No spoofed APK found matching ${{ inputs.spoofedAssetName }}"
-            exit 1
-          fi
+          # Look for official APK matching the artifact name
+          OFFICIAL_APK_PATH=$(find official-apk -maxdepth 1 -type f -name "*.apk" -print -quit)
+          SPOOFED_APK_PATH=$(find spoofed-apk -maxdepth 1 -type f -name "*.apk" -print -quit)
 
           echo "OFFICIAL_APK_PATH=$OFFICIAL_APK_PATH" >> $GITHUB_OUTPUT
           echo "SPOOFED_APK_PATH=$SPOOFED_APK_PATH" >> $GITHUB_OUTPUT
