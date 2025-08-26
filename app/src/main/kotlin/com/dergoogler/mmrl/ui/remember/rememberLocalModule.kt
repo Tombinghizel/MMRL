@@ -8,20 +8,86 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.dergoogler.mmrl.datastore.model.Option
+import com.dergoogler.mmrl.datastore.providable.LocalUserPreferences
 import com.dergoogler.mmrl.model.json.UpdateJson
 import com.dergoogler.mmrl.model.local.ModuleAnalytics
 import com.dergoogler.mmrl.model.online.VersionItem
+import com.dergoogler.mmrl.model.state.OnlineState.Companion.createState
 import com.dergoogler.mmrl.platform.content.LocalModule
+import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasAction
+import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasWebUI
 import com.dergoogler.mmrl.platform.model.ModId
 import com.dergoogler.mmrl.repository.LocalRepository
 import kotlinx.coroutines.flow.firstOrNull
+import org.apache.commons.lang3.ClassUtils.comparator
 
 @Composable
-fun rememberLocalModules(): State<List<LocalModule>> {
+fun rememberLocalModules(query: String = ""): State<List<LocalModule>> {
     val localRepository = rememberLocalRepository()
-    return produceState(initialValue = emptyList(), localRepository) {
-        val localList = localRepository.getLocalAllAsFlow().firstOrNull() ?: emptyList()
-        value = localList
+    val prefs = LocalUserPreferences.current
+
+    val menu = remember(prefs) { prefs.modulesMenu }
+
+    return produceState(initialValue = emptyList(), localRepository, menu, query) {
+        val modules = localRepository.getLocalAll().map { it.toModule() }
+
+        val sorted = modules.sortedWith(
+            comparator(menu.option, menu.descending)
+        ).let { v ->
+            val a = if (menu.pinEnabled) {
+                v.sortedByDescending { it.state == com.dergoogler.mmrl.model.local.State.ENABLE }
+            } else {
+                v
+            }
+
+            val b = if (menu.pinAction) {
+                a.sortedByDescending { it.hasAction }
+            } else {
+                a
+            }
+
+            if (menu.pinWebUI) {
+                b.sortedByDescending { it.hasWebUI }
+            } else {
+                b
+            }
+        }
+
+        val newKey = when {
+            query.startsWith("id:", ignoreCase = true) -> query.removePrefix("id:")
+            query.startsWith("name:", ignoreCase = true) -> query.removePrefix("name:")
+            query.startsWith("author:", ignoreCase = true) -> query.removePrefix("author:")
+
+            else -> query
+        }.trim()
+
+        value = sorted.filter { m ->
+            if (query.isNotBlank() || newKey.isNotBlank()) {
+                when {
+                    query.startsWith("id:", ignoreCase = true) -> m.id.equals(
+                        newKey,
+                        ignoreCase = true
+                    )
+
+                    query.startsWith("name:", ignoreCase = true) -> m.name.equals(
+                        newKey,
+                        ignoreCase = true
+                    )
+
+                    query.startsWith("author:", ignoreCase = true) -> m.author.equals(
+                        newKey,
+                        ignoreCase = true
+                    )
+
+                    else -> m.name.contains(query, ignoreCase = true) ||
+                            m.author.contains(query, ignoreCase = true) || m.description.contains(
+                        query,
+                        ignoreCase = true
+                    )
+                }
+            } else true
+        }
     }
 }
 
@@ -87,5 +153,23 @@ fun rememberLocalAnalytics(): State<ModuleAnalytics> {
                 local = modules
             )
         }
+    }
+}
+
+private fun comparator(
+    option: Option,
+    descending: Boolean,
+): Comparator<LocalModule> = if (descending) {
+    when (option) {
+        Option.Name -> compareByDescending { it.name.lowercase() }
+        Option.UpdatedTime -> compareBy { it.lastUpdated }
+        Option.Size -> compareByDescending { it.size }
+    }
+
+} else {
+    when (option) {
+        Option.Name -> compareBy { it.name.lowercase() }
+        Option.UpdatedTime -> compareByDescending { it.lastUpdated }
+        Option.Size -> compareBy { it.size }
     }
 }
