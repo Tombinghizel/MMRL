@@ -26,6 +26,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
@@ -209,11 +210,11 @@ internal fun ListScope.NavButton(
     @StringRes title: Int,
     @StringRes desc: Int? = null,
 ) {
-    val navController = LocalNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     ButtonItem(
         onClick = {
-            navController.navigateSingleTopTo(route)
+            navigator.navigate(route)
         },
         content = {
             icon.nullable {
