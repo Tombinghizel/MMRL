@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.view.items
+package com.dergoogler.mmrl.ui.screens.moduleView.items
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

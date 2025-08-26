@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules
+package com.dergoogler.mmrl.ui.screens.repository.modules
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,8 +22,8 @@ import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
-import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemDetailed
+import com.dergoogler.mmrl.ui.screens.repository.ModuleItemCompact
+import com.dergoogler.mmrl.ui.screens.repository.ModuleItemDetailed
 import com.ramcosta.composedestinations.generated.destinations.NewViewScreenDestination
 
 @Composable

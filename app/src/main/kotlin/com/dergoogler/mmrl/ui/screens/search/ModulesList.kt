@@ -11,7 +11,7 @@ import com.dergoogler.mmrl.model.online.OtherSources
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
-import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
+import com.dergoogler.mmrl.ui.screens.repository.ModuleItemCompact
 
 @Composable
 fun ModulesList(

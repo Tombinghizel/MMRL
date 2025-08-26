@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.view.items
+package com.dergoogler.mmrl.ui.screens.moduleView.items
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
@@ -14,7 +14,7 @@ import com.dergoogler.mmrl.model.online.OtherSources
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalNavController
-import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.ModuleItemCompact
+import com.dergoogler.mmrl.ui.screens.repository.ModuleItemCompact
 
 @Composable
 fun OtherSourcesItem(items: List<OtherSources>) {

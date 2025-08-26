@@ -1,8 +1,7 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules
+package com.dergoogler.mmrl.ui.screens.repository.modules
 
-import android.R.attr.data
 import androidx.compose.runtime.Composable
-import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.RepositoryMenu
+import com.dergoogler.mmrl.ui.screens.repository.RepositoryMenu
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,10 +26,8 @@ import com.dergoogler.mmrl.ext.isNotNullOrBlank
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.SearchTopBar
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
-import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.remember.rememberOnlineModules
 import com.dergoogler.mmrl.ui.remember.rememberUserPreferencesRepository
 import com.ramcosta.composedestinations.annotation.Destination

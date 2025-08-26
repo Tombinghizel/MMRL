@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.view
+package com.dergoogler.mmrl.ui.screens.moduleView
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility

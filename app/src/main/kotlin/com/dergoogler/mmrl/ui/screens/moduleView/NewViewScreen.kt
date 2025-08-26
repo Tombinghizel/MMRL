@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.view
+package com.dergoogler.mmrl.ui.screens.moduleView
 
 import android.os.Build
 import androidx.annotation.StringRes
@@ -93,10 +93,10 @@ import com.dergoogler.mmrl.ui.component.PermissionItem
 import com.dergoogler.mmrl.ui.component.text.TextWithIcon
 import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.InstallConfirmDialog
-import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.LicenseItem
-import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.VersionsItem
-import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.ViewTrackBottomSheet
+import com.dergoogler.mmrl.ui.screens.moduleView.items.InstallConfirmDialog
+import com.dergoogler.mmrl.ui.screens.moduleView.items.LicenseItem
+import com.dergoogler.mmrl.ui.screens.moduleView.items.VersionsItem
+import com.dergoogler.mmrl.ui.screens.moduleView.items.ViewTrackBottomSheet
 import com.dergoogler.mmrl.ui.screens.settings.blacklist.items.BlacklistBottomSheet
 import com.dergoogler.mmrl.viewmodel.ModuleViewModel
 import com.dergoogler.mmrl.ext.none
@@ -125,8 +125,8 @@ import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
-import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules.ModulesFilter
-import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.OtherSourcesItem
+import com.dergoogler.mmrl.ui.screens.moduleView.items.OtherSourcesItem
+import com.dergoogler.mmrl.ui.screens.repository.modules.ModulesFilter
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.generated.destinations.TypedModulesScreenDestination

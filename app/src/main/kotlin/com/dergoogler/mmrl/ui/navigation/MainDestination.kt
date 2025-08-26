@@ -43,7 +43,7 @@ enum class MainDestination(
         iconFilled = R.drawable.keyframes_filled,
         requiresRoot = true
     ),
-    
+
     Settings(
         direction = SettingsScreenDestination,
         label = R.string.page_settings,
