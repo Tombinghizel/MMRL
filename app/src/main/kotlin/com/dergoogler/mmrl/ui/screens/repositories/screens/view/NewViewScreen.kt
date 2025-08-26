@@ -125,6 +125,7 @@ import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules.ModulesFilter
 import com.dergoogler.mmrl.ui.screens.repositories.screens.view.items.OtherSourcesItem
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 import com.ramcosta.composedestinations.annotation.Destination
@@ -488,9 +489,10 @@ fun NewViewScreen(
                                     onClick = {
                                         navigator.navigate(
                                             TypedModulesScreenDestination(
-                                                searchKey = "author:${module.author}",
+                                                type = ModulesFilter.AUTHOR,
+                                                title = module.author,
+                                                query = module.author,
                                                 repo = repo,
-                                                disableSearch = true
                                             )
                                         )
                                     }
@@ -735,9 +737,10 @@ fun NewViewScreen(
                                     onClick = {
                                         navigator.navigate(
                                             TypedModulesScreenDestination(
-                                                searchKey = "category:${it[category]}",
+                                                type = ModulesFilter.CATEGORY,
+                                                title = it[category],
+                                                query = it[category],
                                                 repo = repo,
-                                                disableSearch = true
                                             )
                                         )
                                     },

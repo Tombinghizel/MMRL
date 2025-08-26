@@ -10,7 +10,6 @@ import com.dergoogler.mmrl.datastore.providable.LocalUserPreferences
 import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.model.state.OnlineState
 import com.dergoogler.mmrl.model.state.OnlineState.Companion.createState
-import com.dergoogler.mmrl.platform.PlatformManager.state
 import com.dergoogler.mmrl.platform.model.ModId
 import com.dergoogler.mmrl.platform.model.ModId.Companion.toModId
 import androidx.compose.runtime.State
@@ -19,7 +18,7 @@ import androidx.compose.runtime.getValue
 @Composable
 fun rememberOnlineModules(
     repo: Repo,
-    searchKey: String = "",
+    query: String = "",
 ): State<List<Pair<OnlineState, OnlineModule>>> {
     val localRepository = rememberLocalRepository()
     val prefs = LocalUserPreferences.current
@@ -28,8 +27,8 @@ fun rememberOnlineModules(
     }
 
     return produceState(
-        initialValue = emptyList<Pair<OnlineState, OnlineModule>>(),
-        repo, repositoryMenu, searchKey, localRepository
+        initialValue = emptyList(),
+        repo, repositoryMenu, query, localRepository
     ) {
         val modules = localRepository.getOnlineAllByUrl(repo.url)
 
@@ -64,41 +63,41 @@ fun rememberOnlineModules(
         }
 
         val newKey = when {
-            searchKey.startsWith("id:", ignoreCase = true) -> searchKey.removePrefix("id:")
-            searchKey.startsWith("name:", ignoreCase = true) -> searchKey.removePrefix("name:")
-            searchKey.startsWith("author:", ignoreCase = true) -> searchKey.removePrefix("author:")
-            searchKey.startsWith(
+            query.startsWith("id:", ignoreCase = true) -> query.removePrefix("id:")
+            query.startsWith("name:", ignoreCase = true) -> query.removePrefix("name:")
+            query.startsWith("author:", ignoreCase = true) -> query.removePrefix("author:")
+            query.startsWith(
                 "category:",
                 ignoreCase = true
-            ) -> searchKey.removePrefix("category:")
+            ) -> query.removePrefix("category:")
 
-            else -> searchKey
+            else -> query
         }.trim()
 
         value = sorted.filter { (_, m) ->
-            if (searchKey.isNotBlank() || newKey.isNotBlank()) {
+            if (query.isNotBlank() || newKey.isNotBlank()) {
                 when {
-                    searchKey.startsWith("id:", ignoreCase = true) -> m.id.equals(
+                    query.startsWith("id:", ignoreCase = true) -> m.id.equals(
                         newKey,
                         ignoreCase = true
                     )
 
-                    searchKey.startsWith("name:", ignoreCase = true) -> m.name.equals(
+                    query.startsWith("name:", ignoreCase = true) -> m.name.equals(
                         newKey,
                         ignoreCase = true
                     )
 
-                    searchKey.startsWith("author:", ignoreCase = true) -> m.author.equals(
+                    query.startsWith("author:", ignoreCase = true) -> m.author.equals(
                         newKey,
                         ignoreCase = true
                     )
 
-                    searchKey.startsWith("category:", ignoreCase = true) ->
+                    query.startsWith("category:", ignoreCase = true) ->
                         m.categories?.any { it.equals(newKey, ignoreCase = true) } ?: false
 
-                    else -> m.name.contains(searchKey, ignoreCase = true) ||
-                            m.author.contains(searchKey, ignoreCase = true) ||
-                            m.description?.contains(searchKey, ignoreCase = true) == true
+                    else -> m.name.contains(query, ignoreCase = true) ||
+                            m.author.contains(query, ignoreCase = true) ||
+                            m.description?.contains(query, ignoreCase = true) == true
                 }
             } else true
         }

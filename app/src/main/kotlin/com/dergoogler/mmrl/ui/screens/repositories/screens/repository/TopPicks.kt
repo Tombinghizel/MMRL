@@ -29,6 +29,7 @@ import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 @Composable
 fun TopPicks(
     label: String,
+    onMoreClick: () -> Unit,
     list: List<OnlineModule>,
 ) {
     val randomModules = remember(list) {
@@ -41,7 +42,7 @@ fun TopPicks(
 
     List {
         ButtonItem(
-            onClick = {}
+            onClick = onMoreClick
         ) {
             Title(label)
             Icon(

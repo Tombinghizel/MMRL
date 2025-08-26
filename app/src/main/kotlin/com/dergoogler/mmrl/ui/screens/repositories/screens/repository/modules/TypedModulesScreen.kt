@@ -1,5 +1,6 @@
 package com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules
 
+import android.R.attr.data
 import androidx.compose.runtime.Composable
 import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.RepositoryMenu
 import androidx.activity.compose.BackHandler
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.datastore.model.RepositoryMenu
+import com.dergoogler.mmrl.ext.isNotNullOrBlank
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.SearchTopBar
 import com.dergoogler.mmrl.ext.none
@@ -34,21 +36,56 @@ import com.dergoogler.mmrl.ui.remember.rememberUserPreferencesRepository
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+
+@Serializable
+enum class ModulesFilter {
+    ALL, AUTHOR, CATEGORY, NAME
+}
 
 @Destination<RootGraph>
 @Composable
 fun TypedModulesScreen(
-    searchKey: String,
+    title: String? = null,
+    type: ModulesFilter = ModulesFilter.ALL,
+    query: String = "",
     repo: Repo,
-    disableSearch: Boolean = false,
 ) {
-    var query by remember { mutableStateOf(searchKey) }
-    val modules by rememberOnlineModules(repo, query)
+    var searchQuery by remember { mutableStateOf("") }
+    val modules by rememberOnlineModules(repo, searchQuery)
     val userPreferencesRepository = rememberUserPreferencesRepository()
     val scope = rememberCoroutineScope()
     var isSearch by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
+
+    // fixed: keep the passed searchKey separately for author/category/name filtering
+    val filterQuery = remember { query }
+
+    val filteredModules = remember(modules, filterQuery, type, searchQuery) {
+        modules.filter { (_, m) ->
+            val typeMatches = when (type) {
+                ModulesFilter.ALL -> true
+                ModulesFilter.AUTHOR -> m.author.equals(filterQuery, ignoreCase = true)
+                ModulesFilter.CATEGORY -> m.categories?.any {
+                    it.equals(
+                        filterQuery,
+                        ignoreCase = true
+                    )
+                } ?: false
+
+                ModulesFilter.NAME -> m.name.equals(filterQuery, ignoreCase = true)
+            }
+
+            val searchMatches = if (searchQuery.isBlank()) true else {
+                m.name.contains(searchQuery, ignoreCase = true) ||
+                        m.author.contains(searchQuery, ignoreCase = true) ||
+                        (m.categories?.any { it.contains(searchQuery, ignoreCase = true) } ?: false)
+            }
+
+            typeMatches && searchMatches
+        }
+    }
 
     val openSearch = fun() {
         isSearch = true
@@ -56,12 +93,10 @@ fun TypedModulesScreen(
 
     val closeSearch = fun() {
         isSearch = false
-        query = ""
+        searchQuery = ""
     }
 
-    val search = fun(data: String) {
-        query = data
-    }
+    val search = fun(data: String) { searchQuery = data }
 
     val setRepositoryMenu = fun(value: RepositoryMenu) {
         scope.launch {
@@ -69,19 +104,16 @@ fun TypedModulesScreen(
         }
     }
 
-    BackHandler(
-        enabled = isSearch,
-        onBack = closeSearch
-    )
+    BackHandler(enabled = isSearch, onBack = closeSearch)
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                disableSearch = disableSearch,
+                title = title,
                 repo = repo,
                 isSearch = isSearch,
-                query = query,
+                query = searchQuery,
                 onQueryChange = search,
                 onOpenSearch = openSearch,
                 onCloseSearch = closeSearch,
@@ -93,7 +125,7 @@ fun TypedModulesScreen(
         Box(
             modifier = Modifier.padding(innerPadding)
         ) {
-            if (modules.isEmpty()) {
+            if (filteredModules.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.cloud,
                     text = if (isSearch) R.string.search_empty else R.string.repository_empty,
@@ -102,7 +134,7 @@ fun TypedModulesScreen(
 
             this@Scaffold.TypedModulesList(
                 repo = repo,
-                list = modules,
+                list = filteredModules,
                 state = listState,
             )
         }
@@ -111,6 +143,7 @@ fun TypedModulesScreen(
 
 @Composable
 private fun TopBar(
+    title: String?,
     repo: Repo,
     isSearch: Boolean,
     query: String,
@@ -118,27 +151,10 @@ private fun TopBar(
     onOpenSearch: () -> Unit,
     onCloseSearch: () -> Unit,
     setMenu: (RepositoryMenu) -> Unit,
-    disableSearch: Boolean,
 ) {
-    val navigator = LocalDestinationsNavigator.current
-
     var currentQuery by remember { mutableStateOf(query) }
     DisposableEffect(isSearch) {
         onDispose { currentQuery = "" }
-    }
-
-    if (disableSearch) {
-        val title = remember {
-            query.replace(Regex("^((author|category|id):)(.+)", RegexOption.IGNORE_CASE), "$3")
-        }
-
-        NavigateUpTopBar(
-            title = title,
-            subtitle = repo.name,
-            navigator = navigator
-        )
-
-        return
     }
 
     SearchTopBar(
@@ -153,6 +169,15 @@ private fun TopBar(
             currentQuery = ""
         },
         title = {
+            if (title.isNotNullOrBlank()) {
+                ToolbarTitle(
+                    title = title,
+                    subtitle = repo.name
+                )
+
+                return@SearchTopBar
+            }
+
             ToolbarTitle(
                 title = repo.name
             )

@@ -77,10 +77,13 @@ import com.dergoogler.mmrl.ui.component.LabelItemDefaults
 import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.text.BBCodeText
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalRepo
+import com.dergoogler.mmrl.ui.screens.repositories.screens.repository.modules.ModulesFilter
 import com.dergoogler.mmrl.viewmodel.RepositoryViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.TypedModulesScreenDestination
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 
 @Destination<RootGraph>()
@@ -91,7 +94,7 @@ fun RepositoryScreen(repo: Repo) {
 
     val browser = LocalUriHandler.current
     val density = LocalDensity.current
-    val navController = LocalNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val listState = rememberLazyListState()
@@ -99,10 +102,6 @@ fun RepositoryScreen(repo: Repo) {
     BackHandler(
         enabled = viewModel.isSearch,
         onBack = viewModel::closeSearch
-    )
-
-    val domainRegex = Regex(
-        """\b((?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})\b"""
     )
 
     val modules = remember(list) { list.map { it.second } }
@@ -139,7 +138,7 @@ fun RepositoryScreen(repo: Repo) {
 
                     TopAppBar(
                         navigationIcon = {
-                            IconButton(onClick = { navController.popBackStack() }) {
+                            IconButton(onClick = { navigator.popBackStack() }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.arrow_left),
                                     contentDescription = null
@@ -258,9 +257,21 @@ fun RepositoryScreen(repo: Repo) {
             }
 
             item {
+                val takenModules = remember { modules.take(9) }
+                val title = stringResource(R.string.page_modules)
+
                 TopPicks(
-                    label = stringResource(R.string.page_modules),
-                    list = modules.take(9)
+                    label = title,
+                    list = takenModules,
+                    onMoreClick = {
+                        navigator.navigate(
+                            TypedModulesScreenDestination(
+                                type = ModulesFilter.ALL,
+                                title = title,
+                                repo = repo,
+                            )
+                        )
+                    }
                 )
             }
 
@@ -270,7 +281,17 @@ fun RepositoryScreen(repo: Repo) {
             ) {
                 TopPicks(
                     label = it.label,
-                    list = it.modules
+                    list = it.modules,
+                    onMoreClick = {
+                        navigator.navigate(
+                            TypedModulesScreenDestination(
+                                type = ModulesFilter.CATEGORY,
+                                title = it.label,
+                                repo = repo,
+                                query = it.label
+                            )
+                        )
+                    }
                 )
             }
 
