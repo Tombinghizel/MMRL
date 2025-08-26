@@ -19,19 +19,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ui.component.card.Card
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalNavController
+import com.ramcosta.composedestinations.generated.destinations.ExploreRepositoriesScreenDestination
 
 @Composable
 fun ExploreReposCard() {
-    val navController = LocalNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     Card(
         onClick = {
-//            navController.navigateSingleTopTo(
-//                RepositoriesScreen.ExploreRepositories.route,
-//            )
+            navigator.navigate(ExploreRepositoriesScreenDestination)
         },
-        modifier = Modifier.fillMaxWidth().padding(20.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp)
     ) {
         Row(
             modifier = Modifier.relative(),

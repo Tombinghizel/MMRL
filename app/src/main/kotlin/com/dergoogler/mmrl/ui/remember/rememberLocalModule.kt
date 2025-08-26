@@ -20,6 +20,7 @@ import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasWebUI
 import com.dergoogler.mmrl.platform.model.ModId
 import com.dergoogler.mmrl.repository.LocalRepository
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import org.apache.commons.lang3.ClassUtils.comparator
 
 @Composable
@@ -30,7 +31,12 @@ fun rememberLocalModules(query: String = ""): State<List<LocalModule>> {
     val menu = remember(prefs) { prefs.modulesMenu }
 
     return produceState(initialValue = emptyList(), localRepository, menu, query) {
-        val modules = localRepository.getLocalAll().map { it.toModule() }
+        val modules = localRepository.getLocalAllAsFlow().firstOrNull()
+
+        if (modules == null) {
+            value = emptyList()
+            return@produceState
+        }
 
         val sorted = modules.sortedWith(
             comparator(menu.option, menu.descending)

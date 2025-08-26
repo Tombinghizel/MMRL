@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.none
@@ -18,9 +19,13 @@ import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.SearchTopBar
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
 import com.dergoogler.mmrl.viewmodel.SearchViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 
+@Destination<RootGraph>
 @Composable
-fun SearchScreen(viewModel: SearchViewModel) {
+fun SearchScreen() {
+    val viewModel = hiltViewModel<SearchViewModel>()
     val list by viewModel.online.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

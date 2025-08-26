@@ -48,7 +48,7 @@ jobs:
           VERSION=$((31320 + COMMIT_COUNT))
 
           if [ -f commits.sh ]; then
-            MESSAGE=$(bash commits.sh 950)
+            MESSAGE=$(bash commits.sh 950 "${{ env.BRANCH_NAME }}")
           else
             MESSAGE="Latest commits not available."
           fi

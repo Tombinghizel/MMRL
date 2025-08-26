@@ -58,6 +58,7 @@ import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -266,7 +267,7 @@ private fun TopBar(
     setMenu: KFunction1<RepositoriesMenu, Unit>,
 ) {
     val width = currentScreenWidth()
-    val mainNavController = LocalMainNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     TopAppBar(
         title = {
@@ -277,6 +278,7 @@ private fun TopBar(
         actions = {
             IconButton(
                 onClick = {
+
 //                    mainNavController.navigateSingleTopTo(MainRoute.GlobalSearch.route)
                 }
             ) {

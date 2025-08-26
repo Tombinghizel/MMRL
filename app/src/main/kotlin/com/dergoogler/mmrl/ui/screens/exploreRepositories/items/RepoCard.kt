@@ -43,7 +43,7 @@ fun RepoCard(
 
     Card(
         onClick = {
-            navigator.navigate(ExploreRepositoryScreenDestination)
+            navigator.navigate(ExploreRepositoryScreenDestination(repo))
         }
     ) {
         Column(

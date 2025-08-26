@@ -44,13 +44,11 @@ import com.dergoogler.mmrl.model.online.ExploreRepository
 import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.HorizontalDividerWithText
 import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
-import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.MemberCard
 import com.dergoogler.mmrl.ui.screens.repositories.FailureDialog
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ext.panicMoshiParcelable
 import com.dergoogler.mmrl.viewmodel.RepositoriesViewModel
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 import com.dergoogler.mmrl.ext.fadingEdge
@@ -70,18 +68,13 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.launch
 
-val listItemContentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
-
 @Destination<RootGraph>
 @Composable
-fun ExploreRepositoryScreen(
-    viewModel: RepositoriesViewModel = hiltViewModel(),
-) {
+fun ExploreRepositoryScreen(repo: ExploreRepository) {
+    val viewModel = hiltViewModel<RepositoriesViewModel>()
     val navigator = LocalDestinationsNavigator.current
     val scope = rememberCoroutineScope()
-    val arguments = LocalPanicArguments.current
     val snackbarHostState = LocalSnackbarHost.current
-    val repo = arguments.panicMoshiParcelable<ExploreRepository>("repo")
     val browser = LocalUriHandler.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
