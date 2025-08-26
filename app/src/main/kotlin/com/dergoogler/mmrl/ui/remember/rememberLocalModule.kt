@@ -7,7 +7,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.dergoogler.mmrl.model.json.UpdateJson
+import com.dergoogler.mmrl.model.local.ModuleAnalytics
 import com.dergoogler.mmrl.model.online.VersionItem
 import com.dergoogler.mmrl.platform.content.LocalModule
 import com.dergoogler.mmrl.platform.model.ModId
@@ -70,6 +72,20 @@ fun rememberUpdatableModuleCount(): State<Int> {
             }
 
             value = count
+        }
+    }
+}
+
+@Composable
+fun rememberLocalAnalytics(): State<ModuleAnalytics> {
+    val context = LocalContext.current
+    val modules by rememberLocalModules()
+    return remember(modules) {
+        derivedStateOf {
+            ModuleAnalytics(
+                context = context,
+                local = modules
+            )
         }
     }
 }

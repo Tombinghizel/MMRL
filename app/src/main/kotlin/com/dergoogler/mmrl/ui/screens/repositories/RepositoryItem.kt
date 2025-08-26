@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.main
+package com.dergoogler.mmrl.ui.screens.repositories
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.main
+package com.dergoogler.mmrl.ui.screens.repositories
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,14 +25,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.model.state.RepoState
-import com.dergoogler.mmrl.ui.providable.LocalNavController
-import com.dergoogler.mmrl.ui.screens.repositories.screens.main.items.ExploreReposCard
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
-import com.ramcosta.composedestinations.generated.destinations.NewViewScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.RepositoriesScreenDestination
+import com.dergoogler.mmrl.ui.screens.repositories.items.ExploreReposCard
 import com.ramcosta.composedestinations.generated.destinations.RepositoryScreenDestination
 
 @Composable
@@ -65,13 +61,6 @@ fun ScaffoldScope.RepositoriesList(
                     repo = repo,
                     onClick = {
                         navigator.navigate(RepositoryScreenDestination(repo.toRepo()))
-//                        navController.navigateSingleTopTo(
-//                            route = RepositoriesScreen.RepositoryView.route,
-//                            args = mapOf(
-//                                "repoName" to repo.name,
-//                                "repoUrl" to repo.url
-//                            )
-//                        )
                     },
                     onUpdate = getUpdate,
                     onDelete = delete,

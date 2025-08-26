@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories
+package com.dergoogler.mmrl.ui.screens.exploreRepositories
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -30,8 +30,8 @@ import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
-import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.HeadlineCard
-import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.RepoCard
+import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.HeadlineCard
+import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.RepoCard
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.Dispatchers

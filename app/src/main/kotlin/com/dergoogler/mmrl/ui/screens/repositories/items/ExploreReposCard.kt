@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.main.items
+package com.dergoogler.mmrl.ui.screens.repositories.items
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.providable.LocalNavController
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
-import com.dergoogler.mmrl.ui.screens.repositories.screens.main.RepositoriesScreen
 
 @Composable
 fun ExploreReposCard() {

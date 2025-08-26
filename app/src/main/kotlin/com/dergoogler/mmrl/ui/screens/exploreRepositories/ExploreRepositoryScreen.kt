@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories
+package com.dergoogler.mmrl.ui.screens.exploreRepositories
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,14 +44,11 @@ import com.dergoogler.mmrl.model.online.ExploreRepository
 import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.HorizontalDividerWithText
 import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
-import com.dergoogler.mmrl.ui.component.listItem.ListButtonItem
-import com.dergoogler.mmrl.ui.component.listItem.ListItem
-import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalPanicArguments
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items.MemberCard
-import com.dergoogler.mmrl.ui.screens.repositories.screens.main.FailureDialog
+import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.MemberCard
+import com.dergoogler.mmrl.ui.screens.repositories.FailureDialog
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.panicMoshiParcelable
 import com.dergoogler.mmrl.viewmodel.RepositoriesViewModel

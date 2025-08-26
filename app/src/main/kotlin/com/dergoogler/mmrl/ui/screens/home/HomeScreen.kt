@@ -69,6 +69,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.ui.remember.rememberLocalAnalytics
 import com.dergoogler.mmrl.ui.remember.seLinuxContext
 import com.dergoogler.mmrl.ui.remember.superUserCount
 import com.dergoogler.mmrl.ui.remember.versionName
@@ -95,6 +96,8 @@ fun HomeScreen() {
     val context = LocalContext.current
     val userPreferences = LocalUserPreferences.current
     val browser = LocalUriHandler.current
+
+    val analytics by rememberLocalAnalytics()
 
     var openRebootSheet by remember { mutableStateOf(false) }
     if (openRebootSheet) {
@@ -288,112 +291,112 @@ fun HomeScreen() {
                         }
                     }
 
-//                    if (PlatformManager.platform.isValid) {
-//                        viewModel.analytics(context).nullable {
-//                            Row(
-//                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-//                            ) {
-//                                Card(
-//                                    modifier = Modifier
-//                                        .padding(vertical = 16.dp)
-//                                        .weight(1f)
-//                                ) {
-//                                    Relative {
-//                                        scope.Item {
-//                                            Title(R.string.home_installed_modules)
-//                                            Description(it.totalModules.toString())
-//                                        }
-//                                    }
-//                                }
-//
-//                                Card(
-//                                    modifier = Modifier
-//                                        .padding(vertical = 16.dp)
-//                                        .weight(1f)
-//                                ) {
-//                                    Relative {
-//                                        scope.Item {
-//                                            Title(R.string.home_updated_modules)
-//                                            Description(it.totalUpdated.toString())
-//                                        }
-//                                    }
-//                                }
-//                            }
-//
-//                            Card(
-//                                modifier = Modifier
-//                                    .padding(vertical = 16.dp)
-//                            ) {
-//                                Relative {
-//                                    scope.Item {
-//                                        Title(R.string.home_storage_usage)
-//
-//                                        Description {
-//                                            Row(
-//                                                verticalAlignment = Alignment.CenterVertically,
-//                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-//                                            ) {
-//                                                Text(
-//                                                    text = it.totalModulesUsageBytes.toFormattedFileSize(),
-//                                                )
-//
-//                                                LinearProgressIndicator(
-//                                                    progress = {
-//                                                        it.totalStorageUsage
-//                                                    },
-//                                                    modifier = Modifier
-//                                                        .height(10.dp)
-//                                                        .weight(1f),
-//                                                    drawStopIndicator = {}
-//                                                )
-//
-//                                                Text(
-//                                                    text = it.totalDeviceStorageBytes.toFormattedFileSize(),
-//                                                )
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            }
-//
-//                            Row(
-//                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-//                            ) {
-//                                Card(
-//                                    modifier = Modifier
-//                                        .padding(vertical = 16.dp)
-//                                        .weight(1f)
-//                                ) {
-//                                    Relative {
-//                                        scope.Item {
-//                                            Title(R.string.home_enabled_modules)
-//                                            Description(it.totalEnabled.toString())
-//                                        }
-//                                    }
-//                                }
-//
-//                                Card(
-//                                    modifier = Modifier
-//                                        .padding(vertical = 16.dp)
-//                                        .weight(1f)
-//                                ) {
-//                                    Relative {
-//                                        scope.Item {
-//                                            Title(R.string.home_disabled_modules)
-//                                            Description(it.totalDisabled.toString())
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
+                    if (PlatformManager.platform.isValid) {
+                        analytics.nullable {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(vertical = 16.dp)
+                                        .weight(1f)
+                                ) {
+                                    Relative {
+                                        scope.Item {
+                                            Title(R.string.home_installed_modules)
+                                            Description(it.totalModules.toString())
+                                        }
+                                    }
+                                }
+
+                                Card(
+                                    modifier = Modifier
+                                        .padding(vertical = 16.dp)
+                                        .weight(1f)
+                                ) {
+                                    Relative {
+                                        scope.Item {
+                                            Title(R.string.home_updated_modules)
+                                            Description(it.totalUpdated.toString())
+                                        }
+                                    }
+                                }
+                            }
+
+                            Card(
+                                modifier = Modifier
+                                    .padding(vertical = 16.dp)
+                            ) {
+                                Relative {
+                                    scope.Item {
+                                        Title(R.string.home_storage_usage)
+
+                                        Description {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Text(
+                                                    text = it.totalModulesUsageBytes.toFormattedFileSize(),
+                                                )
+
+                                                LinearProgressIndicator(
+                                                    progress = {
+                                                        it.totalStorageUsage
+                                                    },
+                                                    modifier = Modifier
+                                                        .height(10.dp)
+                                                        .weight(1f),
+                                                    drawStopIndicator = {}
+                                                )
+
+                                                Text(
+                                                    text = it.totalDeviceStorageBytes.toFormattedFileSize(),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(vertical = 16.dp)
+                                        .weight(1f)
+                                ) {
+                                    Relative {
+                                        scope.Item {
+                                            Title(R.string.home_enabled_modules)
+                                            Description(it.totalEnabled.toString())
+                                        }
+                                    }
+                                }
+
+                                Card(
+                                    modifier = Modifier
+                                        .padding(vertical = 16.dp)
+                                        .weight(1f)
+                                ) {
+                                    Relative {
+                                        scope.Item {
+                                            Title(R.string.home_disabled_modules)
+                                            Description(it.totalDisabled.toString())
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     Card(
                         modifier = Modifier
                             .padding(vertical = 16.dp)
                             .fillMaxWidth(),
                         onClick = {
-                            browser.openUri("https://github.com/sponsors/DerGoogler")
+                            browser.openUri("https://github.com/sponsors/MMRLApp")
                         }
                     ) {
                         Relative {

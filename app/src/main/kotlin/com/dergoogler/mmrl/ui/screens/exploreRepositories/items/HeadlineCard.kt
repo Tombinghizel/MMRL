@@ -1,4 +1,4 @@
-package com.dergoogler.mmrl.ui.screens.repositories.screens.exploreRepositories.items
+package com.dergoogler.mmrl.ui.screens.exploreRepositories.items
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
