@@ -69,7 +69,7 @@ jobs:
   release-github:
     if: github.event.inputs.send_github == 'true'
     name: Release to GitHub
-    needs: load-apk-env
+    needs: [build-release, load-apk-env]
     uses: ./.github/workflows/github.yml
     with:
       officialAssetName: ${{ needs.load-apk-env.outputs.OFFICIAL_NAME }}
@@ -80,7 +80,7 @@ jobs:
   release-telegram:
     if: github.event.inputs.send_telegram == 'true'
     name: Release to Telegram
-    needs: load-apk-env
+    needs: [build-release, load-apk-env]
     uses: ./.github/workflows/telegram.yml
     with:
       officialAssetName: ${{ needs.load-apk-env.outputs.OFFICIAL_NAME }}
