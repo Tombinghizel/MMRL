@@ -13,6 +13,7 @@
 
     <uses-permission android:name="${webuiPermissionId}.permission.WEBUI_X" />
     <uses-permission android:name="${webuiPermissionId}.permission.WEBUI_LEGACY" />
+    <uses-permission android:name="${webuiPermissionId}.permission.MODCONF" />
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"

@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -43,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.fadingEdge
+import com.dergoogler.mmrl.ext.iconSize
 import com.dergoogler.mmrl.ext.isPackageInstalled
 import com.dergoogler.mmrl.model.local.State
 import com.dergoogler.mmrl.model.local.versionDisplay
@@ -54,6 +58,7 @@ import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.rememberTrue
 import com.dergoogler.mmrl.ext.toStyleMarkup
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.config
+import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasModConf
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasWebUI
 import com.dergoogler.mmrl.platform.file.SuFile
 import com.dergoogler.mmrl.platform.file.SuFile.Companion.toFormattedFileSize
@@ -67,10 +72,11 @@ import com.dergoogler.mmrl.ui.component.lite.column.LiteColumn
 import com.dergoogler.mmrl.ui.component.lite.row.LiteRow
 import com.dergoogler.mmrl.ui.component.lite.row.LiteRowScope
 import com.dergoogler.mmrl.ui.component.lite.row.VerticalAlignment
+import com.dergoogler.mmrl.ui.component.text.TextRow
 import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
 import com.dergoogler.mmrl.ui.providable.LocalModule
-import com.dergoogler.mmrl.utils.launchWebUI
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
+import com.dergoogler.mmrl.utils.webUILauncher
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 import kotlinx.coroutines.launch
 
@@ -90,18 +96,21 @@ fun ModuleItem(
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.modulesMenu
     val context = LocalContext.current
+    val density = LocalDensity.current
 
     val module = LocalModule.current
 
     var requiredAppBottomSheet by remember { mutableStateOf(false) }
 
     val canWenUIAccessed = remember(isProviderAlive, module) {
-        isProviderAlive && module.hasWebUI && module.state != State.REMOVE
+        isProviderAlive && (module.hasWebUI || module.hasModConf) && module.state != State.REMOVE
     }
 
     val isWebUIXNotInstalled = remember(context) {
         !context.isPackageInstalled(userPreferences.webuixPackageName)
     }
+
+    val launch = userPreferences.webUILauncher(context, module)
 
     val clicker: (() -> Unit)? = remember(canWenUIAccessed) {
         canWenUIAccessed nullable jump@{
@@ -110,7 +119,7 @@ fun ModuleItem(
                 return@jump
             }
 
-            userPreferences.launchWebUI(context, module.id)
+            launch()
         }
     }
 
@@ -168,11 +177,56 @@ fun ModuleItem(
                         .weight(1f),
                     spaceBetweenItem = 2.dp,
                 ) {
-                    TextWithIcon(
-                        text = module.config.name ?: module.name,
-                        icon = canWenUIAccessed nullable R.drawable.sandbox,
-                        style = TextWithIconDefaults.style.copy(textStyle = MaterialTheme.typography.titleSmall)
+                    val name = remember {
+                        module.config.name ?: module.name
+                    }
+
+                    val style = TextWithIconDefaults.style.copy(
+                        textStyle = MaterialTheme.typography.titleSmall
                     )
+
+                    val modifier = Modifier.iconSize(
+                        density = density,
+                        textStyle = style.textStyle,
+                        scaling = style.iconScaling
+                    )
+
+                    TextRow(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        contentPadding = PaddingValues(start = 4.dp, end = 4.dp),
+                        leadingContent = {
+                            if (!canWenUIAccessed) {
+                                return@TextRow
+                            }
+
+                            if (module.hasModConf) {
+                                Image(
+                                    modifier = modifier,
+                                    painter = painterResource(id = com.dergoogler.mmrl.ui.R.drawable.jetpackcomposeicon),
+                                    contentDescription = null,
+                                )
+
+                                return@TextRow
+                            }
+
+                            if (module.hasWebUI) {
+                                Icon(
+                                    modifier = modifier,
+                                    painter = painterResource(id = R.drawable.sandbox),
+                                    contentDescription = null,
+                                    tint = style.iconTint,
+                                )
+
+                                return@TextRow
+                            }
+                        },
+                    ) {
+                        Text(
+                            text = name,
+                            style = style.textStyle,
+                        )
+                    }
 
                     Text(
                         text = stringResource(

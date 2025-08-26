@@ -1,20 +1,31 @@
 package com.dergoogler.mmrl.utils
 
+import android.R.id.input
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.datastore.model.UserPreferences
 import com.dergoogler.mmrl.datastore.model.WebUIEngine
+import com.dergoogler.mmrl.ext.findActivity
 import com.dergoogler.mmrl.ext.toFormattedDateSafely
+import com.dergoogler.mmrl.modconf.helper.ModConfLauncher
+import com.dergoogler.mmrl.model.local.LocalModule
+import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasModConf
+import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasWebUI
 import com.dergoogler.mmrl.platform.model.ModId
 import com.dergoogler.mmrl.platform.model.toModuleConfig
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.webui.helper.WebUILauncher
 import com.topjohnwu.superuser.NoShellException
 import com.topjohnwu.superuser.Shell
+import org.apache.commons.compress.harmony.pack200.PackingUtils.config
 
 val Float.toFormattedDateSafely: String
     @Composable
@@ -55,64 +66,90 @@ fun createRootShell(
     return builder.build(*commands)
 }
 
-fun UserPreferences.launchWebUI(context: Context, modId: ModId) {
+@Composable
+fun UserPreferences.webUILauncher(context: Context, module: LocalModule): () -> Unit {
+    val modId = module.id
     val config = modId.toModuleConfig()
 
-    val launcher = WebUILauncher(
+    val activity = context.findActivity() as? ComponentActivity ?: run {
+        Toast.makeText(context, "No activity found", Toast.LENGTH_SHORT).show()
+        return {}
+    }
+
+    val modconfLauncher = ModConfLauncher(
         debug = BuildConfig.DEBUG,
         packageName = webuixPackageName
     )
 
-    if (webuiEngine == WebUIEngine.PREFER_MODULE) {
-        val configEngine = config.getWebuiEngine(context)
+    val webuiLauncher = WebUILauncher(
+        debug = BuildConfig.DEBUG,
+        packageName = webuixPackageName
+    )
 
-        if (configEngine == null) {
-            launcher.launchWX(
-                context = context,
-                modId = modId,
-                platform = workingMode.toPlatform()
-            )
-            return
+    fun Map<String, Boolean>.allGranted(onDenied: (String) -> Unit): Boolean {
+        for ((perm, granted) in this) {
+            if (!granted) {
+                onDenied(perm)
+                return false
+            }
         }
-
-        when (configEngine) {
-            "wx" -> launcher.launchWX(
-                context = context,
-                modId = modId,
-                platform = workingMode.toPlatform()
-            )
-
-            "ksu" -> launcher.launchLegacy(
-                context = context,
-                modId = modId,
-                platform = workingMode.toPlatform()
-            )
-
-            else -> Toast.makeText(context, "Unknown WebUI engine", Toast.LENGTH_SHORT).show()
-        }
-
-        return
+        return true
     }
 
+    val modconf = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        if (!result.allGranted { perm ->
+                Toast.makeText(context, "Permission denied! Requires $perm", Toast.LENGTH_SHORT).show()
+            }
+        ) return@rememberLauncherForActivityResult
 
-    if (webuiEngine == WebUIEngine.WX) {
-        launcher.launchWX(
+        modconfLauncher.launch(
             context = context,
             modId = modId,
             platform = workingMode.toPlatform()
         )
-        return
-
     }
 
-    if (webuiEngine == WebUIEngine.KSU) {
-        launcher.launchLegacy(
-            context = context,
-            modId = modId,
-            platform = workingMode.toPlatform()
-        )
-        return
+    val webui = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        if (!result.allGranted { perm ->
+                Toast.makeText(context, "Permission denied! Requires $perm", Toast.LENGTH_SHORT).show()
+            }
+        ) return@rememberLauncherForActivityResult
+
+        val effectiveEngine = when (webuiEngine) {
+            WebUIEngine.PREFER_MODULE -> config.getWebuiEngine(context)?.let {
+                when (it) {
+                    "wx" -> WebUIEngine.WX
+                    "ksu" -> WebUIEngine.KSU
+                    else -> {
+                        Toast.makeText(context, "Unknown WebUI engine", Toast.LENGTH_SHORT).show()
+                        return@rememberLauncherForActivityResult
+                    }
+                }
+            } ?: WebUIEngine.WX
+            else -> webuiEngine
+        }
+
+        when (effectiveEngine) {
+            WebUIEngine.WX -> webuiLauncher.launchWX(context, modId, workingMode.toPlatform())
+            WebUIEngine.KSU -> webuiLauncher.launchLegacy(context, modId, workingMode.toPlatform())
+            else -> Toast.makeText(context, "Unsupported WebUI engine", Toast.LENGTH_SHORT).show()
+        }
     }
 
-    Toast.makeText(context, "Unknown WebUI engine", Toast.LENGTH_SHORT).show()
+    return {
+        when {
+            module.hasModConf -> modconf.launch(arrayOf(modconfLauncher.permissions.MODCONF))
+            module.hasWebUI -> webui.launch(
+                arrayOf(
+                    webuiLauncher.permissions.WEBUI_X,
+                    webuiLauncher.permissions.WEBUI_LEGACY
+                )
+            )
+            else -> Toast.makeText(context, "Unsupported module", Toast.LENGTH_SHORT).show()
+        }
+    }
 }

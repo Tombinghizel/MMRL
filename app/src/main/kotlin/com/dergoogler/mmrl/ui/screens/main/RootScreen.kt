@@ -48,30 +48,7 @@ fun RootScreen() {
     val context = LocalContext.current
     val userPreferences = LocalUserPreferences.current
 
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { result: Map<String, Boolean> ->
-        Log.d("MainScreen", "launcher: $result")
-    }
-
     LaunchedEffect(Unit) {
-        if (PlatformManager.platform.isNotNonRoot) {
-            launcher.launch(
-                if (BuildConfig.IS_DEV_VERSION) {
-                    arrayOf(
-                        "com.dergoogler.mmrl.debug.permission.WEBUI_X",
-                        "com.dergoogler.mmrl.debug.permission.WEBUI_LEGACY"
-                    )
-                } else {
-                    arrayOf(
-                        "com.dergoogler.mmrl.permission.WEBUI_X",
-                        "com.dergoogler.mmrl.permission.WEBUI_LEGACY"
-                    )
-                }
-            )
-        }
-
         initPlatform(context, userPreferences.workingMode.toPlatform())
     }
 
