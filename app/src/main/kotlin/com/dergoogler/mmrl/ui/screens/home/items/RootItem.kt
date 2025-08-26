@@ -93,7 +93,7 @@ internal fun RootItem(
                     verticalAlignment = Alignment.CenterVertically,
                     leadingContent = (developerMode && platform.isKernelSuOrNext) nullable {
                         LabelItem(
-                            text = when (isLkmMode.value) {
+                            text = when (isLkmMode) {
                                 null -> "LTS"
                                 true -> "LKM"
                                 else -> "GKI"
