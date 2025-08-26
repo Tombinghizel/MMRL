@@ -23,7 +23,7 @@ inputs:
 
 outputs:
   name:
-    value: ""
+    value: ${{ steps.apk.outputs.name }}
     description: ""
 
 runs:
