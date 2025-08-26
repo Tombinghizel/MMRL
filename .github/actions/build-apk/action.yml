@@ -24,7 +24,7 @@ inputs:
 outputs:
   name:
     value: ${{ steps.apk.outputs.name }}
-    description: ""
+    description: "The name of the APK file."
 
 runs:
   using: "composite"
@@ -95,5 +95,5 @@ runs:
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ steps.apk.outputs.name }}
+        name: ${{ inputs.flavor }}-${{ inputs.buildType }}-apk
         path: ${{ steps.apk.outputs.path }}
