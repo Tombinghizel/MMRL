@@ -1,5 +1,6 @@
 name: "Build APK"
 description: "Builds an APK for a specified flavor and build type."
+
 inputs:
   flavor:
     description: "Flavor"
@@ -19,6 +20,12 @@ inputs:
   keyPassword:
     description: "Key Password"
     required: true
+
+outputs:
+  name:
+    value: ""
+    description: ""
+
 runs:
   using: "composite"
   steps:
@@ -78,8 +85,6 @@ runs:
         echo "path=$apk_path" >> $GITHUB_OUTPUT
         echo "mapping=$mapping_path" >> $GITHUB_OUTPUT
 
-        echo "${{ env.FLAVOR_CAPITALIZED_ALL }}_NAME=\"$name\"" >> ${{ inputs.flavor }}.${{ inputs.buildType }}.txt
-
     - name: Upload mapping as artifact
       if: ${{ steps.apk.outputs.mapping != '' }}
       uses: actions/upload-artifact@v4
@@ -92,9 +97,3 @@ runs:
       with:
         name: ${{ steps.apk.outputs.name }}
         path: ${{ steps.apk.outputs.path }}
-
-    - name: Upload env info
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.flavor }}.${{ inputs.buildType }}
-        path: ${{ inputs.flavor }}.${{ inputs.buildType }}.txt

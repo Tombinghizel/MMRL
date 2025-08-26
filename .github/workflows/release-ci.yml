@@ -24,13 +24,13 @@ jobs:
   build-release:
     runs-on: ubuntu-latest
     name: Build Matrix
-    outputs:
-      official_name: ${{ steps.export.outputs.OFFICIAL_NAME }}
-      spoofed_name: ${{ steps.export.outputs.SPOOFED_NAME }}
     strategy:
       fail-fast: false
       matrix:
         flavor: [official, spoofed]
+    outputs:
+      official_name: ${{ steps.export.outputs.OFFICIAL_NAME }}
+      spoofed_name: ${{ steps.export.outputs.SPOOFED_NAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,28 +48,12 @@ jobs:
           keyAlias: ${{ secrets.KEY_ALIAS }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Download Official APK Env
-        uses: actions/download-artifact@v4
-        with:
-          name: official.release
-          path: .
-
-      - name: Download Spoofed APK Env
-        uses: actions/download-artifact@v4
-        with:
-          name: spoofed.release
-          path: .
-
       - name: Export to env
         id: export
         run: |
-          cat official.release.txt >> $GITHUB_ENV
-          cat spoofed.release.txt >> $GITHUB_ENV
-          # also export to outputs
-          source official.release.txt
-          source spoofed.release.txt
-          echo "OFFICIAL_NAME=\"$OFFICIAL_NAME\"" >> $GITHUB_OUTPUT
-          echo "SPOOFED_NAME=\"$SPOOFED_NAME\"" >> $GITHUB_OUTPUT
+          FLAVOR="${{ matrix.flavor }}"
+          echo "FLAVOR_CAPITALIZED_ALL=${FLAVOR^^}"
+          echo "${FLAVOR_CAPITALIZED_ALL}_NAME=\"${{ steps.build-apk.outputs.name }}\"" >> $GITHUB_OUTPUT
 
   # Release to GitHub
   release-github:
