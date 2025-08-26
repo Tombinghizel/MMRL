@@ -37,6 +37,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Stub!
+        run: |
+          echo "Stub!"
+
       - name: Build APK
         id: build-apk
         uses: ./.github/actions/build-apk
