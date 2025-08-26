@@ -27,6 +27,7 @@ enum class MainDestination(
         iconFilled = R.drawable.home_filled,
         requiresRoot = false
     ),
+
     Repository(
         direction = RepositoriesScreenDestination,
         label = R.string.page_repositorys,
@@ -36,12 +37,13 @@ enum class MainDestination(
     ),
 
     Modules(
-        direction = HomeScreenDestination,
+        direction = ModulesScreenDestination,
         label = R.string.page_modules,
         icon = R.drawable.keyframes,
         iconFilled = R.drawable.keyframes_filled,
         requiresRoot = true
     ),
+    
     Settings(
         direction = SettingsScreenDestination,
         label = R.string.page_settings,
