@@ -47,6 +47,10 @@ jobs:
         with:
           flavor: ${{ matrix.flavor }}
           buildType: "release"
+          keyStore: ${{ secrets.KEY_STORE }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Download Official APK Env
         uses: actions/download-artifact@v4

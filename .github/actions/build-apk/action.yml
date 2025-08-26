@@ -7,6 +7,18 @@ inputs:
   buildType:
     description: "Build Type"
     required: true
+  keyStore:
+    description: "Key Store"
+    required: true
+  keyStorePassword:
+    description: "Key Store Password"
+    required: true
+  keyAlias:
+    description: "Key Alias"
+    required: true
+  keyPassword:
+    description: "Key Password"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -31,12 +43,12 @@ runs:
     - name: Set up signing key
       shell: bash
       run: |
-        if [ -n "${{ secrets.KEY_STORE }}" ]; then
-            echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-            echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
-            echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
+        if [ -n "${{ inputs.keyStore }}" ]; then
+            echo keyStorePassword='${{ inputs.keyStorePassword }}' >> signing.properties
+            echo keyAlias='${{ inputs.keyAlias }}' >> signing.properties
+            echo keyPassword='${{ inputs.keyPassword }}' >> signing.properties
             echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
-            echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+            echo ${{ inputs.keyStore }} | base64 --decode > ${{ github.workspace }}/key.jks
         fi
 
     - name: Set up JDK
