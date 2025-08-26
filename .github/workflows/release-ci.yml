@@ -32,6 +32,11 @@ jobs:
       matrix:
         flavor: [official, spoofed]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Build APK
         id: build-apk
         uses: ./.github/workflows/build.yml
