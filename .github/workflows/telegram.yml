@@ -34,8 +34,8 @@ jobs:
         id: find_apks
         run: |
           # Look for official APK matching the artifact name
-          OFFICIAL_APK_PATH=$(find official-apk -maxdepth 1 -type f -name "${{ env.OFFICIAL_NAME }}*.apk" -print -quit)
-          SPOOFED_APK_PATH=$(find spoofed-apk -maxdepth 1 -type f -name "${{ env.SPOOFED_NAME }}*.apk" -print -quit)
+          OFFICIAL_APK_PATH=$(find official-apk -maxdepth 1 -type f -name "*.apk" -print -quit)
+          SPOOFED_APK_PATH=$(find spoofed-apk -maxdepth 1 -type f -name "*.apk" -print -quit)
 
           echo "OFFICIAL_APK_PATH=$OFFICIAL_APK_PATH" >> $GITHUB_OUTPUT
           echo "SPOOFED_APK_PATH=$SPOOFED_APK_PATH" >> $GITHUB_OUTPUT

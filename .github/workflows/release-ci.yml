@@ -45,20 +45,20 @@ jobs:
           keyAlias: ${{ secrets.KEY_ALIAS }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-  # Release to GitHub
-  release-github:
-    if: github.event.inputs.send_github == 'true'
-    name: Release to GitHub
-    needs: build-release
-    uses: ./.github/workflows/github.yml
-    secrets: inherit
-
   # Release to Telegram
   release-telegram:
     if: github.event.inputs.send_telegram == 'true'
     name: Release to Telegram
     needs: build-release
     uses: ./.github/workflows/telegram.yml
+    secrets: inherit
+
+  # Release to GitHub
+  release-github:
+    if: github.event.inputs.send_github == 'true'
+    name: Release to GitHub
+    needs: build-release
+    uses: ./.github/workflows/github.yml
     secrets: inherit
 
   # Release to Play Store
