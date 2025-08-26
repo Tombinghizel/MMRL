@@ -26,7 +26,7 @@ jobs:
       - name: Download Official Release APK
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.officialAssetName }}.apk
+          name: ${{ inputs.officialAssetName }}
           path: official-apk
 
       - name: Download Spoofed Release APK

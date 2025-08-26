@@ -53,7 +53,7 @@ jobs:
         run: |
           FLAVOR="${{ matrix.flavor }}"
           echo "FLAVOR_CAPITALIZED_ALL=${FLAVOR^^}"
-          echo "${FLAVOR_CAPITALIZED_ALL}_NAME=\"${{ steps.build-apk.outputs.name }}\"" >> $GITHUB_OUTPUT
+          echo "${FLAVOR_CAPITALIZED_ALL}_NAME=\"${{ steps.build-apk.outputs.name }}.apk\"" >> $GITHUB_OUTPUT
 
   # Release to GitHub
   release-github:
