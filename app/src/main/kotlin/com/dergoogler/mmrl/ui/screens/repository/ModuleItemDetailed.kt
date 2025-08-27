@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -34,6 +36,14 @@ import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 
+enum class LabelType {
+    LICENSE,
+    INSTALLED,
+    ANTIFEATURES,
+    CATEGORY,
+    UPDATABLE
+}
+
 @Composable
 fun ModuleItemDetailed(
     alpha: Float = 1f,
@@ -46,9 +56,21 @@ fun ModuleItemDetailed(
 
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
-    val hasLabel =
-        (state.hasLicense && menu.showLicense) || state.installed || (module.track.hasAntifeatures && menu.showAntiFeatures)
     val isVerified = module.isVerified && menu.showVerified
+
+    val showLicenseLabel = state.hasLicense && menu.showLicense
+    val showInstalledLabel = state.installed
+    val showAntifeaturesLabel = module.track.hasAntifeatures && menu.showAntiFeatures
+    val showCategoryLabel = module.categories.isNotNullOrEmpty() && menu.showCategory
+
+    val labelsToShow = remember { mutableListOf<LabelType>() }
+    if (showLicenseLabel) labelsToShow.add(LabelType.LICENSE)
+    if (showInstalledLabel) labelsToShow.add(LabelType.INSTALLED)
+    if (showAntifeaturesLabel) labelsToShow.add(LabelType.ANTIFEATURES)
+    if (showCategoryLabel) labelsToShow.add(LabelType.CATEGORY)
+    if (state.updatable) labelsToShow.add(LabelType.UPDATABLE)
+
+    val hasLabel = labelsToShow.isNotEmpty()
 
     Card(
         enabled = enabled,
@@ -156,53 +178,51 @@ fun ModuleItemDetailed(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    module.categories.nullable {
-                        if (it.isNotNullOrEmpty()) {
-                            LabelItem(
-                                icon = R.drawable.category,
-                                text = it.first(),
-                                style = LabelItemDefaults.style.copy(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    labelsToShow.forEach { labelType ->
+                        when (labelType) {
+                            LabelType.CATEGORY -> module.categories?.firstOrNull()
+                                .nullable { category ->
+                                    LabelItem(
+                                        icon = R.drawable.category,
+                                        text = category,
+                                        style = LabelItemDefaults.style.copy(
+                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    )
+                                }
+
+                            LabelType.LICENSE -> module.license.nullable { license ->
+                                LabelItem(
+                                    icon = R.drawable.tag,
+                                    text = license
                                 )
-                            )
-                        }
-                    }
+                            }
 
-                    module.license.nullable(menu.showLicense) {
-                        LabelItem(
-                            icon = R.drawable.tag,
-                            text = it
-                        )
-                    }
-
-                    module.track.antifeatures.nullable(menu.showAntiFeatures) {
-                        if (it.isNotEmpty()) {
-                            LabelItem(
+                            LabelType.ANTIFEATURES -> LabelItem(
                                 icon = R.drawable.alert_triangle,
                                 text = stringResource(id = R.string.view_module_antifeatures),
                                 style = LabelItemDefaults.style.copy(
                                     containerColor = MaterialTheme.colorScheme.onTertiary,
-                                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
                             )
-                        }
-                    }
 
-                    when {
-                        state.updatable ->
-                            LabelItem(
+                            LabelType.INSTALLED -> LabelItem(
+                                text = stringResource(id = R.string.module_installed)
+                            )
+
+                            LabelType.UPDATABLE -> LabelItem(
                                 text = stringResource(id = R.string.module_new),
                                 style = LabelItemDefaults.style.copy(
                                     containerColor = MaterialTheme.colorScheme.error,
                                     contentColor = MaterialTheme.colorScheme.onError
                                 )
                             )
-
-                        state.installed ->
-                            LabelItem(text = stringResource(id = R.string.module_installed))
+                        }
                     }
                 }
+
                 Spacer(modifier = Modifier.weight(1f))
             }
         }
