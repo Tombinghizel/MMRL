@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,12 +13,14 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -112,6 +115,7 @@ import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
 import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.platform.file.SuFile.Companion.toFormattedFileSize
+import com.dergoogler.mmrl.ui.component.CollapsingTopAppBarDefaults.scrollBehavior
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
@@ -137,6 +141,12 @@ import com.dergoogler.mmrl.ui.screens.moduleView.items.OtherSourcesItem
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewDownloader
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewModel
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalRequireModules
+import com.dergoogler.mmrl.ui.screens.moduleView.sections.AboutModule
+import com.dergoogler.mmrl.ui.screens.moduleView.sections.Alerts
+import com.dergoogler.mmrl.ui.screens.moduleView.sections.Header
+import com.dergoogler.mmrl.ui.screens.moduleView.sections.Information
+import com.dergoogler.mmrl.ui.screens.moduleView.sections.Information0
+import com.dergoogler.mmrl.ui.screens.moduleView.sections.Screenshots
 import com.dergoogler.mmrl.ui.screens.moduleView.sections.Toolbar
 import com.dergoogler.mmrl.ui.screens.repository.modules.ModulesFilter
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
@@ -159,7 +169,6 @@ fun NewViewScreen(
     val bulkInstallViewModel = LocalBulkInstall.current
     val userPreferences = LocalUserPreferences.current
     val repositoryMenu = userPreferences.repositoryMenu
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val module = viewModel.online
     val moduleAll by viewModel.onlineAll.collectAsStateWithLifecycle()
     val local = viewModel.local
@@ -170,6 +179,8 @@ fun NewViewScreen(
 
     val listItemContentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
     val subListItemContentPaddingValues = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
+
+    val listState = rememberLazyListState()
 
     val screenshotsLazyListState = rememberLazyListState()
     val categoriesLazyListState = rememberLazyListState()
@@ -271,775 +282,92 @@ fun NewViewScreen(
         LocalModuleViewModel provides viewModel,
         LocalModuleViewDownloader provides download,
         LocalRequireModules provides requires,
-        LocalScrollBehavior provides scrollBehavior,
     ) {
         Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                Toolbar()
-            },
             snackbarHost = { SnackbarHost(snackbarHostState) },
             contentWindowInsets = WindowInsets.none
         ) { innerPadding ->
             this@Scaffold.ResponsiveContent {
-                Column(
-                    modifier = Modifier
-                        .let {
-                            if (repositoryMenu.showCover && module.hasCover) {
-                                Modifier
-                            } else {
-                                it.padding(innerPadding)
-                            }
-                        }
-                        .verticalScroll(rememberScrollState())
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = innerPadding,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    module.cover.nullable(repositoryMenu.showCover) {
-                        if (it.isNotEmpty()) {
-                            Cover(
-                                modifier = Modifier.fadingEdge(
-                                    Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color.Transparent,
-                                            Color.Black
+                    item {
+                        Box {
+                            module.cover.nullable(repositoryMenu.showCover) {
+                                if (it.isNotEmpty()) {
+                                    Cover(
+                                        modifier = Modifier.fadingEdge(
+                                            Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.Transparent,
+                                                    Color.Black
+                                                ),
+                                                startY = Float.POSITIVE_INFINITY,
+                                                endY = 0f
+                                            )
                                         ),
-                                        startY = Float.POSITIVE_INFINITY,
-                                        endY = 0f
+                                        url = it,
                                     )
-                                ),
-                                url = it,
-                            )
+                                }
+                            }
+
+                            Toolbar()
                         }
                     }
 
-                    Column(
-                        modifier = Modifier
-                            .systemBarsPaddingEnd(),
-                    ) {
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.Top
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .systemBarsPaddingEnd(),
                         ) {
-                            if (repositoryMenu.showIcon) {
-                                if (module.icon.isNotNullOrBlank()) {
-                                    AsyncImage(
-                                        model = module.icon,
-                                        modifier = Modifier
-                                            .size(60.dp)
-                                            .clip(RoundedCornerShape(20)),
-                                        contentDescription = null
-                                    )
-                                } else {
-                                    Logo(
-                                        icon = R.drawable.box,
-                                        modifier = Modifier.size(60.dp),
-                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                        shape = RoundedCornerShape(20)
-                                    )
-                                }
+                            Header()
 
-                                Spacer(modifier = Modifier.width(16.dp))
-                            }
+                            val progress = lastVersionItem?.let {
+                                viewModel.getProgress(it)
+                            } ?: 0f
 
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                TextWithIcon(
-                                    style = TextWithIconDefaults.style.copy(
-                                        textStyle = MaterialTheme.typography.titleLarge,
-                                        iconTint = MaterialTheme.colorScheme.surfaceTint,
-                                        iconScaling = 1.0f,
-                                        rightIcon = true,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis
-                                    ),
-                                    text = module.name,
-                                    icon = module.isVerified nullable R.drawable.rosette_discount_check,
-                                )
-
-                                Spacer(modifier = Modifier.height(4.dp))
-
-                                Text(
-                                    modifier = Modifier.clickable(
-                                        onClick = {
-                                            navigator.navigate(
-                                                TypedModulesScreenDestination(
-                                                    type = ModulesFilter.AUTHOR,
-                                                    title = module.author,
-                                                    query = module.author,
-                                                    repo = repo,
-                                                )
-                                            )
-                                        }
-                                    ),
-                                    text = module.author,
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.surfaceTint),
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.Top,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            local?.let {
-                                val ops by remember(
-                                    userPreferences.useShellForModuleStateChange,
-                                    it,
-                                    it.state
-                                ) {
-                                    derivedStateOf {
-                                        viewModel.createModuleOps(
-                                            userPreferences.useShellForModuleStateChange,
-                                            it
-                                        )
-                                    }
-                                }
-
-                                OutlinedButton(
-                                    enabled = viewModel.isProviderAlive && (!userPreferences.useShellForModuleStateChange || it.state != State.REMOVE),
+                            if (progress != 0f) {
+                                LinearProgressIndicator(
+                                    progress = { progress },
+                                    strokeCap = StrokeCap.Round,
                                     modifier = Modifier
+                                        .padding(vertical = 16.dp)
+                                        .height(0.9.dp)
                                         .fillMaxWidth()
-                                        .weight(1f),
-                                    onClick = ops.change
-                                ) {
-                                    val style = LocalTextStyle.current
-                                    val progressSize =
-                                        with(density) { style.fontSize.toDp() * 1.0f }
-
-                                    if (ops.isOpsRunning) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(progressSize),
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                            strokeWidth = 2.dp
-                                        )
-                                    } else {
-                                        Text(
-                                            text = stringResource(
-                                                id = if (it.state == State.REMOVE) {
-                                                    R.string.module_restore
-                                                } else {
-                                                    R.string.module_remove
-                                                }
-                                            ),
-                                            maxLines = 1
-                                        )
-                                    }
-                                }
-                            }
-
-                            val buttonTextResId = when {
-                                local == null -> R.string.module_install
-                                lastVersionItem != null && module.versionCode > local.versionCode -> R.string.module_update
-                                else -> R.string.module_reinstall
-                            }
-
-                            Button(
-                                enabled = viewModel.isProviderAlive && lastVersionItem != null && !isBlacklisted,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                onClick = {
-                                    viewModel.installConfirm = true
-                                },
-                            ) {
-                                Text(
-                                    text = stringResource(id = buttonTextResId),
-                                    maxLines = 1
+                                )
+                            } else {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 16.dp),
+                                    thickness = 0.9.dp
                                 )
                             }
-                        }
 
-                        val progress = lastVersionItem?.let {
-                            viewModel.getProgress(it)
-                        } ?: 0f
+                            Alerts()
 
-                        if (progress != 0f) {
-                            LinearProgressIndicator(
-                                progress = { progress },
-                                strokeCap = StrokeCap.Round,
-                                modifier = Modifier
-                                    .padding(vertical = 16.dp)
-                                    .height(0.9.dp)
-                                    .fillMaxWidth()
-                            )
-                        } else {
+                            AboutModule()
+
+                            Screenshots()
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Information0()
+
+                            // Information section
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 16.dp),
                                 thickness = 0.9.dp
                             )
+
+                            Information()
+
+                            Spacer(modifier = Modifier.navigationBarsPadding())
                         }
-
-                        val alertPadding = PaddingValues(horizontal = 16.dp)
-
-                        module.hasBlacklist {
-                            var open by remember { mutableStateOf(false) }
-                            if (open) {
-                                BlacklistBottomSheet(
-                                    module = it,
-                                    onClose = { open = false })
-                            }
-
-                            Alert(
-                                icon = R.drawable.alert_circle_filled,
-                                title = stringResource(R.string.blacklisted),
-                                backgroundColor = MaterialTheme.colorScheme.errorContainer,
-                                textColor = MaterialTheme.colorScheme.onErrorContainer,
-                                message = stringResource(R.string.blacklisted_desc),
-                                outsideContentPadding = alertPadding,
-                            )
-                        }
-
-                        manager.isNotSupportedRootVersion(viewModel.versionCode) { min ->
-                            if (min == -1) {
-                                Alert(
-                                    title = stringResource(id = R.string.view_module_unsupported),
-                                    backgroundColor = MaterialTheme.colorScheme.errorContainer,
-                                    textColor = MaterialTheme.colorScheme.onErrorContainer,
-                                    message = stringResource(id = R.string.view_module_unsupported_desc),
-                                    outsideContentPadding = alertPadding,
-                                )
-                            } else {
-                                Alert(
-                                    title = stringResource(id = R.string.view_module_low_root_version),
-                                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                    textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                                    message = stringResource(id = R.string.view_module_low_root_version_desc),
-                                    outsideContentPadding = alertPadding,
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        manager.isNotSupportedDevice {
-                            Alert(
-                                title = stringResource(id = R.string.view_module_unsupported_device),
-                                backgroundColor = MaterialTheme.colorScheme.errorContainer,
-                                textColor = MaterialTheme.colorScheme.onErrorContainer,
-                                message = stringResource(id = R.string.view_module_unsupported_device_desc),
-                                outsideContentPadding = alertPadding,
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        manager.isNotSupportedArch {
-                            Alert(
-                                title = stringResource(id = R.string.view_module_unsupported_arch),
-                                backgroundColor = MaterialTheme.colorScheme.errorContainer,
-                                textColor = MaterialTheme.colorScheme.onErrorContainer,
-                                message = stringResource(id = R.string.view_module_unsupported_arch_desc),
-                                outsideContentPadding = alertPadding,
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        module.note.hasValidMessage {
-                            if (it.hasTitle && it.isDeprecated) {
-                                Alert(
-                                    icon = R.drawable.alert_triangle,
-                                    backgroundColor = MaterialTheme.colorScheme.errorContainer,
-                                    textColor = MaterialTheme.colorScheme.onErrorContainer,
-                                    title = it.title,
-                                    message = it.message!!,
-                                    outsideContentPadding = alertPadding,
-                                )
-                            } else {
-                                Alert(
-                                    title = it.title,
-                                    message = it.message!!,
-                                    outsideContentPadding = alertPadding,
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-                        List(
-                            contentPadding = listItemContentPaddingValues
-                        ) {
-                            if (!module.readme.isNullOrBlank()) {
-                                ButtonItem(
-                                    onClick = {
-                                        navigator.navigate(ViewDescriptionScreenDestination(module.readme))
-                                    }
-                                ) {
-                                    Icon(
-                                        slot = ListItemSlot.End,
-                                        painter = painterResource(id = R.drawable.arrow_right)
-                                    )
-                                    Title(R.string.view_module_about_this_module)
-                                }
-                            } else {
-                                Item {
-                                    Title(R.string.view_module_about_this_module)
-                                }
-                            }
-                        }
-
-                        Text(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            text = module.description
-                                ?: stringResource(R.string.view_module_no_description),
-                            style = MaterialTheme.typography.bodyMedium.apply {
-                                if (module.description.isNullOrBlank()) {
-                                    copy(
-                                        fontStyle = FontStyle.Italic
-                                    )
-                                }
-                            },
-                            color = MaterialTheme.colorScheme.outline
-                        )
-
-                        module.hasCategories {
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            LazyRow(
-                                state = categoriesLazyListState,
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
-                            ) {
-                                items(it.size) { category ->
-                                    AssistChip(
-                                        onClick = {
-                                            navigator.navigate(
-                                                TypedModulesScreenDestination(
-                                                    type = ModulesFilter.CATEGORY,
-                                                    title = it[category],
-                                                    query = it[category],
-                                                    repo = repo,
-                                                )
-                                            )
-                                        },
-                                        label = { Text(it[category]) }
-                                    )
-                                }
-                            }
-                        }
-
-                        module.hasScreenshots { screens ->
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            LazyRow(
-                                state = screenshotsLazyListState,
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
-
-                            ) {
-                                itemsIndexed(
-                                    items = screens,
-                                ) { index, screen ->
-                                    val interactionSource = remember { MutableInteractionSource() }
-
-                                    AsyncImage(
-                                        model = screen,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .height(160.dp)
-                                            .clickable(
-                                                interactionSource = interactionSource,
-                                                indication = ripple(),
-                                                onClick = {
-                                                    ScreenshotsPreviewActivity.start(
-                                                        context,
-                                                        screens,
-                                                        index
-                                                    )
-                                                }
-                                            )
-                                            .aspectRatio(9f / 16f)
-                                            .clip(RoundedCornerShape(10.dp)),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        List(
-                            contentPadding = listItemContentPaddingValues
-                        ) {
-                            CollapseItem(
-                                meta = { icon, rotation ->
-                                    Title(R.string.view_module_module_support)
-                                    Icon(
-                                        slot = ListItemSlot.End,
-                                        modifier = Modifier
-                                            .graphicsLayer(rotationZ = rotation),
-                                        painter = painterResource(id = icon),
-                                    )
-                                },
-                            ) {
-                                module.donate.ifNotNullOrBlank {
-                                    ButtonItem(
-                                        contentPadding = subListItemContentPaddingValues,
-                                        onClick = {
-                                            browser.openUri(it)
-                                        }
-                                    ) {
-                                        Icon(painter = painterResource(id = R.drawable.currency_dollar))
-                                        Title(R.string.view_module_donate)
-                                        Description(R.string.view_module_donate_desc)
-                                    }
-                                }
-
-                                ButtonItem(
-                                    contentPadding = subListItemContentPaddingValues,
-                                    onClick = {
-                                        browser.openUri(module.track.source)
-                                    }
-                                ) {
-                                    Icon(painter = painterResource(id = R.drawable.brand_git))
-                                    Title(R.string.view_module_source)
-                                }
-
-                                module.homepage.ifNotNullOrBlank {
-                                    ButtonItem(
-                                        contentPadding = subListItemContentPaddingValues,
-                                        onClick = {
-                                            browser.openUri(it)
-                                        }
-                                    ) {
-                                        Icon(painter = painterResource(id = R.drawable.world_www))
-                                        Title(R.string.view_module_homepage)
-                                    }
-                                }
-
-                                module.support?.ifNotNullOrBlank {
-                                    ButtonItem(
-                                        contentPadding = subListItemContentPaddingValues,
-                                        onClick = {
-                                            browser.openUri(it)
-                                        }
-                                    ) {
-                                        Icon(painter = painterResource(id = R.drawable.heart_handshake))
-                                        Title(R.string.view_module_support)
-                                    }
-                                }
-                            }
-
-                            module.permissions.ifNotEmpty {
-                                CollapseItem(
-                                    meta = { icon, rotation ->
-                                        Title(R.string.view_module_permissions)
-                                        Icon(
-                                            slot = ListItemSlot.End,
-                                            modifier = Modifier
-                                                .graphicsLayer(rotationZ = rotation),
-                                            painter = painterResource(id = icon),
-                                        )
-                                        Labels {
-                                            LabelItem(
-                                                text = stringResource(
-                                                    R.string.view_module_section_count,
-                                                    it.size
-                                                )
-                                            )
-                                        }
-                                    },
-                                ) {
-                                    PermissionItem(
-                                        contentPadding = subListItemContentPaddingValues,
-                                        permissions = it
-                                    )
-                                }
-                            }
-
-                            module.track.antifeatures.ifNotEmpty {
-                                CollapseItem(
-                                    meta = { icon, rotation ->
-                                        Title(R.string.view_module_antifeatures)
-                                        Icon(
-                                            slot = ListItemSlot.End,
-                                            modifier = Modifier
-                                                .graphicsLayer(rotationZ = rotation),
-                                            painter = painterResource(id = icon),
-                                        )
-                                        Labels {
-                                            LabelItem(
-                                                text = stringResource(
-                                                    R.string.view_module_section_count,
-                                                    it.size
-                                                )
-                                            )
-                                        }
-                                    },
-                                ) {
-                                    AntiFeaturesItem(
-                                        contentPadding = subListItemContentPaddingValues,
-                                        antifeatures = it
-                                    )
-                                }
-                            }
-
-                            requires.ifNotEmpty { requiredIds ->
-                                CollapseItem(
-                                    meta = { icon, rotation ->
-                                        Title(R.string.view_module_dependencies)
-                                        Icon(
-                                            slot = ListItemSlot.End,
-                                            modifier = Modifier
-                                                .graphicsLayer(rotationZ = rotation),
-                                            painter = painterResource(id = icon),
-                                        )
-                                        Labels {
-                                            LabelItem(
-                                                text = stringResource(
-                                                    R.string.view_module_section_count,
-                                                    requiredIds.size
-                                                )
-                                            )
-                                        }
-                                    },
-                                ) {
-                                    requiredIds.forEach { onlineModule ->
-                                        // val parts = requiredId.split("@")
-
-                                        // val id = parts[0]
-                                        // val version = (parts.getOrElse(1) { "-1" }).toInt()
-
-                                        ButtonItem(
-                                            contentPadding = subListItemContentPaddingValues,
-                                            onClick = {
-                                                //                                navController.navigateSingleTopTo(
-//                                    ModuleViewModel.putModule(onlineModule, moduleArgs.url),
-//                                    launchSingleTop = false
-//                                )
-                                            }
-                                        ) {
-                                            Title(onlineModule.name)
-                                            Description(onlineModule.versionCode.toString())
-                                        }
-                                    }
-                                }
-                            }
-
-                            viewModel.otherSources.ifNotEmpty {
-                                Item {
-                                    Title(R.string.from_other_repositories)
-                                }
-
-                                OtherSourcesItem(viewModel.otherSources)
-                            }
-                        }
-
-                        // Information section
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 16.dp),
-                            thickness = 0.9.dp
-                        )
-
-                        userPreferences.developerMode.takeTrue {
-                            ModuleInfoListItem(
-                                title = R.string.view_module_module_id,
-                                desc = module.id
-                            )
-                        }
-
-                        module.license.ifNotNullOrBlank {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                            ) {
-                                Text(
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.outline),
-                                    modifier = Modifier.weight(1f),
-                                    text = stringResource(id = R.string.view_module_license)
-                                )
-                                LicenseItem(licenseId = it)
-                            }
-                        }
-                        ModuleInfoListItem(
-                            title = R.string.view_module_version,
-                            desc = "${module.version} (${module.versionCode})"
-                        )
-                        lastVersionItem?.let {
-                            ModuleInfoListItem(
-                                title = R.string.view_module_last_updated,
-                                desc = it.timestamp.toFormattedDateSafely
-                            )
-                        }
-                        module.size?.let {
-                            ModuleInfoListItem(
-                                title = R.string.view_module_file_size,
-                                desc = it.toFormattedFileSize()
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                        ) {
-                            Text(
-                                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.outline),
-                                modifier = Modifier.weight(1f),
-                                text = stringResource(id = R.string.view_module_provided_by)
-                            )
-
-                            Text(
-                                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.surfaceTint),
-                                modifier = Modifier.clickable(
-                                    onClick = { viewModel.viewTrackBottomSheet = true }
-                                ),
-                                text = viewModel.repo.name,
-                            )
-                        }
-
-                        manager.min?.let {
-                            ModuleInfoListItem(
-                                title = R.string.view_module_required_root_version,
-                                desc = it.toString()
-                            )
-                        }
-
-                        module.minApi?.let {
-                            ModuleInfoListItem(
-                                title = R.string.view_module_required_os,
-                                desc = stringResource(
-                                    R.string.view_module_required_os_value, when (it) {
-                                        Build.VERSION_CODES.JELLY_BEAN -> "4.1"
-                                        Build.VERSION_CODES.JELLY_BEAN_MR1 -> "4.2"
-                                        Build.VERSION_CODES.JELLY_BEAN_MR2 -> "4.3"
-                                        Build.VERSION_CODES.KITKAT -> "4.4"
-                                        Build.VERSION_CODES.KITKAT_WATCH -> "4.4"
-                                        Build.VERSION_CODES.LOLLIPOP -> "5.0"
-                                        Build.VERSION_CODES.LOLLIPOP_MR1 -> "5.1"
-                                        Build.VERSION_CODES.M -> "6.0"
-                                        Build.VERSION_CODES.N -> "7.0"
-                                        Build.VERSION_CODES.N_MR1 -> "7.1"
-                                        Build.VERSION_CODES.O -> "8.0"
-                                        Build.VERSION_CODES.O_MR1 -> "8.1"
-                                        Build.VERSION_CODES.P -> "9.0"
-                                        Build.VERSION_CODES.Q -> "10"
-                                        Build.VERSION_CODES.R -> "11"
-                                        Build.VERSION_CODES.S -> "12"
-                                        Build.VERSION_CODES.S_V2 -> "12"
-                                        Build.VERSION_CODES.TIRAMISU -> "13"
-                                        Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> "14"
-                                        else -> "[Sdk: $it]"
-                                    }
-                                )
-                            )
-                        }
-
-                        module.track.added?.let {
-                            ModuleInfoListItem(
-                                title = R.string.view_module_added_on,
-                                desc = it.toFormattedDateSafely
-                            )
-                        }
-
-
-                        local?.let { loc ->
-                            List(
-                                contentPadding = PaddingValues(
-                                    vertical = 8.dp,
-                                    horizontal = 16.dp
-                                )
-                            ) {
-                                CollapseItem(
-                                    meta = { icon, rotation ->
-                                        Title(
-                                            id = R.string.module_installed,
-                                            styleTransform = {
-                                                val newStyle =
-                                                    MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.surfaceTint)
-
-                                                it.merge(newStyle)
-                                            }
-                                        )
-                                        Icon(
-                                            slot = ListItemSlot.End,
-                                            modifier = Modifier
-                                                .graphicsLayer(rotationZ = rotation),
-                                            painter = painterResource(id = icon),
-                                        )
-                                    }
-                                ) {
-                                    userPreferences.developerMode.takeTrue {
-                                        ModuleInfoListItem(
-                                            title = R.string.view_module_module_id,
-                                            desc = loc.id.toString()
-                                        )
-                                    }
-
-                                    ModuleInfoListItem(
-                                        title = R.string.view_module_version,
-                                        desc = "${loc.version} (${loc.versionCode})"
-                                    )
-                                    ModuleInfoListItem(
-                                        title = R.string.view_module_last_updated,
-                                        desc = loc.lastUpdated.toFormattedDateSafely
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.navigationBarsPadding())
                     }
                 }
             }
         }
     }
 }
-
-@Composable
-private fun ModuleInfoListItem(
-    @StringRes title: Int,
-    desc: String,
-    style: TextStyle = MaterialTheme.typography.bodyMedium,
-    infoCanDiffer: Boolean = false,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-    ) {
-        Text(
-            style = style.copy(color = MaterialTheme.colorScheme.outline),
-            modifier = Modifier.weight(1f),
-            text = stringResource(id = title) + if (infoCanDiffer) " *" else ""
-        )
-        Text(
-            style = style,
-            text = desc
-        )
-    }
-}
-
-@Composable
-private fun TopBar(
-    modifier: Modifier = Modifier,
-    navigator: DestinationsNavigator,
-    scrollBehavior: TopAppBarScrollBehavior,
-    actions: @Composable RowScope.() -> Unit = {},
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-) = TopAppBar(
-    modifier = modifier,
-    navigationIcon = {
-        IconButton(onClick = { navigator.popBackStack() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.arrow_left), contentDescription = null
-            )
-        }
-    },
-    actions = actions,
-    title = {},
-    colors = colors,
-    scrollBehavior = scrollBehavior
-)

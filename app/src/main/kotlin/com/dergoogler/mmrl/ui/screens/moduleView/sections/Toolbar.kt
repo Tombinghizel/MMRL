@@ -1,6 +1,5 @@
 package com.dergoogler.mmrl.ui.screens.moduleView.sections
 
-import android.R.attr.navigationIcon
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenu
@@ -13,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,21 +21,20 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.repoId
 import com.dergoogler.mmrl.ext.shareText
-import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.model.local.BulkModule
 import com.dergoogler.mmrl.model.online.isValid
 import com.dergoogler.mmrl.platform.content.isValid
+import com.dergoogler.mmrl.ui.component.toolbar.Toolbar
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalRepo
-import com.dergoogler.mmrl.ui.providable.LocalScrollBehavior
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
+import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.providable.LocalVersionItem
 import com.dergoogler.mmrl.ui.screens.moduleView.items.VersionsItem
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewModel
@@ -46,6 +45,7 @@ internal fun Toolbar() {
     val context = LocalContext.current
     val viewModel = LocalModuleViewModel.current
     val repo = LocalRepo.current
+    val userPreferences = LocalUserPreferences.current
     val module = LocalOnlineModule.current
     val lastVersionItem = LocalVersionItem.current
     val snackbarHostState = LocalSnackbarHost.current
@@ -53,13 +53,13 @@ internal fun Toolbar() {
     val browser = LocalUriHandler.current
     val local = LocalModule.current
     val navigator = LocalDestinationsNavigator.current
-    val scrollBehavior = LocalScrollBehavior.current
 
     val scope = rememberCoroutineScope()
+    val repositoryMenu = remember(userPreferences) { userPreferences.repositoryMenu }
 
-    TopAppBar(
+    Toolbar(
         colors = TopAppBarDefaults.topAppBarColors().copy(
-            scrolledContainerColor = MaterialTheme.colorScheme.background,
+            scrolledContainerColor = Color.Transparent,
             containerColor = Color.Transparent
         ),
         title = {},
@@ -70,6 +70,7 @@ internal fun Toolbar() {
                 )
             }
         },
+        bottomBorder = !(module.hasCover && repositoryMenu.showCover),
         actions = {
             VersionsItem(
                 count = viewModel.versions.size,
@@ -203,6 +204,5 @@ internal fun Toolbar() {
                 }
             }
         },
-        scrollBehavior = scrollBehavior
     )
 }
