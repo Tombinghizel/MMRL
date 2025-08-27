@@ -28,7 +28,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalRepo
-import com.dergoogler.mmrl.ui.screens.home.listItemContentPaddingValues
+import com.dergoogler.mmrl.ui.screens.moduleView.listItemContentPaddingValues
 import com.dergoogler.mmrl.ui.screens.repository.modules.ModulesFilter
 import com.ramcosta.composedestinations.generated.destinations.TypedModulesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ViewDescriptionScreenDestination

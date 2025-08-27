@@ -24,12 +24,11 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
-import com.dergoogler.mmrl.ui.screens.home.listItemContentPaddingValues
 import com.dergoogler.mmrl.ui.screens.moduleView.items.OtherSourcesItem
+import com.dergoogler.mmrl.ui.screens.moduleView.listItemContentPaddingValues
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewModel
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalRequireModules
-
-val subListItemContentPaddingValues = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
+import com.dergoogler.mmrl.ui.screens.moduleView.subListItemContentPaddingValues
 
 @Composable
 internal fun Information0() {
