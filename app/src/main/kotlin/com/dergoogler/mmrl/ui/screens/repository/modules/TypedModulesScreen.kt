@@ -1,15 +1,12 @@
 package com.dergoogler.mmrl.ui.screens.repository.modules
 
-import androidx.compose.runtime.Composable
-import com.dergoogler.mmrl.ui.screens.repository.RepositoryMenu
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,13 +20,14 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.datastore.model.RepositoryMenu
 import com.dergoogler.mmrl.ext.isNotNullOrBlank
-import com.dergoogler.mmrl.ui.component.PageIndicator
-import com.dergoogler.mmrl.ui.component.SearchTopBar
 import com.dergoogler.mmrl.ext.none
+import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.component.toolbar.BlurSearchToolbar
 import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
 import com.dergoogler.mmrl.ui.remember.rememberOnlineModules
 import com.dergoogler.mmrl.ui.remember.rememberUserPreferencesRepository
+import com.dergoogler.mmrl.ui.screens.repository.RepositoryMenu
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.launch
@@ -56,7 +54,6 @@ fun TypedModulesScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
 
-    // fixed: keep the passed searchKey separately for author/category/name filtering
     val filterQuery = remember { query }
 
     val filteredModules = remember(modules, filterQuery, type, searchQuery) {
@@ -119,22 +116,19 @@ fun TypedModulesScreen(
         },
         contentWindowInsets = WindowInsets.none
     ) { innerPadding ->
-        Box(
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            if (filteredModules.isEmpty()) {
-                PageIndicator(
-                    icon = R.drawable.cloud,
-                    text = if (isSearch) R.string.search_empty else R.string.repository_empty,
-                )
-            }
-
-            this@Scaffold.TypedModulesList(
-                repo = repo,
-                list = filteredModules,
-                state = listState,
+        if (filteredModules.isEmpty()) {
+            PageIndicator(
+                icon = R.drawable.cloud,
+                text = if (isSearch) R.string.search_empty else R.string.repository_empty,
             )
         }
+
+        this@Scaffold.TypedModulesList(
+            innerPadding = innerPadding,
+            repo = repo,
+            list = filteredModules,
+            state = listState,
+        )
     }
 }
 
@@ -154,9 +148,11 @@ private fun TopBar(
         onDispose { currentQuery = "" }
     }
 
-    SearchTopBar(
+    BlurSearchToolbar(
         isSearch = isSearch,
         query = currentQuery,
+        fade = true,
+        fadeDistance = 50f,
         onQueryChange = {
             onQueryChange(it)
             currentQuery = it
@@ -172,7 +168,7 @@ private fun TopBar(
                     subtitle = repo.name
                 )
 
-                return@SearchTopBar
+                return@BlurSearchToolbar
             }
 
             ToolbarTitle(
