@@ -9,6 +9,8 @@ import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
@@ -39,10 +41,21 @@ fun BlurBottomToolbar(
         }
     } else Modifier
 
+    val borderColor = MaterialTheme.colorScheme.outlineVariant
+
     Column {
         NavigationBar(
             modifier = Modifier
                 .then(blurModifier)
+                .drawBehind {
+                    val borderSize = Dp.Hairline
+                    drawLine(
+                        color = borderColor,
+                        start = Offset(0f, 0f),
+                        end = Offset(size.width, 0f),
+                        strokeWidth = borderSize.value
+                    )
+                }
                 .then(modifier),
             containerColor = if (isBlurEnabled) Color.Transparent else containerColor,
             contentColor = contentColor,

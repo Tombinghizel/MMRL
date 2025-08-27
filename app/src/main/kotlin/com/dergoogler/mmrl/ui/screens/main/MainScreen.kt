@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -32,7 +31,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -188,12 +186,6 @@ private fun BottomNav(updates: Int) {
     BlurBottomToolbar(
         modifier = Modifier
             .imePadding()
-            .clip(
-                RoundedCornerShape(
-                    topStart = 20.dp,
-                    topEnd = 20.dp
-                )
-            )
     ) {
         MainDestination.entries.forEach { screen ->
             val isSelected by navController.isRouteOnBackStackAsState(screen.direction)
