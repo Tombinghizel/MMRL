@@ -435,4 +435,6 @@
     <string name="compile_sdk">Compile SDK</string>
     <string name="settings_set_spoofed_wxp">WebUI X Portable Package</string>
     <string name="settings_set_spoofed_wxp_desc">Set a custom spoofed WebUI X Portable Package name.</string>
+    <string name="settings_enable_blur">Enable Blur</string>
+    <string name="settings_enable_blur_desc">Enabled blur effect in components</string>
 </resources>

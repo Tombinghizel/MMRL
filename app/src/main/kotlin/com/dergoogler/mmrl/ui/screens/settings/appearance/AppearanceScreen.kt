@@ -78,5 +78,13 @@ fun AppearanceScreen() {
         ) {
             Title(R.string.settings_enable_toolbar_events)
         }
+
+        SwitchItem(
+            checked = userPreferences.enableBlur,
+            onChange = viewModel::setEnableBlur
+        ) {
+            Title(R.string.settings_enable_blur)
+            Description(R.string.settings_enable_blur_desc)
+        }
     }
 }

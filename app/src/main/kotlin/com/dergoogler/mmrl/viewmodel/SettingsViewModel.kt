@@ -136,6 +136,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setEnableBlur(value: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setEnableBlur(value)
+        }
+    }
+
     fun setCheckAppUpdatesPreReleases(value: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setCheckAppUpdatesPreReleases(value)

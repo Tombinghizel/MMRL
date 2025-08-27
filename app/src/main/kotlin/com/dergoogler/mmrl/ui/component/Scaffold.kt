@@ -3,7 +3,9 @@ package com.dergoogler.mmrl.ui.component
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,12 +19,17 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
+import com.dergoogler.mmrl.platform.PlatformManager.state
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
+import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
 import com.dergoogler.mmrl.ui.component.toolbar.Toolbar
 import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalNavController
+import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun SettingsScaffold(
@@ -60,17 +67,21 @@ fun SettingsScaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (allowNavigateBack) {
-                NavigateUpTopBar(
+                BlurNavigateUpToolbar(
                     title = title,
                     navController = navController,
-                    actions = actions
+                    actions = actions,
+                    noFade = true,
+                    scrollBehavior = scrollBehavior
                 )
             } else {
-                Toolbar(
+                BlurToolbar(
                     title = {
                         ToolbarTitle(title = title)
                     },
-                    actions = actions
+                    actions = actions,
+                    noFade = true,
+                    scrollBehavior = scrollBehavior
                 )
             }
         },
@@ -79,11 +90,13 @@ fun SettingsScaffold(
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .hazeSource(state = LocalHazeState.current)
                 .then(modifier.box)
         ) {
             List(
-                modifier = modifier.column.systemBarsPaddingEnd(),
+                modifier = modifier.column
+                    .systemBarsPaddingEnd()
+                    .padding(top = innerPadding.calculateTopPadding()),
                 content = relative
             )
 

@@ -44,6 +44,9 @@ class UserPreferencesRepository @Inject constructor(
     suspend fun setCheckModuleUpdates(value: Boolean) =
         userPreferencesDataSource.setCheckModuleUpdates(value)
 
+    suspend fun setEnableBlur(value: Boolean) =
+        userPreferencesDataSource.setEnableBlur(value)
+
     suspend fun setCheckModuleUpdatesInterval(value: Long) =
         userPreferencesDataSource.setCheckModuleUpdatesInterval(value)
 

@@ -114,6 +114,14 @@ class UserPreferencesDataSource @Inject constructor(
         }
     }
 
+    suspend fun setEnableBlur(value: Boolean) = withContext(Dispatchers.IO) {
+        userPreferences.updateData {
+            it.copy(
+                enableBlur = value
+            )
+        }
+    }
+
     suspend fun setCheckModuleUpdatesInterval(value: Long) = withContext(Dispatchers.IO) {
         userPreferences.updateData {
             it.copy(
