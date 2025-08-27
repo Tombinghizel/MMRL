@@ -27,6 +27,7 @@ import com.dergoogler.mmrl.ext.compose.providable.LocalActivity
 import com.dergoogler.mmrl.repository.LocalRepository
 import com.dergoogler.mmrl.repository.ModulesRepository
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalLifecycle
 import com.dergoogler.mmrl.ui.providable.LocalLifecycleScope
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
@@ -38,6 +39,7 @@ import com.dergoogler.mmrl.ui.theme.MMRLAppTheme
 import com.dergoogler.mmrl.viewmodel.SettingsViewModel
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import dev.chrisbanes.haze.rememberHazeState
 import dev.dergoogler.mmrl.compat.BuildCompat
 import dev.dergoogler.mmrl.compat.core.BrickException
 import dev.dergoogler.mmrl.compat.core.MMRLUriHandlerImpl
@@ -180,9 +182,10 @@ fun BaseContent(
     val userPreferences by userPreferencesRepository.data.collectAsStateWithLifecycle(
         initialValue = null
     )
+
+    val hazeState = rememberHazeState()
     val navController = rememberNavController()
     val mainNavController = rememberNavController()
-
     val navigator = navController.rememberDestinationsNavigator()
 
     val preferences = if (userPreferences == null) {
@@ -200,6 +203,7 @@ fun BaseContent(
         navController = navController,
         themeColor = preferences.themeColor,
         providerValues = arrayOf(
+            LocalHazeState provides hazeState,
             LocalDestinationsNavigator provides navigator,
             LocalActivity provides activity,
             LocalSettings provides hiltViewModel<SettingsViewModel>(activity),

@@ -1,5 +1,6 @@
 package com.dergoogler.mmrl.ui.screens.moduleView
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,10 +14,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
@@ -52,9 +57,11 @@ import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalRepo
+import com.dergoogler.mmrl.ui.providable.LocalScrollBehavior
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalVersionItem
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewDownloader
@@ -68,6 +75,7 @@ import com.dergoogler.mmrl.ui.screens.moduleView.sections.Information0
 import com.dergoogler.mmrl.ui.screens.moduleView.sections.Screenshots
 import com.dergoogler.mmrl.ui.screens.moduleView.sections.Toolbar
 import com.ramcosta.composedestinations.annotation.Destination
+import dev.chrisbanes.haze.hazeSource
 import timber.log.Timber
 
 
@@ -93,7 +101,7 @@ fun NewViewScreen(
     val context = LocalContext.current
     val density = LocalDensity.current
     val browser = LocalUriHandler.current
-
+    val hazeState = LocalHazeState.current
 
     val listState = rememberLazyListState()
 
@@ -171,6 +179,8 @@ fun NewViewScreen(
         }
     )
 
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
     val isBlacklisted by module.isBlacklisted
 
     if (viewModel.versionSelectBottomSheet) VersionSelectBottomSheet(
@@ -197,89 +207,96 @@ fun NewViewScreen(
         LocalModuleViewModel provides viewModel,
         LocalModuleViewDownloader provides download,
         LocalRequireModules provides requires,
+        LocalScrollBehavior provides scrollBehavior
     ) {
         Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                Toolbar()
+            },
             contentWindowInsets = WindowInsets.none
         ) { innerPadding ->
             this@Scaffold.ResponsiveContent {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = innerPadding,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    item {
-                        Box {
-                            module.cover.nullable(repositoryMenu.showCover) {
-                                if (it.isNotEmpty()) {
-                                    Cover(
-                                        modifier = Modifier.fadingEdge(
-                                            Brush.verticalGradient(
-                                                colors = listOf(
-                                                    Color.Transparent,
-                                                    Color.Black
-                                                ),
-                                                startY = Float.POSITIVE_INFINITY,
-                                                endY = 0f
-                                            )
-                                        ),
-                                        url = it,
-                                    )
-                                }
+                Column(
+                    modifier = Modifier
+                        .let {
+                            if (repositoryMenu.showCover && module.hasCover) {
+                                Modifier
+                            } else {
+                                it.padding(innerPadding)
                             }
+                        }
+                        .verticalScroll(rememberScrollState())
+                        .hazeSource(state = hazeState)
+                ) {
 
-                            Toolbar()
+                    module.cover.nullable(repositoryMenu.showCover) {
+                        if (it.isNotEmpty()) {
+                            Cover(
+                                modifier = Modifier.fadingEdge(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            Color.Black
+                                        ),
+                                        startY = Float.POSITIVE_INFINITY,
+                                        endY = 0f
+                                    )
+                                ),
+                                url = it,
+                            )
                         }
                     }
 
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .systemBarsPaddingEnd(),
-                        ) {
-                            Header()
 
-                            val progress = lastVersionItem?.let {
-                                viewModel.getProgress(it)
-                            } ?: 0f
+                    Column(
+                        modifier = Modifier
+                            .systemBarsPaddingEnd(),
+                    ) {
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                            if (progress != 0f) {
-                                LinearProgressIndicator(
-                                    progress = { progress },
-                                    strokeCap = StrokeCap.Round,
-                                    modifier = Modifier
-                                        .padding(vertical = 16.dp)
-                                        .height(0.9.dp)
-                                        .fillMaxWidth()
-                                )
-                            } else {
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(vertical = 16.dp),
-                                    thickness = 0.9.dp
-                                )
-                            }
+                        Header()
 
-                            Alerts()
+                        val progress = lastVersionItem?.let {
+                            viewModel.getProgress(it)
+                        } ?: 0f
 
-                            AboutModule()
-
-                            Screenshots()
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Information0()
-
-                            // Information section
+                        if (progress != 0f) {
+                            LinearProgressIndicator(
+                                progress = { progress },
+                                strokeCap = StrokeCap.Round,
+                                modifier = Modifier
+                                    .padding(vertical = 16.dp)
+                                    .height(0.9.dp)
+                                    .fillMaxWidth()
+                            )
+                        } else {
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 16.dp),
                                 thickness = 0.9.dp
                             )
-
-                            Information()
-
-                            Spacer(modifier = Modifier.navigationBarsPadding())
                         }
+
+                        Alerts()
+
+                        AboutModule()
+
+                        Screenshots()
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Information0()
+
+                        // Information section
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 16.dp),
+                            thickness = 0.9.dp
+                        )
+
+                        Information()
+
+                        Spacer(modifier = Modifier.navigationBarsPadding())
                     }
                 }
             }

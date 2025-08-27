@@ -6,16 +6,17 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -27,19 +28,22 @@ import com.dergoogler.mmrl.ext.shareText
 import com.dergoogler.mmrl.model.local.BulkModule
 import com.dergoogler.mmrl.model.online.isValid
 import com.dergoogler.mmrl.platform.content.isValid
-import com.dergoogler.mmrl.ui.component.toolbar.Toolbar
+import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalRepo
+import com.dergoogler.mmrl.ui.providable.LocalScrollBehavior
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.providable.LocalVersionItem
 import com.dergoogler.mmrl.ui.screens.moduleView.items.VersionsItem
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewModel
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 internal fun Toolbar() {
     val context = LocalContext.current
@@ -53,15 +57,28 @@ internal fun Toolbar() {
     val browser = LocalUriHandler.current
     val local = LocalModule.current
     val navigator = LocalDestinationsNavigator.current
+    val scrollBehavior = LocalScrollBehavior.current
 
     val scope = rememberCoroutineScope()
-    val repositoryMenu = remember(userPreferences) { userPreferences.repositoryMenu }
 
-    Toolbar(
-        colors = TopAppBarDefaults.topAppBarColors().copy(
-            scrolledContainerColor = Color.Transparent,
-            containerColor = Color.Transparent
-        ),
+    val state = scrollBehavior.state
+
+    var alpha by remember { mutableFloatStateOf(0f) }
+    val fadeDistance = 200f
+
+    LaunchedEffect(state) {
+        snapshotFlow { state.contentOffset }
+            .collect { offset ->
+                val newAlpha = ((-offset) / fadeDistance).coerceIn(0f, 1f)
+
+                // Only update if it actually changes meaningfully
+                if ((newAlpha < 1f && newAlpha > 0f) || newAlpha != alpha) {
+                    alpha = newAlpha
+                }
+            }
+    }
+
+    BlurToolbar(
         title = {},
         navigationIcon = {
             IconButton(onClick = { navigator.popBackStack() }) {
@@ -70,7 +87,7 @@ internal fun Toolbar() {
                 )
             }
         },
-        bottomBorder = !(module.hasCover && repositoryMenu.showCover),
+        scrollBehavior = scrollBehavior,
         actions = {
             VersionsItem(
                 count = viewModel.versions.size,

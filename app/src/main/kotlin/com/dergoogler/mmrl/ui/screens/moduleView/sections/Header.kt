@@ -63,8 +63,6 @@ internal fun Header() {
     val isBlacklisted by module.isBlacklisted
     val repositoryMenu = remember(userPreferences) { userPreferences.repositoryMenu }
 
-    Spacer(modifier = Modifier.height(16.dp))
-
     Row(
         modifier = Modifier.padding(horizontal = 16.dp),
         verticalAlignment = Alignment.Top
