@@ -1,20 +1,18 @@
 package com.dergoogler.mmrl.ui.component.toolbar
 
-import android.R.attr.navigationIcon
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -26,24 +24,6 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 
-@Composable
-fun TopAppBarDefaults.color(enabled: Boolean, alpha: Float): TopAppBarColors {
-    return if (enabled) {
-        topAppBarColors().copy(
-            scrolledContainerColor = Color.Transparent,
-            containerColor = Color.Transparent
-        )
-    } else {
-        val backgroundColor = MaterialTheme.colorScheme.background
-            .copy(alpha = alpha)
-
-        topAppBarColors().copy(
-            scrolledContainerColor = backgroundColor,
-            containerColor = backgroundColor
-        )
-    }
-}
-
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun BlurToolbar(
@@ -53,63 +33,91 @@ fun BlurToolbar(
     actions: @Composable RowScope.() -> Unit = {},
     expandedHeight: Dp = TopAppBarDefaults.TopAppBarExpandedHeight,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: @Composable (Boolean, Float) -> TopAppBarColors = { enabled, alpha ->
-        TopAppBarDefaults.color(
-            enabled,
-            alpha
-        )
-    },
-    noFade: Boolean = false,
+    fadeBackgroundIfNoBlur: Boolean = false,
+    fadeDistance: Float = 200f,
+    fade: Boolean = false,
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     val prefs = LocalUserPreferences.current
     val state = scrollBehavior?.state
-    var alpha by remember { mutableFloatStateOf(if (noFade) 1f else 0f) }
-    val fadeDistance = 200f
 
-    if (!noFade && state != null) {
-        LaunchedEffect(state) {
-            snapshotFlow { state.contentOffset }
-                .collect { offset ->
-                    val newAlpha = ((-offset) / fadeDistance).coerceIn(0f, 1f)
-                    if ((newAlpha < 1f && newAlpha > 0f) || newAlpha != alpha) {
-                        alpha = newAlpha
-                    }
-                }
-        }
-    } else if (noFade) {
-        alpha = 1f // force fully opaque
+    val isBlurEnabled = remember(prefs) {
+        prefs.enableBlur
     }
 
-    val borderColor = MaterialTheme.colorScheme.outline
+    val targetAlpha by remember {
+        derivedStateOf {
+            if (!fade || state == null) {
+                1f
+            } else {
+                ((-state.contentOffset) / fadeDistance).coerceIn(0f, 1f)
+            }
+        }
+    }
 
-    val blur = if (prefs.enableBlur) {
+    val animatedAlpha by animateFloatAsState(
+        targetValue = targetAlpha,
+        animationSpec = tween(
+            durationMillis = 10,
+            easing = FastOutSlowInEasing
+        ),
+        label = "toolbar_alpha"
+    )
+
+    val borderColor = MaterialTheme.colorScheme.outline
+    val backgroundColor = MaterialTheme.colorScheme.background
+
+    val topAppBarColors = TopAppBarDefaults.topAppBarColors()
+
+    val colors = if (isBlurEnabled) {
+        topAppBarColors.copy(
+            scrolledContainerColor = Color.Transparent,
+            containerColor = Color.Transparent
+        )
+    } else {
+        val backgroundColor = MaterialTheme.colorScheme.background
+            .let {
+                if (fadeBackgroundIfNoBlur) {
+                    it.copy(alpha = animatedAlpha)
+                } else it
+            }
+
+        topAppBarColors.copy(
+            scrolledContainerColor = backgroundColor,
+            containerColor = backgroundColor
+        )
+    }
+
+    val blur = if (isBlurEnabled && animatedAlpha > 0.01f) {
         Modifier.hazeEffect(
             state = LocalHazeState.current,
             style = HazeMaterials.ultraThin()
         ) {
-            this@hazeEffect.alpha = alpha
+            this@hazeEffect.backgroundColor = backgroundColor
+            this@hazeEffect.alpha = animatedAlpha
         }
     } else Modifier
 
     TopAppBar(
-        title = { title(alpha) },
+        title = { title(animatedAlpha) },
         modifier = Modifier
             .drawBehind {
-                val borderSize = Dp.Hairline
-                val y = size.height - borderSize.value
-                drawLine(
-                    color = borderColor.copy(alpha = alpha),
-                    start = Offset(0f, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = borderSize.value
-                )
+                if (animatedAlpha > 0.01f) {
+                    val borderSize = Dp.Hairline
+                    val y = size.height - borderSize.value
+                    drawLine(
+                        color = borderColor.copy(alpha = animatedAlpha),
+                        start = Offset(0f, y),
+                        end = Offset(size.width, y),
+                        strokeWidth = borderSize.value
+                    )
+                }
             }
             .then(blur)
             .then(modifier),
         navigationIcon = navigationIcon,
         actions = actions,
-        colors = colors(prefs.enableBlur, alpha),
+        colors = colors,
         scrollBehavior = scrollBehavior,
         windowInsets = windowInsets,
         expandedHeight = expandedHeight,

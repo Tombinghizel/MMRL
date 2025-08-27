@@ -23,6 +23,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
@@ -39,8 +40,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isNonRoot
 import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isRoot
@@ -57,7 +56,6 @@ import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Alert
 import com.dergoogler.mmrl.ui.component.SELinuxStatus
-import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.card.component.Relative
@@ -67,7 +65,9 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.remember.rememberLocalAnalytics
 import com.dergoogler.mmrl.ui.remember.seLinuxContext
@@ -81,6 +81,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AboutScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ThankYouScreenDestination
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -118,17 +119,19 @@ fun HomeScreen() {
                 onRebootClick = {
                     openRebootSheet = true
                 },
+                scrollBehavior = scrollBehavior
             )
         },
         contentWindowInsets = WindowInsets.none
     ) { innerPadding ->
-        this@Scaffold.ResponsiveContent {
+        ResponsiveContent {
             Column(
                 modifier = Modifier
-                    .padding(innerPadding)
+                    .hazeSource(state = LocalHazeState.current)
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .padding(top = innerPadding.calculateTopPadding()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 when {
@@ -430,12 +433,16 @@ private fun TopBar(
     onRebootClick: () -> Unit = {},
     onInfoClick: () -> Unit = {},
     onHeartClick: () -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     val width = currentScreenWidth()
 
-    TopAppBar(
+    BlurToolbar(
+        scrollBehavior = scrollBehavior,
+        fade = true,
+        fadeDistance = 50f,
         title = {
-            if (!width.isSmall) return@TopAppBar
+            if (!width.isSmall) return@BlurToolbar
 
             TopAppBarEventIcon()
         },

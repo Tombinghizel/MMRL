@@ -1,6 +1,5 @@
 package com.dergoogler.mmrl.ui.screens.home.items
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeTrue
@@ -33,7 +31,6 @@ import com.dergoogler.mmrl.ui.component.text.TextRow
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.remember.isLkmMode
 import com.dergoogler.mmrl.ui.remember.versionCode
-import com.dergoogler.mmrl.viewmodel.HomeViewModel
 
 @Composable
 internal fun RootItem(

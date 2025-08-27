@@ -54,8 +54,6 @@ import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.isNotNullOrBlank
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ui.component.Loading
-import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ext.nullply
 import com.dergoogler.mmrl.ext.onClick
 import com.dergoogler.mmrl.ext.stripLinks
@@ -63,6 +61,8 @@ import com.dergoogler.mmrl.model.ui.TopCategory
 import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
+import com.dergoogler.mmrl.ui.component.Loading
+import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.text.BBCodeText
@@ -111,6 +111,7 @@ fun RepositoryScreen(repo: Repo) {
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 BlurToolbar(
+                    fadeBackgroundIfNoBlur = true,
                     navigationIcon = {
                         IconButton(onClick = { navigator.popBackStack() }) {
                             Icon(
@@ -125,6 +126,7 @@ fun RepositoryScreen(repo: Repo) {
                             title = repo.name
                         )
                     },
+                    fade = true,
                     scrollBehavior = scrollBehavior
                 )
             },
@@ -255,7 +257,7 @@ fun RepositoryScreen(repo: Repo) {
                             }
 
                             with(density) {
-                                Spacer(modifier = Modifier.height(((coverHeight / 1.4f) + cardHeight).toDp()))
+                                Spacer(modifier = Modifier.height(((coverHeight / 1.2f) + cardHeight).toDp()))
                             }
                         }
                     }

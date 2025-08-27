@@ -87,6 +87,8 @@ internal fun Toolbar() {
                 )
             }
         },
+        fade = true,
+        fadeBackgroundIfNoBlur = true,
         scrollBehavior = scrollBehavior,
         actions = {
             VersionsItem(

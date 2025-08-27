@@ -3,9 +3,7 @@ package com.dergoogler.mmrl.ui.component
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,13 +17,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
-import com.dergoogler.mmrl.platform.PlatformManager.state
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
 import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
-import com.dergoogler.mmrl.ui.component.toolbar.Toolbar
 import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalNavController
@@ -71,7 +67,8 @@ fun SettingsScaffold(
                     title = title,
                     navController = navController,
                     actions = actions,
-                    noFade = true,
+                    fade = true,
+                    fadeDistance = 50f,
                     scrollBehavior = scrollBehavior
                 )
             } else {
@@ -79,8 +76,9 @@ fun SettingsScaffold(
                     title = {
                         ToolbarTitle(title = title)
                     },
+                    fade = true,
+                    fadeDistance = 50f,
                     actions = actions,
-                    noFade = true,
                     scrollBehavior = scrollBehavior
                 )
             }

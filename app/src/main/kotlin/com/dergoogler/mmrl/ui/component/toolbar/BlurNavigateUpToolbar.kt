@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -28,14 +27,9 @@ fun BlurNavigateUpToolbar(
     enable: Boolean = true,
     actions: @Composable RowScope.() -> Unit = {},
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: @Composable (Boolean, Float) -> TopAppBarColors = { enabled, alpha ->
-        TopAppBarDefaults.color(
-            enabled,
-            alpha
-        )
-    },
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    noFade: Boolean = false,
+    fade: Boolean = false,
+    fadeDistance: Float = 200f,
 ) = BlurNavigateUpToolbar(
     modifier = modifier,
     title = title,
@@ -43,10 +37,10 @@ fun BlurNavigateUpToolbar(
     onBack = { navController.popBackStack() },
     actions = actions,
     windowInsets = windowInsets,
-    colors = colors,
     scrollBehavior = scrollBehavior,
     enable = enable,
-    noFade = noFade
+    fade = fade,
+    fadeDistance = fadeDistance
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,14 +53,9 @@ fun BlurNavigateUpToolbar(
     enable: Boolean = true,
     actions: @Composable RowScope.() -> Unit = {},
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: @Composable (Boolean, Float) -> TopAppBarColors = { enabled, alpha ->
-        TopAppBarDefaults.color(
-            enabled,
-            alpha
-        )
-    },
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    noFade: Boolean = false,
+    fade: Boolean = false,
+    fadeDistance: Float = 200f,
 ) = BlurNavigateUpToolbar(
     modifier = modifier,
     title = title,
@@ -74,10 +63,10 @@ fun BlurNavigateUpToolbar(
     onBack = { (context as ComponentActivity).finish() },
     actions = actions,
     windowInsets = windowInsets,
-    colors = colors,
     scrollBehavior = scrollBehavior,
     enable = enable,
-    noFade = noFade
+    fade = fade,
+    fadeDistance = fadeDistance
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,14 +79,9 @@ fun BlurNavigateUpToolbar(
     enable: Boolean = true,
     actions: @Composable RowScope.() -> Unit = {},
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: @Composable (Boolean, Float) -> TopAppBarColors = { enabled, alpha ->
-        TopAppBarDefaults.color(
-            enabled,
-            alpha
-        )
-    },
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    noFade: Boolean = false,
+    fade: Boolean = false,
+    fadeDistance: Float = 200f,
 ) = BlurNavigateUpToolbar(
     modifier = modifier,
     title = {
@@ -106,10 +90,10 @@ fun BlurNavigateUpToolbar(
     onBack = onBack,
     actions = actions,
     windowInsets = windowInsets,
-    colors = colors,
     scrollBehavior = scrollBehavior,
     enable = enable,
-    noFade = noFade
+    fade = fade,
+    fadeDistance = fadeDistance
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,14 +105,9 @@ fun BlurNavigateUpToolbar(
     enable: Boolean = true,
     actions: @Composable RowScope.() -> Unit = {},
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
-    colors: @Composable (Boolean, Float) -> TopAppBarColors = { enabled, alpha ->
-        TopAppBarDefaults.color(
-            enabled,
-            alpha
-        )
-    },
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    noFade: Boolean = false,
+    fade: Boolean = false,
+    fadeDistance: Float = 200f,
 ) = BlurToolbar(
     title = title,
     modifier = modifier,
@@ -146,7 +125,7 @@ fun BlurNavigateUpToolbar(
     },
     actions = actions,
     windowInsets = windowInsets,
-    colors = colors,
     scrollBehavior = scrollBehavior,
-    noFade = noFade
+    fade = fade,
+    fadeDistance = fadeDistance
 )
