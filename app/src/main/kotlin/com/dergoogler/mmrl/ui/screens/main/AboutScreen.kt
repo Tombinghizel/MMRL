@@ -35,7 +35,7 @@ import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.card.OutlinedCard
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
-import com.dergoogler.mmrl.ui.providable.LocalMainNavController
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
@@ -167,6 +167,9 @@ fun AboutScreen() {
                         }
                     )
                 }
+
+                val paddingValues = LocalMainScreenInnerPaddings.current
+                Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         }
     }

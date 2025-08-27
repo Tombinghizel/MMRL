@@ -19,7 +19,6 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationRail
@@ -46,9 +45,11 @@ import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.component.toolbar.BlurBottomToolbar
 import com.dergoogler.mmrl.ui.navigation.MainDestination
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
@@ -136,7 +137,9 @@ fun MainScreen() {
                         }
                     }
                 ) {
-                    CurrentNavHost(paddingValues)
+                    CurrentNavHost(
+                        Modifier.padding(paddingValues)
+                    )
                 }
             }
 
@@ -152,16 +155,20 @@ fun MainScreen() {
             },
             contentWindowInsets = WindowInsets.none
         ) { paddingValues ->
-            CurrentNavHost(paddingValues)
+            CompositionLocalProvider(
+                LocalMainScreenInnerPaddings provides paddingValues,
+            ) {
+                CurrentNavHost()
+            }
         }
     }
 }
 
 @Composable
-private fun CurrentNavHost(paddingValues: PaddingValues) {
+private fun CurrentNavHost(modifier: Modifier = Modifier) {
     val navController = LocalNavController.current
     DestinationsNavHost(
-        modifier = Modifier.padding(paddingValues),
+        modifier = modifier,
         navGraph = NavGraphs.root,
         navController = navController,
         defaultTransitions = object : NavHostAnimatedDestinationStyle() {
@@ -178,7 +185,7 @@ private fun BottomNav(updates: Int) {
     val navigator = LocalDestinationsNavigator.current
     val navController = LocalNavController.current
 
-    NavigationBar(
+    BlurBottomToolbar(
         modifier = Modifier
             .imePadding()
             .clip(

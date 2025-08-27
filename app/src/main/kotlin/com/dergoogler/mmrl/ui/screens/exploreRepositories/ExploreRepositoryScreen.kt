@@ -40,32 +40,35 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.ext.fadingEdge
+import com.dergoogler.mmrl.ext.fillWidthOfParent
+import com.dergoogler.mmrl.ext.isNotNullOrEmpty
+import com.dergoogler.mmrl.ext.none
+import com.dergoogler.mmrl.ext.nullable
+import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
+import com.dergoogler.mmrl.ext.toDecodedUrl
 import com.dergoogler.mmrl.model.online.ExploreRepository
 import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.HorizontalDividerWithText
-import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
+import com.dergoogler.mmrl.ui.component.listItem.dsl.List
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Item
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
+import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.MemberCard
 import com.dergoogler.mmrl.ui.screens.repositories.FailureDialog
-import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.viewmodel.RepositoriesViewModel
-import dev.dergoogler.mmrl.compat.core.LocalUriHandler
-import com.dergoogler.mmrl.ext.fadingEdge
-import com.dergoogler.mmrl.ext.fillWidthOfParent
-import com.dergoogler.mmrl.ext.isNotNullOrEmpty
-import com.dergoogler.mmrl.ext.nullable
-import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
-import com.dergoogler.mmrl.ext.toDecodedUrl
-import com.dergoogler.mmrl.ui.component.listItem.dsl.List
-import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
-import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Item
-import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
-import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import dev.chrisbanes.haze.hazeSource
+import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 import kotlinx.coroutines.launch
 
 @Destination<RootGraph>
@@ -111,21 +114,18 @@ fun ExploreRepositoryScreen(repo: ExploreRepository) {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            NavigateUpTopBar(
-                colors = TopAppBarDefaults.topAppBarColors().copy(
-                    scrolledContainerColor = MaterialTheme.colorScheme.background,
-                    containerColor = Color.Transparent
-                ),
+            BlurNavigateUpToolbar(
                 title = "",
                 scrollBehavior = scrollBehavior,
-                navigator = navigator,
-                bottomBorder = false
+                fade = true,
+                fadeBackgroundIfNoBlur = true
             )
         },
         contentWindowInsets = WindowInsets.none
     ) { innerPadding ->
         this@Scaffold.ResponsiveContent {
             LazyVerticalGrid(
+                modifier = Modifier.hazeSource(LocalHazeState.current),
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -302,6 +302,11 @@ fun ExploreRepositoryScreen(repo: ExploreRepository) {
                     ) {
                         MemberCard(member = it)
                     }
+                }
+
+                item(span = { GridItemSpan(2) }) {
+                    val paddingValues = LocalMainScreenInnerPaddings.current
+                    Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
                 }
             }
         }

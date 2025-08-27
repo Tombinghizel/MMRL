@@ -30,6 +30,7 @@ fun BlurNavigateUpToolbar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     fade: Boolean = false,
     fadeDistance: Float = 200f,
+    fadeBackgroundIfNoBlur: Boolean = false,
 ) = BlurNavigateUpToolbar(
     modifier = modifier,
     title = title,
@@ -40,7 +41,8 @@ fun BlurNavigateUpToolbar(
     scrollBehavior = scrollBehavior,
     enable = enable,
     fade = fade,
-    fadeDistance = fadeDistance
+    fadeDistance = fadeDistance,
+    fadeBackgroundIfNoBlur = fadeBackgroundIfNoBlur
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,6 +58,7 @@ fun BlurNavigateUpToolbar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     fade: Boolean = false,
     fadeDistance: Float = 200f,
+    fadeBackgroundIfNoBlur: Boolean = false,
 ) = BlurNavigateUpToolbar(
     modifier = modifier,
     title = title,
@@ -66,7 +69,8 @@ fun BlurNavigateUpToolbar(
     scrollBehavior = scrollBehavior,
     enable = enable,
     fade = fade,
-    fadeDistance = fadeDistance
+    fadeDistance = fadeDistance,
+    fadeBackgroundIfNoBlur = fadeBackgroundIfNoBlur
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,6 +86,7 @@ fun BlurNavigateUpToolbar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     fade: Boolean = false,
     fadeDistance: Float = 200f,
+    fadeBackgroundIfNoBlur: Boolean = false,
 ) = BlurNavigateUpToolbar(
     modifier = modifier,
     title = {
@@ -93,7 +98,8 @@ fun BlurNavigateUpToolbar(
     scrollBehavior = scrollBehavior,
     enable = enable,
     fade = fade,
-    fadeDistance = fadeDistance
+    fadeDistance = fadeDistance,
+    fadeBackgroundIfNoBlur = fadeBackgroundIfNoBlur
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,6 +114,7 @@ fun BlurNavigateUpToolbar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     fade: Boolean = false,
     fadeDistance: Float = 200f,
+    fadeBackgroundIfNoBlur: Boolean = false,
 ) = BlurToolbar(
     title = title,
     modifier = modifier,
@@ -127,5 +134,6 @@ fun BlurNavigateUpToolbar(
     windowInsets = windowInsets,
     scrollBehavior = scrollBehavior,
     fade = fade,
-    fadeDistance = fadeDistance
+    fadeDistance = fadeDistance,
+    fadeBackgroundIfNoBlur = fadeBackgroundIfNoBlur
 )

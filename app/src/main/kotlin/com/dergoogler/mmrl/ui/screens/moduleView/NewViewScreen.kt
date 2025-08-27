@@ -1,18 +1,13 @@
 package com.dergoogler.mmrl.ui.screens.moduleView
 
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -38,32 +33,31 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dergoogler.mmrl.database.entity.Repo
+import com.dergoogler.mmrl.ext.fadingEdge
+import com.dergoogler.mmrl.ext.ifNotEmpty
+import com.dergoogler.mmrl.ext.none
+import com.dergoogler.mmrl.ext.nullable
+import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
 import com.dergoogler.mmrl.model.local.BulkModule
+import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.model.online.VersionItem
 import com.dergoogler.mmrl.model.online.isBlacklisted
 import com.dergoogler.mmrl.ui.activity.terminal.install.InstallActivity
 import com.dergoogler.mmrl.ui.component.Cover
-import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.ui.screens.moduleView.items.InstallConfirmDialog
-import com.dergoogler.mmrl.ui.screens.moduleView.items.ViewTrackBottomSheet
-import com.dergoogler.mmrl.viewmodel.ModuleViewModel
-import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ext.fadingEdge
-import com.dergoogler.mmrl.ext.ifNotEmpty
-import com.dergoogler.mmrl.ext.nullable
-import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
-import com.dergoogler.mmrl.model.online.OnlineModule
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.ramcosta.composedestinations.annotation.RootGraph
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalRepo
 import com.dergoogler.mmrl.ui.providable.LocalScrollBehavior
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
+import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.providable.LocalVersionItem
+import com.dergoogler.mmrl.ui.screens.moduleView.items.InstallConfirmDialog
+import com.dergoogler.mmrl.ui.screens.moduleView.items.ViewTrackBottomSheet
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewDownloader
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalModuleViewModel
 import com.dergoogler.mmrl.ui.screens.moduleView.providable.LocalRequireModules
@@ -74,7 +68,9 @@ import com.dergoogler.mmrl.ui.screens.moduleView.sections.Information
 import com.dergoogler.mmrl.ui.screens.moduleView.sections.Information0
 import com.dergoogler.mmrl.ui.screens.moduleView.sections.Screenshots
 import com.dergoogler.mmrl.ui.screens.moduleView.sections.Toolbar
+import com.dergoogler.mmrl.viewmodel.ModuleViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import dev.chrisbanes.haze.hazeSource
 import timber.log.Timber
 
@@ -297,6 +293,9 @@ fun NewViewScreen(
                         Information()
 
                         Spacer(modifier = Modifier.navigationBarsPadding())
+
+                        val paddingValues = LocalMainScreenInnerPaddings.current
+                        Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
                     }
                 }
             }

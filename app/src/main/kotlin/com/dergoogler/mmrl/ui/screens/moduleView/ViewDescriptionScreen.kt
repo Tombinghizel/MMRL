@@ -5,8 +5,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,14 +29,15 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.app.Event.Companion.isFailed
 import com.dergoogler.mmrl.app.Event.Companion.isLoading
 import com.dergoogler.mmrl.app.Event.Companion.isSucceeded
+import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.network.compose.requestString
+import com.dergoogler.mmrl.ui.activity.webui.interfaces.MarkdownInterface
 import com.dergoogler.mmrl.ui.component.Failed
 import com.dergoogler.mmrl.ui.component.Loading
 import com.dergoogler.mmrl.ui.component.TopAppBar
-import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ui.activity.webui.interfaces.MarkdownInterface
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.webui.client.WXClient
 import com.dergoogler.mmrl.webui.handler.internalPathHandler
@@ -102,31 +105,41 @@ fun ViewDescriptionScreen(
                 exit = fadeOut()
             ) {
                 this@Scaffold.ResponsiveContent {
-                    AndroidView(
-                        factory = {
-                            val options = WebUIOptions(
-                                context = it,
-                                isDarkMode = userPrefs.isDarkMode(),
-                                colorScheme = userPrefs.colorScheme(it),
-                            )
-
-                            val assetsLoader = wxAssetLoader(
-                                handlers = buildList {
-                                    add("/internal/" to internalPathHandler(options, Insets.None))
-                                }
-                            )
-
-                            WebUIView(options).apply {
-                                webViewClient = WXClient(options, assetsLoader)
-                                addJavascriptInterface<MarkdownInterface>(
-                                    arrayOf(readme),
-                                    arrayOf(String::class.java)
+                    Column {
+                        AndroidView(
+                            factory = {
+                                val options = WebUIOptions(
+                                    context = it,
+                                    isDarkMode = userPrefs.isDarkMode(),
+                                    colorScheme = userPrefs.colorScheme(it),
                                 )
+
+                                val assetsLoader = wxAssetLoader(
+                                    handlers = buildList {
+                                        add(
+                                            "/internal/" to internalPathHandler(
+                                                options,
+                                                Insets.None
+                                            )
+                                        )
+                                    }
+                                )
+
+                                WebUIView(options).apply {
+                                    webViewClient = WXClient(options, assetsLoader)
+                                    addJavascriptInterface<MarkdownInterface>(
+                                        arrayOf(readme),
+                                        arrayOf(String::class.java)
+                                    )
+                                }
+                            }, update = {
+                                it.loadUrl(launchUrl)
                             }
-                        }, update = {
-                            it.loadUrl(launchUrl)
-                        }
-                    )
+                        )
+
+                        val paddingValues = LocalMainScreenInnerPaddings.current
+                        Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
+                    }
                 }
             }
         }

@@ -3,8 +3,10 @@ package com.dergoogler.mmrl.ui.screens.repositories
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +34,7 @@ import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.screens.repositories.items.ExploreReposCard
 import com.ramcosta.composedestinations.generated.destinations.RepositoryScreenDestination
 import dev.chrisbanes.haze.hazeSource
@@ -79,6 +82,11 @@ fun ScaffoldScope.RepositoriesList(
                     onUpdate = getUpdate,
                     onDelete = delete,
                 )
+            }
+
+            item {
+                val paddingValues = LocalMainScreenInnerPaddings.current
+                Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         }
     }

@@ -5,8 +5,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.TopAppBarDefaults
@@ -27,13 +28,16 @@ import com.dergoogler.mmrl.model.online.ExploreRepository
 import com.dergoogler.mmrl.network.runRequest
 import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Loading
-import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.HeadlineCard
 import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.RepoCard
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -62,9 +66,10 @@ fun ExploreRepositoriesScreen() {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            NavigateUpTopBar(
+            BlurNavigateUpToolbar(
                 title = stringResource(id = R.string.explore_repositories),
-                navigator = navigator,
+                fade = true,
+                fadeDistance = 50f
             )
         },
         contentWindowInsets = WindowInsets.none
@@ -81,9 +86,14 @@ fun ExploreRepositoriesScreen() {
             ) {
                 exploreRepositories.nullable { er ->
                     LazyColumn(
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier.hazeSource(LocalHazeState.current),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(16.dp)
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            top = innerPadding.calculateTopPadding() + 16.dp,
+                            end = 16.dp,
+                            bottom = 16.dp,
+                        )
                     ) {
                         item {
                             HeadlineCard(
@@ -99,6 +109,11 @@ fun ExploreRepositoriesScreen() {
                             RepoCard(
                                 repo = repo
                             )
+                        }
+
+                        item {
+                            val paddingValues = LocalMainScreenInnerPaddings.current
+                            Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
                         }
                     }
                 }
