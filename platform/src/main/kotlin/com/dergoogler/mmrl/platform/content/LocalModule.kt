@@ -1,6 +1,7 @@
 package com.dergoogler.mmrl.platform.content
 
 import android.os.Parcelable
+import com.dergoogler.mmrl.platform.content.LocalModule.Companion.isEmpty
 import com.dergoogler.mmrl.platform.model.ModId
 import com.dergoogler.mmrl.platform.model.ModId.Companion.actionFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.bootCompletedFile
@@ -17,8 +18,12 @@ import com.dergoogler.mmrl.platform.model.ModId.Companion.uninstallFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.updateFile
 import com.dergoogler.mmrl.platform.model.ModId.Companion.webrootDir
 import com.dergoogler.mmrl.platform.model.toModuleConfig
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @Parcelize
 @Serializable
@@ -35,6 +40,19 @@ data class LocalModule(
     val lastUpdated: Long,
 ) : Parcelable {
     companion object {
+        val EMPTY = LocalModule(
+            id = ModId.EMPTY,
+            name = "",
+            version = "",
+            versionCode = 0,
+            author = "",
+            description = "",
+            updateJson = "",
+            state = State.DISABLE,
+            size = -1L,
+            lastUpdated = -1L,
+        )
+
         val LocalModule.config get() = id.toModuleConfig()
         val LocalModule.hasWebUI get() = id.webrootDir.let { it.exists() && it.isDirectory() }
         val LocalModule.hasModConf get() = id.modconfDir.let { it.exists() && it.isDirectory() }
@@ -50,5 +68,21 @@ data class LocalModule(
         val LocalModule.hasDisable get() = id.disableFile.exists()
         val LocalModule.hasRemove get() = id.removeFile.exists()
         val LocalModule.hasUpdate get() = id.updateFile.exists()
+        val LocalModule.isEmpty get() = this == EMPTY
     }
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun <R> LocalModule?.isValid(block: (LocalModule) -> R): R? {
+    contract {
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    }
+
+    if (this == null) return null
+
+    if (isEmpty) {
+        return null
+    }
+
+    return block(this)
 }

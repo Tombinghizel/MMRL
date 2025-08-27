@@ -9,6 +9,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,6 +64,11 @@ class ModuleViewModel @AssistedInject constructor(
     userPreferencesRepository = userPreferencesRepository,
     application = application,
 ) {
+    var installConfirm by mutableStateOf(false)
+    var menuExpanded by mutableStateOf(false)
+    var versionSelectBottomSheet by mutableStateOf(false)
+    var viewTrackBottomSheet by mutableStateOf(false)
+
     val version: String
         get() = PlatformManager.get("") {
             with(moduleManager) { version }
