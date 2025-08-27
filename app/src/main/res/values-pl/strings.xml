@@ -118,7 +118,7 @@
     <string name="help">Pomoc</string>
     <string name="install_screen_reboot_title">Uruchomić ponownie?</string>
     <string name="settings_changelo_desc">Wszystkie bieżące zmiany w ramach MMRL.</string>
-    <string name="view_module_features_post_fs_data_sub">Uruchamia kod wcześnie po uruchomieniu (częściowo uruchomiony system).</string>
+    <string name="view_module_features_post_fs_data_sub">Uruchamia kod wcześnie po rozruchu (częściowo uruchomiony system).</string>
     <string name="install_screen_reboot_text">Czy na pewno chcesz uruchomić ponownie urządzenie?</string>
     <string name="view_module_features_zygisk_sub">Umożliwia modułom interakcję z frameworkiem Zygisk, umożliwiając modyfikacje i interakcje na poziomie systemu.</string>
     <string name="view_module_features_apks_sub">Zawiera dodatkowe apki wewnątrz modułu.</string>
@@ -407,4 +407,6 @@
     <string name="latest_commit_id">Najnowsze ID zatwierdzenia</string>
     <string name="build_tools_version">Wersja narzędzi budowania</string>
     <string name="compile_sdk">Kompilacja SDK</string>
+    <string name="settings_set_spoofed_wxp">Pakiet WebUI X Portable</string>
+    <string name="settings_set_spoofed_wxp_desc">Ustaw niestandardową fałszywą nazwę pakietu WebUI X Portable.</string>
 </resources>
