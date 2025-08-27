@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -115,6 +115,7 @@ fun LogScreen() {
     val state = rememberLazyListState()
     var priority by remember { mutableStateOf("DEBUG") }
 
+    val paddingValues = LocalMainScreenInnerPaddings.current
     val activity = LocalActivity.current as MMRLComponentActivity
 
     val console by remember {
@@ -162,7 +163,11 @@ fun LogScreen() {
             LazyColumn(
                 modifier = Modifier.hazeSource(LocalHazeState.current),
                 state = state,
-                reverseLayout = true
+                reverseLayout = true,
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding()
+                )
             ) {
                 items(console) { value ->
                     Column {
@@ -172,18 +177,16 @@ fun LogScreen() {
                         )
                     }
                 }
-
-                item {
-                    val paddingValues = LocalMainScreenInnerPaddings.current
-                    Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
-                }
             }
 
             VerticalFastScrollbar(
                 state = state,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(top = innerPadding.calculateTopPadding())
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding()
+                    )
             )
         }
     }
