@@ -1,9 +1,5 @@
 package com.dergoogler.mmrl.ui.screens.main
 
-import android.net.http.SslCertificate.restoreState
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -34,8 +30,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -45,12 +39,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.ext.currentScreenWidth
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.platform.PlatformManager
 import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
@@ -63,7 +54,6 @@ import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.remember.rememberIsRoot
 import com.dergoogler.mmrl.ui.remember.rememberUpdatableModuleCount
-import com.dergoogler.mmrl.utils.initPlatform
 import com.dergoogler.mmrl.viewmodel.BulkInstallViewModel
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.NavHostAnimatedDestinationStyle
@@ -83,32 +73,6 @@ fun MainScreen() {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val bulkInstallViewModel: BulkInstallViewModel = hiltViewModel()
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { result: Map<String, Boolean> ->
-        Log.d("MainScreen", "launcher: $result")
-    }
-
-    LaunchedEffect(Unit) {
-        if (PlatformManager.platform.isNotNonRoot) {
-            launcher.launch(
-                if (BuildConfig.IS_DEV_VERSION) {
-                    arrayOf(
-                        "com.dergoogler.mmrl.debug.permission.WEBUI_X",
-                        "com.dergoogler.mmrl.debug.permission.WEBUI_LEGACY"
-                    )
-                } else {
-                    arrayOf(
-                        "com.dergoogler.mmrl.permission.WEBUI_X",
-                        "com.dergoogler.mmrl.permission.WEBUI_LEGACY"
-                    )
-                }
-            )
-        }
-
-        initPlatform(context, userPrefs.workingMode.toPlatform())
-    }
 
     CompositionLocalProvider(
         LocalSnackbarHost provides snackbarHostState,
