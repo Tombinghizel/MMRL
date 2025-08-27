@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -35,17 +38,20 @@ import com.dergoogler.mmrl.model.local.LocalModule
 import com.dergoogler.mmrl.model.local.State
 import com.dergoogler.mmrl.model.online.Blacklist
 import com.dergoogler.mmrl.model.online.VersionItem
-import com.dergoogler.mmrl.ui.component.VersionItemBottomSheet
-import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
-import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.viewmodel.ModulesViewModel
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasAction
 import com.dergoogler.mmrl.ui.activity.terminal.action.ActionActivity
+import com.dergoogler.mmrl.ui.component.VersionItemBottomSheet
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
+import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalModule
+import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.viewmodel.ModulesViewModel
+import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun ScaffoldScope.ModulesList(
+    innerPadding: PaddingValues,
     list: List<LocalModule>,
     state: LazyListState,
     onDownload: (LocalModule, VersionItem, Boolean) -> Unit,
@@ -54,11 +60,20 @@ fun ScaffoldScope.ModulesList(
 ) = Box(
     modifier = Modifier.fillMaxSize()
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+
     this@ModulesList.ResponsiveContent {
         LazyColumn(
             state = state,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .hazeSource(state = LocalHazeState.current),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + 16.dp,
+                start = innerPadding.calculateStartPadding(layoutDirection) + 16.dp,
+                bottom = 16.dp,
+                end = 16.dp
+            ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(
@@ -81,7 +96,9 @@ fun ScaffoldScope.ModulesList(
 
     VerticalFastScrollbar(
         state = state,
-        modifier = Modifier.align(Alignment.CenterEnd)
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .padding(top = innerPadding.calculateTopPadding())
     )
 }
 
@@ -109,7 +126,7 @@ private fun ModuleItem(
             viewModel.getBlacklist(module.id.toString())
         }
     }
-    
+
     val isModuleSwitchChecked by remember(module.state) {
         derivedStateOf { module.state == State.ENABLE }
     }
@@ -204,7 +221,11 @@ private fun ModuleItem(
                 Spacer(modifier = Modifier.width(12.dp))
             }
 
-            val isRemoveOrRestoreEnabled by remember(userPreferences.useShellForModuleStateChange, module.state, isProviderAlive) {
+            val isRemoveOrRestoreEnabled by remember(
+                userPreferences.useShellForModuleStateChange,
+                module.state,
+                isProviderAlive
+            ) {
                 derivedStateOf {
                     isProviderAlive && (!(viewModel.moduleCompatibility.canRestoreModules && userPreferences.useShellForModuleStateChange) || module.state != State.REMOVE)
                 }
@@ -226,7 +247,7 @@ private fun VersionItemBottomSheetIfNeeded(
     isProviderAlive: Boolean,
     onDownload: (Boolean) -> Unit,
     onClose: () -> Unit,
-    isBlacklisted: Boolean
+    isBlacklisted: Boolean,
 ) {
     if (open && item != null) {
         VersionItemBottomSheet(

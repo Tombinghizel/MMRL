@@ -3,7 +3,9 @@ package com.dergoogler.mmrl.ui.screens.repositories
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
@@ -28,8 +31,10 @@ import com.dergoogler.mmrl.model.state.RepoState
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.screens.repositories.items.ExploreReposCard
 import com.ramcosta.composedestinations.generated.destinations.RepositoryScreenDestination
+import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun ScaffoldScope.RepositoriesList(
@@ -37,16 +42,25 @@ fun ScaffoldScope.RepositoriesList(
     state: LazyListState,
     delete: (RepoState) -> Unit,
     getUpdate: (RepoState, (Throwable) -> Unit) -> Unit,
+    innerPadding: PaddingValues,
 ) = Box(
     modifier = Modifier.fillMaxSize()
 ) {
+    val layoutDirection = LocalLayoutDirection.current
     val navigator = LocalDestinationsNavigator.current
 
     this@RepositoriesList.ResponsiveContent {
         LazyColumn(
             state = state,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .hazeSource(state = LocalHazeState.current),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + 16.dp,
+                start = innerPadding.calculateStartPadding(layoutDirection) + 16.dp,
+                bottom = 16.dp,
+                end = 16.dp
+            ),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
@@ -71,7 +85,9 @@ fun ScaffoldScope.RepositoriesList(
 
     VerticalFastScrollbar(
         state = state,
-        modifier = Modifier.align(Alignment.CenterEnd)
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+            .padding(top = innerPadding.calculateTopPadding())
     )
 }
 
