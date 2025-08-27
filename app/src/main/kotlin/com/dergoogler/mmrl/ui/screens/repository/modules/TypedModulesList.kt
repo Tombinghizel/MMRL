@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -45,6 +46,7 @@ fun ScaffoldScope.TypedModulesList(
     val userPreferences = LocalUserPreferences.current
     val menu = userPreferences.repositoryMenu
 
+    val paddingValues = LocalMainScreenInnerPaddings.current
     val layoutDirection = LocalLayoutDirection.current
 
     val pad = remember(menu) { if (menu.repoListMode == RepoListMode.Compact) 0.dp else 16.dp }
@@ -91,7 +93,6 @@ fun ScaffoldScope.TypedModulesList(
                 }
 
                 item {
-                    val paddingValues = LocalMainScreenInnerPaddings.current
                     Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
                 }
             }
@@ -99,7 +100,12 @@ fun ScaffoldScope.TypedModulesList(
 
         VerticalFastScrollbar(
             state = state,
-            modifier = Modifier.align(Alignment.CenterEnd)
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding()
+                )
         )
     }
 }

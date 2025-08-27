@@ -49,6 +49,7 @@ fun ScaffoldScope.RepositoriesList(
 ) = Box(
     modifier = Modifier.fillMaxSize()
 ) {
+    val paddingValues = LocalMainScreenInnerPaddings.current
     val layoutDirection = LocalLayoutDirection.current
     val navigator = LocalDestinationsNavigator.current
 
@@ -85,7 +86,6 @@ fun ScaffoldScope.RepositoriesList(
             }
 
             item {
-                val paddingValues = LocalMainScreenInnerPaddings.current
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         }
@@ -95,7 +95,10 @@ fun ScaffoldScope.RepositoriesList(
         state = state,
         modifier = Modifier
             .align(Alignment.CenterEnd)
-            .padding(top = innerPadding.calculateTopPadding())
+            .padding(
+                top = innerPadding.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding()
+            )
     )
 }
 

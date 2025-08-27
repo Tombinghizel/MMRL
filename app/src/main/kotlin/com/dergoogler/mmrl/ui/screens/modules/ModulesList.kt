@@ -62,6 +62,7 @@ fun ScaffoldScope.ModulesList(
 ) = Box(
     modifier = Modifier.fillMaxSize()
 ) {
+    val paddingValues = LocalMainScreenInnerPaddings.current
     val layoutDirection = LocalLayoutDirection.current
 
     this@ModulesList.ResponsiveContent {
@@ -95,7 +96,6 @@ fun ScaffoldScope.ModulesList(
             }
 
             item {
-                val paddingValues = LocalMainScreenInnerPaddings.current
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         }
@@ -105,7 +105,10 @@ fun ScaffoldScope.ModulesList(
         state = state,
         modifier = Modifier
             .align(Alignment.CenterEnd)
-            .padding(top = innerPadding.calculateTopPadding())
+            .padding(
+                top = innerPadding.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding()
+            )
     )
 }
 

@@ -5,10 +5,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,7 +104,9 @@ fun ViewDescriptionScreen(
             ) {
                 this@Scaffold.ResponsiveContent {
                     Column {
+                        val paddingValues = LocalMainScreenInnerPaddings.current
                         AndroidView(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                             factory = {
                                 val options = WebUIOptions(
                                     context = it,
@@ -136,9 +136,6 @@ fun ViewDescriptionScreen(
                                 it.loadUrl(launchUrl)
                             }
                         )
-
-                        val paddingValues = LocalMainScreenInnerPaddings.current
-                        Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
                     }
                 }
             }
