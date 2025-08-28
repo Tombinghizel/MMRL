@@ -61,6 +61,7 @@ import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.repositories.items.BulkBottomSheet
 import com.dergoogler.mmrl.viewmodel.RepositoriesViewModel
@@ -168,7 +169,6 @@ fun RepositoriesScreen() = LocalScreenProvider {
                 )
             ) {
                 FloatingButton(
-
                     onClick = {
                         bulkInstallBottomSheet = true
                     }
@@ -330,14 +330,22 @@ private fun TopBar(
 @Composable
 private fun FloatingButton(
     onClick: () -> Unit,
-) = FloatingActionButton(
-    modifier = Modifier.systemBarsPaddingEnd(),
-    onClick = onClick,
-    contentColor = MaterialTheme.colorScheme.onPrimary,
-    containerColor = MaterialTheme.colorScheme.primary
 ) {
-    Icon(
-        painter = painterResource(id = R.drawable.package_import),
-        contentDescription = null
-    )
+    val paddingValues = LocalMainScreenInnerPaddings.current
+
+    FloatingActionButton(
+        modifier = Modifier
+            .systemBarsPaddingEnd()
+            .padding(
+                bottom = paddingValues.calculateBottomPadding()
+            ),
+        onClick = onClick,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        containerColor = MaterialTheme.colorScheme.primary
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.package_import),
+            contentDescription = null
+        )
+    }
 }

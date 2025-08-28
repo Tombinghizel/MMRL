@@ -52,6 +52,7 @@ import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurSearchToolbar
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.viewmodel.ModulesViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -226,6 +227,9 @@ private fun TopBar(
 private fun FloatingButton() {
     val context = LocalContext.current
     val interactionSource = remember { MutableInteractionSource() }
+
+    val paddingValues = LocalMainScreenInnerPaddings.current
+
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uri ->
             if (uri.isEmpty()) return@rememberLauncherForActivityResult
@@ -245,7 +249,11 @@ private fun FloatingButton() {
     }
 
     FloatingActionButton(
-        modifier = Modifier.systemBarsPaddingEnd(),
+        modifier = Modifier
+            .systemBarsPaddingEnd()
+            .padding(
+                bottom = paddingValues.calculateBottomPadding()
+            ),
         interactionSource = interactionSource,
         onClick = {},
         contentColor = MaterialTheme.colorScheme.onPrimary,
