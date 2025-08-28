@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ui.component.Loading
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurSearchToolbar
@@ -21,7 +22,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 
 @Destination<RootGraph>
 @Composable
-fun SearchScreen() {
+fun SearchScreen() = LocalScreenProvider {
     val viewModel = hiltViewModel<SearchViewModel>()
     val list by viewModel.online.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()

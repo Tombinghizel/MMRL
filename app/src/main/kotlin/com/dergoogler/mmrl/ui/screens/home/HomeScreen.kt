@@ -56,6 +56,7 @@ import com.dergoogler.mmrl.platform.file.SuFile.Companion.toFormattedFileSize
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Alert
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.SELinuxStatus
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.card.Card
@@ -93,7 +94,7 @@ val listItemContentPaddingValues: PaddingValues = PaddingValues(vertical = 8.dp,
 @Destination<RootGraph>(start = true)
 @OptIn(ExperimentalComposeApi::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen() = LocalScreenProvider {
     val navigator = LocalDestinationsNavigator.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val context = LocalContext.current

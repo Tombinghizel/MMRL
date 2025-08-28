@@ -57,6 +57,7 @@ import com.dergoogler.mmrl.ext.compose.providable.LocalActivity
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.service.LogcatService
 import com.dergoogler.mmrl.ui.activity.MMRLComponentActivity
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
 import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
@@ -109,7 +110,7 @@ object LogColors {
 
 @Destination<RootGraph>
 @Composable
-fun LogScreen() {
+fun LogScreen() = LocalScreenProvider {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val state = rememberLazyListState()

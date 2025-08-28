@@ -29,12 +29,12 @@ import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.app.Const
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.Logo
 import com.dergoogler.mmrl.ui.component.MarkdownText
-import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
 import com.dergoogler.mmrl.ui.component.card.OutlinedCard
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
 import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -42,17 +42,15 @@ import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 
 @Destination<RootGraph>
 @Composable
-fun AboutScreen() {
+fun AboutScreen() = LocalScreenProvider {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val browser = LocalUriHandler.current
-    val navigator = LocalDestinationsNavigator.current
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            NavigateUpTopBar(
+            BlurNavigateUpToolbar(
                 title = stringResource(id = R.string.settings_about),
-                navigator = navigator,
             )
         },
         contentWindowInsets = WindowInsets(0.dp)

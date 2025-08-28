@@ -50,6 +50,7 @@ import com.dergoogler.mmrl.ext.toDecodedUrl
 import com.dergoogler.mmrl.model.online.ExploreRepository
 import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.HorizontalDividerWithText
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Item
@@ -73,7 +74,7 @@ import kotlinx.coroutines.launch
 
 @Destination<RootGraph>
 @Composable
-fun ExploreRepositoryScreen(repo: ExploreRepository) {
+fun ExploreRepositoryScreen(repo: ExploreRepository) = LocalScreenProvider {
     val viewModel = hiltViewModel<RepositoriesViewModel>()
     val navigator = LocalDestinationsNavigator.current
     val scope = rememberCoroutineScope()

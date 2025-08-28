@@ -48,6 +48,7 @@ import com.dergoogler.mmrl.ui.component.toolbar.BlurBottomToolbar
 import com.dergoogler.mmrl.ui.navigation.MainDestination
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
@@ -62,6 +63,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.utils.isRouteOnBackStackAsState
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 
 @Destination<RootGraph>
 @Composable
@@ -79,7 +82,10 @@ fun MainScreen() {
         initPlatform(context, userPrefs.workingMode.toPlatform())
     }
 
+    val hazeState = rememberHazeState()
+
     CompositionLocalProvider(
+        LocalHazeState provides hazeState,
         LocalSnackbarHost provides snackbarHostState,
         LocalBulkInstall provides bulkInstallViewModel
     ) {
@@ -150,6 +156,7 @@ fun MainScreen() {
             return@CompositionLocalProvider
         }
 
+
         ResponsiveScaffold(
             bottomBar = {
                 BottomNav(updates)
@@ -162,7 +169,9 @@ fun MainScreen() {
             CompositionLocalProvider(
                 LocalMainScreenInnerPaddings provides paddingValues,
             ) {
-                CurrentNavHost()
+                CurrentNavHost(
+                    modifier = Modifier.hazeSource(hazeState),
+                )
             }
         }
     }

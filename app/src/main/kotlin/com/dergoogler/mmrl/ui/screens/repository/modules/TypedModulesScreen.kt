@@ -21,6 +21,7 @@ import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.datastore.model.RepositoryMenu
 import com.dergoogler.mmrl.ext.isNotNullOrBlank
 import com.dergoogler.mmrl.ext.none
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurSearchToolbar
@@ -45,7 +46,7 @@ fun TypedModulesScreen(
     type: ModulesFilter = ModulesFilter.ALL,
     query: String = "",
     repo: Repo,
-) {
+) = LocalScreenProvider {
     var searchQuery by remember { mutableStateOf("") }
     val modules by rememberOnlineModules(repo, searchQuery)
     val userPreferencesRepository = rememberUserPreferencesRepository()

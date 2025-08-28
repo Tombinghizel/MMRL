@@ -53,6 +53,7 @@ import com.dergoogler.mmrl.ui.activity.terminal.install.InstallActivity
 import com.dergoogler.mmrl.ui.animate.slideInTopToBottom
 import com.dergoogler.mmrl.ui.animate.slideOutBottomToTop
 import com.dergoogler.mmrl.ui.component.Loading
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.dialog.TextFieldDialog
@@ -71,8 +72,7 @@ import kotlin.reflect.KFunction1
 
 @Destination<RootGraph>
 @Composable
-fun RepositoriesScreen(
-) {
+fun RepositoriesScreen() = LocalScreenProvider {
     val viewModel = hiltViewModel<RepositoriesViewModel>()
 
     val userPrefs = LocalUserPreferences.current

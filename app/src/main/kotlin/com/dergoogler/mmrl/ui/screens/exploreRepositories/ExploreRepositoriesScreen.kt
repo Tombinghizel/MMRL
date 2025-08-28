@@ -28,6 +28,7 @@ import com.dergoogler.mmrl.model.online.ExploreRepository
 import com.dergoogler.mmrl.network.runRequest
 import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Loading
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
@@ -44,7 +45,7 @@ import timber.log.Timber
 
 @Destination<RootGraph>
 @Composable
-fun ExploreRepositoriesScreen() {
+fun ExploreRepositoriesScreen() = LocalScreenProvider {
     var exploreRepositories by remember { mutableStateOf<List<ExploreRepository>?>(null) }
 
     val navigator = LocalDestinationsNavigator.current

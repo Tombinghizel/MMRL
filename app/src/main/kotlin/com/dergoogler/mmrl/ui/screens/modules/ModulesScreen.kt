@@ -47,6 +47,7 @@ import com.dergoogler.mmrl.model.local.LocalModule
 import com.dergoogler.mmrl.model.online.VersionItem
 import com.dergoogler.mmrl.ui.activity.terminal.install.InstallActivity
 import com.dergoogler.mmrl.ui.component.Loading
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
@@ -60,7 +61,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 @Composable
 fun ModulesScreen(
     viewModel: ModulesViewModel = hiltViewModel(),
-) {
+) = LocalScreenProvider {
     val userPrefs = LocalUserPreferences.current
     val context = LocalContext.current
 

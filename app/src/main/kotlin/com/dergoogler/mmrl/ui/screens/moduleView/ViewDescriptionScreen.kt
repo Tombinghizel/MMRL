@@ -147,7 +147,7 @@ fun ViewDescriptionScreen(
                                 arrayOf(readme),
                                 arrayOf(String::class.java)
                             )
-                            
+
                             webView.loadUrl(launchUrl)
                         }
                     )

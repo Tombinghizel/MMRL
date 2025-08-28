@@ -29,9 +29,9 @@ import com.dergoogler.mmrl.ext.isNotNullOrEmpty
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.toDollars
 import com.dergoogler.mmrl.ui.component.HorizontalDividerWithText
-import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
 import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.screens.exploreRepositories.items.MemberCard
 import com.dergoogler.mmrl.viewmodel.ThankYouViewModel
@@ -42,9 +42,8 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 @Composable
 fun ThankYouScreen(
     vm: ThankYouViewModel = hiltViewModel(),
-) {
+) = LocalScreenProvider {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val navigator = LocalDestinationsNavigator.current
 
     val sponsors by vm.sponsors.collectAsStateWithLifecycle()
     val contributors by vm.contributors.collectAsStateWithLifecycle()
@@ -52,9 +51,10 @@ fun ThankYouScreen(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            NavigateUpTopBar(
+            BlurNavigateUpToolbar(
+                fade = true,
+                fadeDistance = 50f,
                 title = stringResource(id = R.string.thank_you),
-                navigator = navigator,
             )
         },
         contentWindowInsets = WindowInsets.none

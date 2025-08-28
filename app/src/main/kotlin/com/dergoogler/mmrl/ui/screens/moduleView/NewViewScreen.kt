@@ -44,6 +44,7 @@ import com.dergoogler.mmrl.model.online.VersionItem
 import com.dergoogler.mmrl.model.online.isBlacklisted
 import com.dergoogler.mmrl.ui.activity.terminal.install.InstallActivity
 import com.dergoogler.mmrl.ui.component.Cover
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
@@ -83,7 +84,7 @@ internal val subListItemContentPaddingValues = PaddingValues(vertical = 8.dp, ho
 fun NewViewScreen(
     repo: Repo,
     module: OnlineModule,
-) {
+) = LocalScreenProvider {
     val viewModel = ModuleViewModel.build(repo, module)
 
     val navigator = LocalDestinationsNavigator.current

@@ -58,7 +58,7 @@ fun SettingsScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     absolute: @Composable (BoxScope.() -> Unit) = {},
     relative: @Composable (ListScope.() -> Unit),
-) {
+) = LocalScreenProvider {
     val navController = LocalNavController.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 

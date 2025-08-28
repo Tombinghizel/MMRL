@@ -62,6 +62,7 @@ import com.dergoogler.mmrl.ui.component.Cover
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
 import com.dergoogler.mmrl.ui.component.Loading
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
@@ -82,7 +83,7 @@ import dev.dergoogler.mmrl.compat.core.LocalUriHandler
 
 @Destination<RootGraph>()
 @Composable
-fun RepositoryScreen(repo: Repo) {
+fun RepositoryScreen(repo: Repo) = LocalScreenProvider {
     val viewModel = RepositoryViewModel.build(repo)
     val list by viewModel.online.collectAsStateWithLifecycle()
 
