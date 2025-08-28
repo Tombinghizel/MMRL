@@ -28,8 +28,7 @@ import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
 import com.dergoogler.mmrl.ui.component.Logo
-import com.dergoogler.mmrl.ui.component.text.TextWithIcon
-import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
+import com.dergoogler.mmrl.ui.component.text.IconText
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
@@ -86,19 +85,16 @@ fun ModuleItemCompact(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            TextWithIcon(
-                style = TextWithIconDefaults.style.copy(
-                    textStyle = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    iconTint = MaterialTheme.colorScheme.surfaceTint,
-                    iconScaling = 1.0f,
-                    rightIcon = true,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+            IconText(
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold
                 ),
+                tint = MaterialTheme.colorScheme.surfaceTint,
+                alignment = Alignment.End,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 text = module.name,
-                icon = isVerified nullable R.drawable.rosette_discount_check,
+                resId = isVerified nullable R.drawable.rosette_discount_check,
             )
 
             Spacer(modifier = Modifier.height(2.dp))

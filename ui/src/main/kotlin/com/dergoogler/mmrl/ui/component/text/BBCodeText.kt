@@ -1,11 +1,11 @@
 package com.dergoogler.mmrl.ui.component.text
 
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -39,10 +39,39 @@ import com.dergoogler.mmrl.ext.nullable
 import java.util.Stack
 
 /**
+ * Enum class representing different types of BBCode tags that can be disabled.
+ */
+enum class BBCodeTag {
+    BOLD,      // [b] and [bold]
+    ITALIC,    // [i] and [italic]
+    UNDERLINE, // [u] and [underline]
+    COLOR,     // [color=...]
+    BACKGROUND,// [bg=...]
+    LINK,      // [link=...]
+    ICON,      // [icon=...]
+    IMAGE;     // [image=...]
+
+    companion object {
+        fun disableAllExcept(vararg tags: BBCodeTag): Set<BBCodeTag> {
+            return entries.filterNot { it in tags }.toSet()
+        }
+
+        fun disableAll(): Set<BBCodeTag> {
+            return entries.toSet()
+        }
+
+        fun enableAllExcept(vararg tags: BBCodeTag): Set<BBCodeTag> {
+            return entries.filterNot { it in tags }.toSet()
+        }
+    }
+}
+
+/**
  * A Composable function that displays text with BBCode (Bulletin Board Code) formatting.
  *
  * This function allows for basic text styling such as bold, italic, underline, color,
  * background color, and links. It also supports embedding icons and images within the text.
+ * Additionally, it supports prefix and suffix that are always applied regardless of bbEnabled setting.
  *
  * Example BBCode:
  * `[b]Bold text[/b]`
@@ -54,10 +83,26 @@ import java.util.Stack
  * `[icon=icon_name]` (requires `iconContent` to be provided)
  * `[image=image_url]` (requires `imageContent` to be provided)
  *
- * If `bbEnabled` is set to `false`, the text will be displayed as plain text without any BBCode processing.
+ * Usage with prefix/suffix and selective tag disabling:
+ * ```
+ * BBCodeText(
+ *     text = "name",
+ *     disabledTags = BBCodeTag.disableAllExcept(BBCodeTag.ICON, BBCodeTag.IMAGE),
+ * ) {
+ *     prefix = "hello "
+ *     suffix = " world"
+ * }
+ * ```
+ *
+ * If `bbEnabled` is set to `false`, the text will be displayed as plain text without any BBCode processing,
+ * but prefix and suffix will still be applied.
  *
  * @param text The string containing the text to be displayed, potentially with BBCode tags.
+ * @param prefix A string that will be displayed before the `text`.
+ * @param suffix A string that will be displayed after the `text`.
  * @param bbEnabled A boolean indicating whether BBCode processing should be enabled. Defaults to `true`.
+ * @param disabledTags A set of BBCodeTag values representing which tag types should be disabled.
+ *                     When a tag type is disabled, it will be treated as plain text instead of formatting.
  * @param iconContent An optional Composable lambda that takes an icon name (String) and renders the corresponding icon.
  *                    This is used when `[icon=...]` tags are present in the `text`.
  * @param imageContent An optional Composable lambda that takes an image URL (String) and renders the corresponding image.
@@ -74,7 +119,10 @@ import java.util.Stack
 @Composable
 fun BBCodeText(
     text: String,
+    prefix: String? = null,
+    suffix: String? = null,
     bbEnabled: Boolean = true,
+    disabledTags: Set<BBCodeTag> = emptySet(),
     iconContent: (@Composable (String) -> Unit)? = null,
     imageContent: (@Composable (String) -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -92,8 +140,8 @@ fun BBCodeText(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
-    onLinkClick: ((String) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current,
+    onLinkClick: ((String) -> Unit)? = null,
 ) {
     val currentColor = LocalContentColor.current
     val textColor by remember(color) {
@@ -102,42 +150,44 @@ fun BBCodeText(
         }
     }
 
-    if (!bbEnabled) {
-        BasicText(
-            text = text,
-            modifier = modifier,
-            style = style.merge(
-                color = textColor,
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                textAlign = textAlign ?: TextAlign.Unspecified,
-                lineHeight = lineHeight,
-                fontFamily = fontFamily,
-                textDecoration = textDecoration,
-                fontStyle = fontStyle,
-                letterSpacing = letterSpacing
-            ),
-            onTextLayout = onTextLayout,
-            overflow = overflow,
-            softWrap = softWrap,
-            maxLines = maxLines,
-            minLines = minLines
-        )
-
-        return
-    }
-
     val handler = LocalUriHandler.current
 
     var layoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
 
-    val annotatedString = text.toStyleMarkup(
-        iconContent = iconContent,
-        imageContent = imageContent
-    )
+    val (bbText, inline) = text.toStyleMarkup(disabledTags, iconContent, imageContent)
 
-    BasicText(
-        text = annotatedString.first,
+    val string = buildAnnotatedString {
+        if (prefix != null) {
+            val (prefix, prefixInlineContent) = prefix.toStyleMarkup(
+                iconContent = iconContent,
+                imageContent = imageContent
+            )
+
+            inline.putAll(prefixInlineContent)
+
+            append(prefix)
+        }
+
+        if (bbEnabled) {
+            append(bbText)
+        } else {
+            append(text)
+        }
+
+        if (suffix != null) {
+            val (suffix, suffixInlineContent) = suffix.toStyleMarkup(
+                iconContent = iconContent,
+                imageContent = imageContent
+            )
+
+            inline.putAll(suffixInlineContent)
+
+            append(suffix)
+        }
+    }
+
+    Text(
+        text = string,
         modifier = modifier.pointerInput(Unit) {
             awaitPointerEventScope {
                 while (true) {
@@ -147,7 +197,7 @@ fun BBCodeText(
                         layoutResult?.let { layout ->
                             val position = layout.getOffsetForPosition(offset)
 
-                            val ann = annotatedString.first
+                            val ann = string
                                 .getStringAnnotations(tag = "URL", start = position, end = position)
                                 .firstOrNull()
 
@@ -163,18 +213,8 @@ fun BBCodeText(
                 }
             }
         },
-        style = style.merge(
-            color = textColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign ?: TextAlign.Unspecified,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        ),
-        inlineContent = annotatedString.second,
+        style = style,
+        inlineContent = inline,
         onTextLayout = {
             layoutResult = it
             onTextLayout.nullable { it2 ->
@@ -184,12 +224,21 @@ fun BBCodeText(
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
-        minLines = minLines
+        minLines = minLines,
+        letterSpacing = letterSpacing,
+        textDecoration = textDecoration,
+        textAlign = textAlign,
+        lineHeight = lineHeight,
+        fontFamily = fontFamily,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+        fontSize = fontSize,
+        color = textColor
     )
 }
 
 private data class StyleState(
-    val tag: String? = null,
+    val tag: BBCodeTag? = null,
     val color: Color = Color.Unspecified,
     val bg: Color = Color.Unspecified,
     val bold: Boolean = false,
@@ -200,15 +249,16 @@ private data class StyleState(
 
 @Composable
 private fun String.toStyleMarkup(
+    disabledTags: Set<BBCodeTag> = emptySet(),
     iconContent: (@Composable (String) -> Unit)? = null,
     imageContent: (@Composable (String) -> Unit)? = null,
-): Pair<AnnotatedString, Map<String, InlineTextContent>> {
+): Pair<AnnotatedString, MutableMap<String, InlineTextContent>> {
     val tagRegex =
         Regex("""\[(/?)(color|link|bg|bold|b|italic|i|underline|u|icon|image)(?:=([^]]+))?/?]""")
     val matches = tagRegex.findAll(this)
     val styleStack = Stack<StyleState>().apply { push(StyleState()) }
 
-    val inlineContent = mutableMapOf<String, InlineTextContent>()
+    val inlineContent = remember { mutableMapOf<String, InlineTextContent>() }
     var iconCounter by remember { mutableIntStateOf(0) }
     var imageCounter by remember { mutableIntStateOf(0) }
 
@@ -224,14 +274,35 @@ private fun String.toStyleMarkup(
             val tag = match.groupValues[2]
             val value = match.groupValues[3]
 
+            // Check if the tag type is disabled
+            val tagType = when (tag) {
+                "b", "bold" -> BBCodeTag.BOLD
+                "i", "italic" -> BBCodeTag.ITALIC
+                "u", "underline" -> BBCodeTag.UNDERLINE
+                "color" -> BBCodeTag.COLOR
+                "bg" -> BBCodeTag.BACKGROUND
+                "link" -> BBCodeTag.LINK
+                "icon" -> BBCodeTag.ICON
+                "image" -> BBCodeTag.IMAGE
+                else -> null
+            }
+
+            // If the tag type is disabled, treat it as plain text
+            if (tagType != null && tagType in disabledTags) {
+                val fullMatch = this@toStyleMarkup.substring(match.range)
+                applyStyle(this, fullMatch, styleStack.peek())
+                lastIndex = match.range.last + 1
+                return@forEach
+            }
+
             when {
                 isClosing -> {
-                    if (styleStack.size > 1 && styleStack.peek().tag == tag) {
+                    if (styleStack.size > 1 && styleStack.peek().tag == tagType) {
                         styleStack.pop()
                     }
                 }
 
-                tag == "icon" && iconContent != null && value.isNotBlank() -> {
+                tagType == BBCodeTag.ICON && iconContent != null && value.isNotBlank() -> {
                     val iconId = "inlineIcon_${iconCounter++}"
                     appendInlineContent(iconId, "[$value]")
 
@@ -248,7 +319,7 @@ private fun String.toStyleMarkup(
                     }
                 }
 
-                tag == "image" && imageContent != null && value.isNotBlank() -> {
+                tagType == BBCodeTag.IMAGE && imageContent != null && value.isNotBlank() -> {
                     val imageId = "inlineImage_${imageCounter++}"
                     appendInlineContent(imageId, "[$value]")
 
@@ -267,14 +338,14 @@ private fun String.toStyleMarkup(
 
                 else -> {
                     val current = styleStack.peek()
-                    val newStyle = when (tag) {
-                        "color" -> current.copy(tag = tag, color = colorFromName(value))
-                        "bg" -> current.copy(tag = tag, bg = colorFromName(value))
-                        "b", "bold" -> current.copy(tag = tag, bold = true)
-                        "i", "italic" -> current.copy(tag = tag, italic = true)
-                        "u", "underline" -> current.copy(tag = tag, underline = true)
-                        "link" -> current.copy(
-                            tag = tag,
+                    val newStyle = when (tagType) {
+                        BBCodeTag.COLOR -> current.copy(tag = tagType, color = colorFromName(value))
+                        BBCodeTag.BACKGROUND -> current.copy(tag = tagType, bg = colorFromName(value))
+                        BBCodeTag.BOLD -> current.copy(tag = tagType, bold = true)
+                        BBCodeTag.ITALIC -> current.copy(tag = tagType, italic = true)
+                        BBCodeTag.UNDERLINE -> current.copy(tag = tagType, underline = true)
+                        BBCodeTag.LINK -> current.copy(
+                            tag = tagType,
                             link = value,
                             color = MaterialTheme.colorScheme.primary,
                             underline = true

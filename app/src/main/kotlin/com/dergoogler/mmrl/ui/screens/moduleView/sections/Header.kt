@@ -37,8 +37,7 @@ import com.dergoogler.mmrl.model.online.isBlacklisted
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.isEmpty
 import com.dergoogler.mmrl.platform.content.isValid
 import com.dergoogler.mmrl.ui.component.Logo
-import com.dergoogler.mmrl.ui.component.text.TextWithIcon
-import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
+import com.dergoogler.mmrl.ui.component.text.IconText
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
@@ -92,17 +91,14 @@ internal fun Header() {
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            TextWithIcon(
-                style = TextWithIconDefaults.style.copy(
-                    textStyle = MaterialTheme.typography.titleLarge,
-                    iconTint = MaterialTheme.colorScheme.surfaceTint,
-                    iconScaling = 1.0f,
-                    rightIcon = true,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                ),
+            IconText(
+                style = MaterialTheme.typography.titleLarge,
+                tint = MaterialTheme.colorScheme.surfaceTint,
+                alignment = Alignment.End,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 text = module.name,
-                icon = module.isVerified nullable R.drawable.rosette_discount_check,
+                resId = module.isVerified nullable R.drawable.rosette_discount_check,
             )
 
             Spacer(modifier = Modifier.height(4.dp))

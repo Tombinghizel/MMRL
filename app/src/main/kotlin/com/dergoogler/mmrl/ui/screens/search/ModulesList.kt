@@ -68,6 +68,7 @@ fun ModulesList(
                     )
                 }
             }
+            
             item {
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }

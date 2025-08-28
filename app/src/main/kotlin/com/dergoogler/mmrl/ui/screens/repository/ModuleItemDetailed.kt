@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,18 +21,17 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
-import com.dergoogler.mmrl.ui.component.Cover
-import com.dergoogler.mmrl.ui.component.LabelItem
-import com.dergoogler.mmrl.ui.component.text.TextWithIcon
-import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.isNotNullOrEmpty
 import com.dergoogler.mmrl.ext.nullable
+import com.dergoogler.mmrl.ui.component.Cover
+import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
-import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
+import com.dergoogler.mmrl.ui.component.card.Card
+import com.dergoogler.mmrl.ui.component.text.IconText
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModule
 import com.dergoogler.mmrl.ui.providable.LocalOnlineModuleState
+import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 
 enum class LabelType {
@@ -107,21 +105,16 @@ fun ModuleItemDetailed(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-
-
-                    TextWithIcon(
-                        style = TextWithIconDefaults.style.copy(
-                            textStyle = MaterialTheme.typography.titleSmall.copy(
-                                textDecoration = decoration
-                            ),
-                            iconTint = MaterialTheme.colorScheme.surfaceTint,
-                            iconScaling = 1.0f,
-                            rightIcon = true,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                    IconText(
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            textDecoration = decoration
                         ),
+                        tint = MaterialTheme.colorScheme.surfaceTint,
+                        alignment = Alignment.End,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                         text = module.name,
-                        icon = isVerified nullable R.drawable.rosette_discount_check,
+                        resId = isVerified nullable R.drawable.rosette_discount_check,
                     )
 
                     Text(

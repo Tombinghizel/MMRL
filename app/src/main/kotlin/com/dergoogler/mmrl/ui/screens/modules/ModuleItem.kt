@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -43,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.fadingEdge
-import com.dergoogler.mmrl.ext.iconSize
 import com.dergoogler.mmrl.ext.isPackageInstalled
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.rememberTrue
@@ -66,9 +66,8 @@ import com.dergoogler.mmrl.ui.component.lite.column.LiteColumn
 import com.dergoogler.mmrl.ui.component.lite.row.LiteRow
 import com.dergoogler.mmrl.ui.component.lite.row.LiteRowScope
 import com.dergoogler.mmrl.ui.component.lite.row.VerticalAlignment
+import com.dergoogler.mmrl.ui.component.text.BBCodeTag
 import com.dergoogler.mmrl.ui.component.text.BBCodeText
-import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
-import com.dergoogler.mmrl.ui.component.text.stripBBCodeMarkup
 import com.dergoogler.mmrl.ui.providable.LocalModule
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
@@ -177,68 +176,33 @@ fun ModuleItem(
                         module.config.name ?: module.name
                     }
 
-                    val style = TextWithIconDefaults.style.copy(
-                        textStyle = MaterialTheme.typography.titleSmall
-                    )
-
-                    val modifier = Modifier.iconSize(
-                        density = density,
-                        textStyle = style.textStyle,
-                        scaling = style.iconScaling
-                    )
-
-                    val type = when {
-                        (canWenUIAccessed && module.hasWebUI) -> "[icon=webui] "
-                        (canWenUIAccessed && module.hasModConf) -> "[image=modconf] "
-                        else -> ""
+                    val prefix = fun(): String? {
+                        if (!canWenUIAccessed) return null
+                        if (module.hasWebUI) return "[icon=webui] "
+                        if (module.hasModConf) return "[image=modconf] "
+                        return null
                     }
 
                     BBCodeText(
-                        text = type + module.name.stripBBCodeMarkup(),
+                        text = name,
+                        bbEnabled = false,
+                        disabledTags = BBCodeTag.disableAllExcept(BBCodeTag.ICON, BBCodeTag.IMAGE),
                         iconContent = (canWenUIAccessed && module.hasWebUI) nullable {
                             Icon(
-                                modifier = modifier,
                                 painter = painterResource(id = R.drawable.sandbox),
                                 contentDescription = null,
-                                tint = style.iconTint,
+                                tint = LocalContentColor.current,
                             )
                         },
                         imageContent = (canWenUIAccessed && module.hasModConf) nullable {
                             Image(
-                                modifier = modifier,
                                 painter = painterResource(id = com.dergoogler.mmrl.ui.R.drawable.jetpackcomposeicon),
                                 contentDescription = null,
                             )
-                        }
+                        },
+                        prefix = prefix(),
+                        style = MaterialTheme.typography.titleSmall,
                     )
-
-//                    TextRow(
-//                        horizontalArrangement = Arrangement.Center,
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        contentPadding = PaddingValues(start = 4.dp, end = 4.dp),
-//                        leadingContent = {
-//                            if (!canWenUIAccessed) {
-//                                return@TextRow
-//                            }
-//
-//                            if (module.hasModConf) {
-//
-//
-//                                return@TextRow
-//                            }
-//
-//                            if (module.hasWebUI) {
-//
-//
-//                                return@TextRow
-//                            }
-//                        },
-//                    ) {
-//                        Text(
-//                            text = name,
-//                            style = style.textStyle,
-//                        )
-//                    }
 
                     Text(
                         text = stringResource(
