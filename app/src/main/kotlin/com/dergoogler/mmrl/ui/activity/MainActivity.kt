@@ -61,7 +61,7 @@ class MainActivity : MMRLComponentActivity() {
 
                 NetworkUtils.setEnableDoh(preferences.useDoh)
 
-                if (!BlurUtil.isBlurSupported(baseContext)) {
+                if (!BlurUtil.isBlurSupported()) {
                     setEnableBlur(false)
                 }
 
