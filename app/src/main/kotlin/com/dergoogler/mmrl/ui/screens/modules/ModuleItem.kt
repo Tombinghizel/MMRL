@@ -5,7 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,7 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,15 +45,10 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.iconSize
 import com.dergoogler.mmrl.ext.isPackageInstalled
-import com.dergoogler.mmrl.model.local.State
-import com.dergoogler.mmrl.model.local.versionDisplay
-import com.dergoogler.mmrl.ui.component.LabelItem
-import com.dergoogler.mmrl.ui.component.text.TextWithIcon
-import com.dergoogler.mmrl.ui.component.card.Card
-import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.rememberTrue
-import com.dergoogler.mmrl.ext.toStyleMarkup
+import com.dergoogler.mmrl.model.local.State
+import com.dergoogler.mmrl.model.local.versionDisplay
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.config
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasModConf
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasWebUI
@@ -64,17 +56,21 @@ import com.dergoogler.mmrl.platform.file.SuFile
 import com.dergoogler.mmrl.platform.file.SuFile.Companion.toFormattedFileSize
 import com.dergoogler.mmrl.platform.model.ModId.Companion.moduleDir
 import com.dergoogler.mmrl.ui.component.BottomSheet
+import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
 import com.dergoogler.mmrl.ui.component.LocalCover
-import com.dergoogler.mmrl.ui.component.card.component.Absolute
+import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.card.CardScope
+import com.dergoogler.mmrl.ui.component.card.component.Absolute
 import com.dergoogler.mmrl.ui.component.lite.column.LiteColumn
 import com.dergoogler.mmrl.ui.component.lite.row.LiteRow
 import com.dergoogler.mmrl.ui.component.lite.row.LiteRowScope
 import com.dergoogler.mmrl.ui.component.lite.row.VerticalAlignment
-import com.dergoogler.mmrl.ui.component.text.TextRow
+import com.dergoogler.mmrl.ui.component.text.BBCodeText
 import com.dergoogler.mmrl.ui.component.text.TextWithIconDefaults
+import com.dergoogler.mmrl.ui.component.text.stripBBCodeMarkup
 import com.dergoogler.mmrl.ui.providable.LocalModule
+import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.utils.toFormattedDateSafely
 import com.dergoogler.mmrl.utils.webUILauncher
 import dev.dergoogler.mmrl.compat.core.LocalUriHandler
@@ -191,42 +187,58 @@ fun ModuleItem(
                         scaling = style.iconScaling
                     )
 
-                    TextRow(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        contentPadding = PaddingValues(start = 4.dp, end = 4.dp),
-                        leadingContent = {
-                            if (!canWenUIAccessed) {
-                                return@TextRow
-                            }
-
-                            if (module.hasModConf) {
-                                Image(
-                                    modifier = modifier,
-                                    painter = painterResource(id = com.dergoogler.mmrl.ui.R.drawable.jetpackcomposeicon),
-                                    contentDescription = null,
-                                )
-
-                                return@TextRow
-                            }
-
-                            if (module.hasWebUI) {
-                                Icon(
-                                    modifier = modifier,
-                                    painter = painterResource(id = R.drawable.sandbox),
-                                    contentDescription = null,
-                                    tint = style.iconTint,
-                                )
-
-                                return@TextRow
-                            }
-                        },
-                    ) {
-                        Text(
-                            text = name,
-                            style = style.textStyle,
-                        )
+                    val type = when {
+                        (canWenUIAccessed && module.hasWebUI) -> "[icon=webui] "
+                        (canWenUIAccessed && module.hasModConf) -> "[image=modconf] "
+                        else -> ""
                     }
+
+                    BBCodeText(
+                        text = type + module.name.stripBBCodeMarkup(),
+                        iconContent = (canWenUIAccessed && module.hasWebUI) nullable {
+                            Icon(
+                                modifier = modifier,
+                                painter = painterResource(id = R.drawable.sandbox),
+                                contentDescription = null,
+                                tint = style.iconTint,
+                            )
+                        },
+                        imageContent = (canWenUIAccessed && module.hasModConf) nullable {
+                            Image(
+                                modifier = modifier,
+                                painter = painterResource(id = com.dergoogler.mmrl.ui.R.drawable.jetpackcomposeicon),
+                                contentDescription = null,
+                            )
+                        }
+                    )
+
+//                    TextRow(
+//                        horizontalArrangement = Arrangement.Center,
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        contentPadding = PaddingValues(start = 4.dp, end = 4.dp),
+//                        leadingContent = {
+//                            if (!canWenUIAccessed) {
+//                                return@TextRow
+//                            }
+//
+//                            if (module.hasModConf) {
+//
+//
+//                                return@TextRow
+//                            }
+//
+//                            if (module.hasWebUI) {
+//
+//
+//                                return@TextRow
+//                            }
+//                        },
+//                    ) {
+//                        Text(
+//                            text = name,
+//                            style = style.textStyle,
+//                        )
+//                    }
 
                     Text(
                         text = stringResource(
@@ -254,17 +266,18 @@ fun ModuleItem(
                 switch?.invoke()
             }
 
-            val description = if (module.config.description != null) {
-                module.config.description!!.toStyleMarkup()
-            } else {
-                AnnotatedString(module.description)
+            val bbEnabled = remember(module) {
+                module.config.description != null
             }
 
-            Text(
+            val desc = remember(module) { module.config.description ?: module.description }
+
+            BBCodeText(
                 modifier = Modifier
                     .alpha(alpha = alpha)
                     .padding(horizontal = 16.dp),
-                text = description,
+                text = desc,
+                bbEnabled = bbEnabled,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis,
