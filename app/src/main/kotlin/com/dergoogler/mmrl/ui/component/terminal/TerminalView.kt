@@ -2,6 +2,7 @@ package com.dergoogler.mmrl.ui.component.terminal
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -25,6 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.model.terminal.AlertBlock
 import com.dergoogler.mmrl.model.terminal.Block
 import com.dergoogler.mmrl.model.terminal.CardBlock
@@ -44,6 +46,7 @@ val LocalTerminal = staticCompositionLocalOf<Terminal> {
 @Composable
 fun TerminalView(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     terminal: Terminal,
     state: LazyListState,
     style: TextStyle = MaterialTheme.typography.bodySmall.copy(
@@ -92,6 +95,7 @@ fun TerminalView(
                         }
                         .then(modifier),
                     state = state,
+                    contentPadding = contentPadding
                 ) {
                     itemsIndexed(
                         items = list,

@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.ext.addIfNotThere
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.isNotNullOrEmpty
 import com.dergoogler.mmrl.ext.nullable
@@ -62,11 +63,11 @@ fun ModuleItemDetailed(
     val showCategoryLabel = module.categories.isNotNullOrEmpty() && menu.showCategory
 
     val labelsToShow = remember { mutableListOf<LabelType>() }
-    if (showLicenseLabel) labelsToShow.add(LabelType.LICENSE)
-    if (showInstalledLabel) labelsToShow.add(LabelType.INSTALLED)
-    if (showAntifeaturesLabel) labelsToShow.add(LabelType.ANTIFEATURES)
-    if (showCategoryLabel) labelsToShow.add(LabelType.CATEGORY)
-    if (state.updatable) labelsToShow.add(LabelType.UPDATABLE)
+    if (showLicenseLabel) labelsToShow.addIfNotThere(LabelType.LICENSE)
+    if (showInstalledLabel) labelsToShow.addIfNotThere(LabelType.INSTALLED)
+    if (showAntifeaturesLabel) labelsToShow.addIfNotThere(LabelType.ANTIFEATURES)
+    if (showCategoryLabel) labelsToShow.addIfNotThere(LabelType.CATEGORY)
+    if (state.updatable) labelsToShow.addIfNotThere(LabelType.UPDATABLE)
 
     val hasLabel = labelsToShow.isNotEmpty()
 

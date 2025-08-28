@@ -5,10 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,26 +31,27 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.app.Event
 import com.dergoogler.mmrl.app.Event.Companion.isFinished
 import com.dergoogler.mmrl.app.Event.Companion.isLoading
 import com.dergoogler.mmrl.ext.none
-import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
-import com.dergoogler.mmrl.ui.component.dialog.ConfirmDialog
-import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.viewmodel.ActionViewModel
 import com.dergoogler.mmrl.ui.activity.MMRLComponentActivity
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
+import com.dergoogler.mmrl.ui.component.dialog.ConfirmDialog
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.terminal.TerminalView
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.viewmodel.ActionViewModel
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
 
 @Composable
 fun ActionScreen(
     viewModel: ActionViewModel,
-) {
+) = LocalScreenProvider {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -155,11 +153,12 @@ fun ActionScreen(
         contentWindowInsets = WindowInsets.none
     ) {
         TerminalView(
+            contentPadding = it,
             terminal = viewModel.terminal,
             state = listState,
             modifier = Modifier
-                .padding(it)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .hazeSource(LocalHazeState.current),
         )
     }
 }
@@ -171,7 +170,7 @@ private fun TopBar(
     onBack: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     enable: Boolean,
-) = NavigateUpTopBar(
+) = BlurNavigateUpToolbar(
     title = stringResource(id = R.string.action_activity),
     subtitle = stringResource(
         id = when (event) {
