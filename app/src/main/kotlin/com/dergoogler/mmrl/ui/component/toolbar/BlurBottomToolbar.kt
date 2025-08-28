@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.utils.BlurUtil
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -30,7 +32,10 @@ fun BlurBottomToolbar(
     content: @Composable RowScope.() -> Unit,
 ) {
     val prefs = LocalUserPreferences.current
-    val isBlurEnabled = prefs.enableBlur
+
+    val isBlurEnabled = remember(prefs) {
+        prefs.enableBlur && BlurUtil.isBlurSupported()
+    }
 
     val blurModifier = if (isBlurEnabled) {
         Modifier.hazeEffect(

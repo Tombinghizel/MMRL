@@ -1,20 +1,22 @@
 package com.dergoogler.mmrl.ui.screens.settings.appearance
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.dergoogler.mmrl.R
-import com.dergoogler.mmrl.datastore.model.Homepage
 import com.dergoogler.mmrl.ext.toFormattedDateSafely
+import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.SettingsScaffold
-import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.SwitchItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.DialogDescription
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.screens.settings.NavButton
+import com.dergoogler.mmrl.utils.BlurUtil
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AppThemeScreenDestination
@@ -47,6 +49,7 @@ fun AppearanceScreen() {
             DialogDescription(R.string.settings_date_pattern_dialog_desc, date)
         }
 
+        /* // TODO: Add new support for start homepage. This maybe not possible due to the libraries behavior.
         RadioDialogItem(
             selection = userPreferences.homepage,
             options = listOf(
@@ -70,7 +73,7 @@ fun AppearanceScreen() {
         ) {
             Title(R.string.settings_homepage)
             Description(R.string.settings_homepage_desc)
-        }
+        }*/
 
         SwitchItem(
             checked = userPreferences.enableToolbarEvents,
@@ -79,12 +82,23 @@ fun AppearanceScreen() {
             Title(R.string.settings_enable_toolbar_events)
         }
 
+        val isBlurSupported = remember(Unit) {
+            BlurUtil.isBlurSupported()
+        }
+
         SwitchItem(
+            enabled = isBlurSupported,
             checked = userPreferences.enableBlur,
             onChange = viewModel::setEnableBlur
         ) {
             Title(R.string.settings_enable_blur)
             Description(R.string.settings_enable_blur_desc)
+
+            if (!isBlurSupported) {
+                Labels {
+                    LabelItem(text = stringResource(R.string.view_module_unsupported))
+                }
+            }
         }
     }
 }

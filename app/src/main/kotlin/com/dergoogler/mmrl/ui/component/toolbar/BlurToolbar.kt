@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.utils.BlurUtil
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -42,7 +43,7 @@ fun BlurToolbar(
     val state = scrollBehavior?.state
 
     val isBlurEnabled = remember(prefs) {
-        prefs.enableBlur
+        prefs.enableBlur && BlurUtil.isBlurSupported()
     }
 
     val targetAlpha by remember {

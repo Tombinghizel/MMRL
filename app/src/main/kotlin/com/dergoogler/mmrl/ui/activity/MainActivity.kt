@@ -22,7 +22,7 @@ import com.dergoogler.mmrl.network.NetworkUtils
 import com.dergoogler.mmrl.ui.activity.terminal.action.ActionActivity
 import com.dergoogler.mmrl.ui.activity.terminal.install.InstallActivity
 import com.dergoogler.mmrl.ui.screens.main.MainScreen
-import com.dergoogler.mmrl.ui.screens.main.RootScreen
+import com.dergoogler.mmrl.utils.BlurUtil
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -61,6 +61,10 @@ class MainActivity : MMRLComponentActivity() {
 
                 NetworkUtils.setEnableDoh(preferences.useDoh)
 
+                if (!BlurUtil.isBlurSupported(baseContext)) {
+                    setEnableBlur(false)
+                }
+
                 setActivityEnabled<InstallActivity>(preferences.workingMode.isRoot)
                 setActivityEnabled<ActionActivity>(preferences.workingMode.isRoot)
             }
@@ -83,6 +87,12 @@ class MainActivity : MMRLComponentActivity() {
     private fun setWorkingMode(value: WorkingMode) {
         lifecycleScope.launch {
             userPreferencesRepository.setWorkingMode(value)
+        }
+    }
+
+    private fun setEnableBlur(value: Boolean) {
+        lifecycleScope.launch {
+            userPreferencesRepository.setEnableBlur(value)
         }
     }
 }
