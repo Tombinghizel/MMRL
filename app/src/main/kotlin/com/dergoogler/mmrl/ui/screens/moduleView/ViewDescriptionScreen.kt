@@ -32,6 +32,7 @@ import com.dergoogler.mmrl.network.compose.requestString
 import com.dergoogler.mmrl.ui.activity.webui.interfaces.MarkdownInterface
 import com.dergoogler.mmrl.ui.component.Failed
 import com.dergoogler.mmrl.ui.component.Loading
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
@@ -56,7 +57,7 @@ const val launchUrl = "https://mui.kernelsu.org/internal/assets/markdown.html"
 @Destination<RootGraph>
 fun ViewDescriptionScreen(
     readmeUrl: String,
-) {
+) = LocalScreenProvider {
     val density = LocalDensity.current
     val navigator = LocalDestinationsNavigator.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -127,7 +128,8 @@ fun ViewDescriptionScreen(
                                                 (px / this.density).toInt()
                                             },
                                             bottom = with(density) {
-                                                val pad = bottomBarPaddingValues.calculateBottomPadding()
+                                                val pad =
+                                                    bottomBarPaddingValues.calculateBottomPadding()
                                                 val px = with(density) { pad.toPx() }.toInt()
                                                 (px / this.density).toInt()
                                             },
