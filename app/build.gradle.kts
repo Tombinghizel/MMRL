@@ -56,7 +56,7 @@ android {
             keyAlias = project.releaseKeyAlias
             keyPassword = project.releaseKeyPassword
             enableV2Signing = true
-            enableV3Signing = true
+            enableV3Signing = false
         }
     } else {
         signingConfigs.getByName("debug")
