@@ -157,7 +157,7 @@ Java_com_dergoogler_mmrl_platform_ksu_KsuNative_getAppProfile(JNIEnv *env, jobje
 	if (useDefaultProfile) {
 		// no profile found, so just use default profile:
 		// don't allow root and use default profile!
-		LOGD("use default profile for: %s, %d", key, uid);
+		// LOGD("use default profile for: %s, %d", key, uid);
 
 		// allow_su = false
 		// non root use default = true
@@ -182,7 +182,7 @@ Java_com_dergoogler_mmrl_platform_ksu_KsuNative_getAppProfile(JNIEnv *env, jobje
 		jobject groupList = env->GetObjectField(obj, groupsField);
 		int groupCount = profile.rp_config.profile.groups_count;
 		if (groupCount > KSU_MAX_GROUPS) {
-			LOGD("kernel group count too large: %d???", groupCount);
+			// LOGD("kernel group count too large: %d???", groupCount);
 			groupCount = KSU_MAX_GROUPS;
 		}
 		fillIntArray(env, groupList, profile.rp_config.profile.groups, groupCount);

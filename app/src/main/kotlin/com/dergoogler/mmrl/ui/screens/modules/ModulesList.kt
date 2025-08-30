@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -74,7 +73,7 @@ fun ScaffoldScope.ModulesList(
             contentPadding = PaddingValues(
                 top = innerPadding.calculateTopPadding() + 16.dp,
                 start = innerPadding.calculateStartPadding(layoutDirection) + 16.dp,
-                bottom = 16.dp,
+                bottom = paddingValues.calculateBottomPadding() + 16.dp,
                 end = 16.dp
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -93,10 +92,6 @@ fun ScaffoldScope.ModulesList(
                         isProviderAlive = isProviderAlive,
                     )
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         }
     }

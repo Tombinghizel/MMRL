@@ -42,8 +42,10 @@
     <string name="module_new">New</string>
     <!-- Advanced Menu -->
     <string name="menu_pin_installed">Pin Installed</string>
+    <string name="menu_pin_has_root">Pin Has Root</string>
     <string name="menu_pin_updatable">Pin Updatable</string>
     <string name="menu_show_icon">Show Icon</string>
+    <string name="menu_show_system_apps">Show System Apps</string>
     <string name="menu_show_license">Show License</string>
     <string name="menu_show_cover">Show Cover</string>
     <string name="menu_show_verified">Show Verified</string>
@@ -439,4 +441,7 @@
     <string name="settings_enable_blur">Enable Blur</string>
     <string name="settings_enable_blur_desc">Enabled blur effect in components</string>
     <string name="settings_hide_bottom_bar_labels">Hide Bottom Bar Lables</string>
+    <string name="failed_to_update_app_profile">Failed to update App Profile for %s</string>
+    <string name="failed_to_update_sepolicy">Failed to update SELinux rules for %s</string>
+    <string name="su_not_allowed">Couldn\\\'t grant Superuser access to %s</string>
 </resources>

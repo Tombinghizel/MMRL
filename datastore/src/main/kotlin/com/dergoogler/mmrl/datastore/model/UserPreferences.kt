@@ -73,6 +73,7 @@ data class UserPreferences(
     @ProtoNumber(40) val webuixPackageName: String = "com.dergoogler.mmrl.wx${if (BuildConfig.DEBUG) ".debug" else ""}",
     @ProtoNumber(41) val enableBlur: Boolean = true,
     @ProtoNumber(42) val hideBottomBarLabels: Boolean = false,
+    @ProtoNumber(43) val superUserMenu: SuperUserMenu = SuperUserMenu(),
 ) {
     fun isDarkMode() = when (darkMode) {
         DarkMode.AlwaysOff -> false

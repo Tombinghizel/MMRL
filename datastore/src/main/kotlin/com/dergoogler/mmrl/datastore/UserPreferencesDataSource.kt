@@ -6,6 +6,7 @@ import com.dergoogler.mmrl.datastore.model.Homepage
 import com.dergoogler.mmrl.datastore.model.ModulesMenu
 import com.dergoogler.mmrl.datastore.model.RepositoriesMenu
 import com.dergoogler.mmrl.datastore.model.RepositoryMenu
+import com.dergoogler.mmrl.datastore.model.SuperUserMenu
 import com.dergoogler.mmrl.datastore.model.UserPreferences
 import com.dergoogler.mmrl.datastore.model.WebUIEngine
 import com.dergoogler.mmrl.datastore.model.WorkingMode
@@ -274,11 +275,18 @@ class UserPreferencesDataSource @Inject constructor(
         }
     }
 
-
     suspend fun setRepositoryMenu(value: RepositoryMenu) = withContext(Dispatchers.IO) {
         userPreferences.updateData {
             it.copy(
                 repositoryMenu = value
+            )
+        }
+    }
+
+    suspend fun setSuperUserMenu(value: SuperUserMenu) = withContext(Dispatchers.IO) {
+        userPreferences.updateData {
+            it.copy(
+                superUserMenu = value
             )
         }
     }
