@@ -45,4 +45,10 @@ data class Profile(
     }
 
     constructor() : this("")
+
+    companion object {
+        fun onChange(profile: Profile) {
+
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.dergoogler.mmrl.viewmodel
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
+import android.os.Parcelable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.Parcelize
 import java.io.File
 import javax.inject.Inject
 
@@ -84,18 +86,27 @@ class SuperUserViewModel @Inject constructor(
         combine(cacheFlow, superUserMenu) { list, menu ->
             if (list.isEmpty()) return@combine
 
-            val sorted = list.sortedWith(comparator(menu.option, menu.descending))
-
-            val pinnedRoot = if (menu.pinHasRoot) {
-                sorted.sortedByDescending { it.allowSu }
-            } else sorted
-
-            localFlow.value = pinnedRoot.filter {
-                it.uid == 2000 || menu.showSystemApps ||
-                        it.packageInfo.applicationInfo!!.flags.and(ApplicationInfo.FLAG_SYSTEM) == 0
-            }
+            localFlow.value = list
+                .filter { it.uid != 2000 }
+                .let { f ->
+                    if (!menu.showSystemApps) {
+                        f.filter {
+                            it.packageInfo.applicationInfo!!.flags.and(ApplicationInfo.FLAG_SYSTEM) == 0
+                        }
+                    } else f
+                }
+                .sortedWith(
+                    comparator(menu.option, menu.descending)
+                ).let { v ->
+                    if (menu.pinHasRoot) {
+                        v.sortedByDescending { it.allowSu }
+                    } else {
+                        v
+                    }
+                }
 
             isLoadingFlow.update { false }
+
         }.launchIn(viewModelScope)
     }
 
@@ -182,11 +193,12 @@ class SuperUserViewModel @Inject constructor(
         profileOverrides[packageName] = newProfile
     }
 
+    @Parcelize
     data class AppInfo(
         val label: String,
         val packageInfo: PackageInfo,
         val profile: Profile? = null,
-    ) {
+    ) : Parcelable {
         val packageName get() = packageInfo.packageName
         val uid get() = packageInfo.applicationInfo!!.uid
         val allowSu get() = profile?.allowSu == true

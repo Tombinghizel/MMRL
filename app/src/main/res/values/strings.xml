@@ -444,4 +444,16 @@
     <string name="failed_to_update_app_profile">Failed to update App Profile for %s</string>
     <string name="failed_to_update_sepolicy">Failed to update SELinux rules for %s</string>
     <string name="su_not_allowed">Couldn\\\'t grant Superuser access to %s</string>
+    <string name="profile_default">Default</string>
+    <string name="profile_custom">Custom</string>
+    <string name="profile">App Profile</string>
+    <string name="allow_root">Allow Root</string>
+    <string name="profile_name">Profile Name</string>
+    <string name="profile_groups">Groups</string>
+    <string name="profile_selinux_rules">Rules</string>
+    <string name="profile_capabilities">Capabilities</string>
+    <string name="profile_selinux_context">SELinux context</string>
+    <string name="settings_umount_modules_default">Umount modules</string>
+    <string name="settings_umount_modules_default_summary">The global default value for \"Umount modules\" in App Profile. If enabled, it will remove all module modifications to the system for apps that don\'t have a profile set.</string>
+    <string name="profile_selinux_domain">Domain</string>
 </resources>

@@ -48,6 +48,12 @@ object KsuNative {
     external fun isSuEnabled(): Boolean
     external fun setSuEnabled(enabled: Boolean): Boolean
 
+    fun isDefaultUmountModules(): Boolean {
+        getAppProfile(NON_ROOT_DEFAULT_PROFILE_KEY, NOBODY_UID).let {
+            return it.umountModules
+        }
+    }
+
     /**
      * Get the profile of the given package.
      * @param key usually the package name
