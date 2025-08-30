@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,19 +18,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -46,13 +44,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.dropUnlessResumed
 import coil3.compose.AsyncImage
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.platform.ksu.Profile
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.listItem.ListSwitchItem
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalSuperUserViewModel
@@ -63,6 +63,7 @@ import com.dergoogler.mmrl.viewmodel.SuperUserViewModel
 import com.dergoogler.mmrl.viewmodel.SuperUserViewModel.AppInfo.Companion.loadIcon
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,8 +71,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppProfileScreen(
     appInfo: SuperUserViewModel.AppInfo,
-) {
-    val navigator = LocalDestinationsNavigator.current
+) = LocalScreenProvider {
     val context = LocalContext.current
     val snackBarHost = LocalSnackbarHost.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -101,7 +101,6 @@ fun AppProfileScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                onBack = dropUnlessResumed { navigator.popBackStack() },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -109,8 +108,9 @@ fun AppProfileScreen(
         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
     ) { paddingValues ->
         AppProfileInner(
+            contentPadding = paddingValues,
             modifier = Modifier
-                .padding(paddingValues),
+                .hazeSource(LocalHazeState.current),
             packageName = appInfo.packageName,
             appLabel = appInfo.label,
             appIcon = {
@@ -155,6 +155,7 @@ fun AppProfileScreen(
 @Composable
 private fun AppProfileInner(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues,
     packageName: String,
     appLabel: String,
     appIcon: @Composable () -> Unit,
@@ -168,6 +169,8 @@ private fun AppProfileInner(
         modifier = modifier
             .verticalScroll(rememberScrollState())
     ) {
+        Spacer(Modifier.height(contentPadding.calculateTopPadding()))
+
         ListItem(
             headlineContent = {
                 Text(
@@ -251,26 +254,14 @@ private enum class Mode(@StringRes private val res: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(
-    onBack: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(R.string.profile),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = onBack
-            ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
-        },
-        windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-        scrollBehavior = scrollBehavior
-    )
-}
+) = BlurNavigateUpToolbar(
+    fade = true,
+    fadeDistance = 50f,
+    navigator = LocalDestinationsNavigator.current,
+    title = stringResource(R.string.profile),
+    scrollBehavior = scrollBehavior
+)
 
 @Composable
 private fun ProfileBox(

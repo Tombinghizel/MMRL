@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.ui.R
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +37,34 @@ fun BlurNavigateUpToolbar(
     title = title,
     subtitle = subtitle,
     onBack = { navController.popBackStack() },
+    actions = actions,
+    windowInsets = windowInsets,
+    scrollBehavior = scrollBehavior,
+    enable = enable,
+    fade = fade,
+    fadeDistance = fadeDistance,
+    fadeBackgroundIfNoBlur = fadeBackgroundIfNoBlur
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BlurNavigateUpToolbar(
+    title: String,
+    navigator: DestinationsNavigator,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    enable: Boolean = true,
+    actions: @Composable RowScope.() -> Unit = {},
+    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+    fade: Boolean = false,
+    fadeDistance: Float = 200f,
+    fadeBackgroundIfNoBlur: Boolean = false,
+) = BlurNavigateUpToolbar(
+    modifier = modifier,
+    title = title,
+    subtitle = subtitle,
+    onBack = { navigator.popBackStack() },
     actions = actions,
     windowInsets = windowInsets,
     scrollBehavior = scrollBehavior,
