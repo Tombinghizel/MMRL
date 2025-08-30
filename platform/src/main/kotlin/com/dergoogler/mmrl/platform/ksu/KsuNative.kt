@@ -48,6 +48,14 @@ object KsuNative {
     external fun isSuEnabled(): Boolean
     external fun setSuEnabled(enabled: Boolean): Boolean
 
+    /**
+     * Get the profile of the given package.
+     * @param key usually the package name
+     * @return return null if failed.
+     */
+    external fun getAppProfile(key: String?, uid: Int): Profile
+    external fun setAppProfile(profile: Profile?): Boolean
+
     private const val NON_ROOT_DEFAULT_PROFILE_KEY = "$"
     private const val NOBODY_UID = 9999
 
