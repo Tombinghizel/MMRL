@@ -8,11 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -44,20 +43,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.dropUnlessResumed
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.platform.ksu.Profile
 import com.dergoogler.mmrl.ui.component.listItem.ListSwitchItem
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
+import com.dergoogler.mmrl.ui.providable.LocalSuperUserViewModel
 import com.dergoogler.mmrl.ui.screens.appProfile.items.AppProfileConfig
 import com.dergoogler.mmrl.ui.screens.appProfile.items.RootProfileConfig
 import com.dergoogler.mmrl.utils.SePolicy.getSepolicy
 import com.dergoogler.mmrl.viewmodel.SuperUserViewModel
+import com.dergoogler.mmrl.viewmodel.SuperUserViewModel.AppInfo.Companion.loadIcon
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.launch
@@ -73,9 +72,8 @@ fun AppProfileScreen(
     val snackBarHost = LocalSnackbarHost.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val scope = rememberCoroutineScope()
-    val viewModel: SuperUserViewModel = hiltViewModel()
+    val viewModel = LocalSuperUserViewModel.current
     val failToUpdateAppProfile =
-        stringResource(R.string.failed_to_update_app_profile, appInfo.label)
         stringResource(R.string.failed_to_update_app_profile, appInfo.label)
     val failToUpdateSepolicy =
         stringResource(R.string.failed_to_update_sepolicy, appInfo.label)
@@ -84,7 +82,7 @@ fun AppProfileScreen(
     val packageName = appInfo.packageName
     val initialProfile = KsuNative.getAppProfile(packageName, appInfo.uid)
     if (initialProfile.allowSu) {
-         initialProfile.rules = getSepolicy(packageName)
+        initialProfile.rules = getSepolicy(packageName)
     }
     var profile by rememberSaveable {
         mutableStateOf(initialProfile)
@@ -104,19 +102,16 @@ fun AppProfileScreen(
     ) { paddingValues ->
         AppProfileInner(
             modifier = Modifier
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState()),
+                .padding(paddingValues),
             packageName = appInfo.packageName,
             appLabel = appInfo.label,
             appIcon = {
                 AsyncImage(
-                    model = ImageRequest.Builder(context).data(appInfo.packageInfo).crossfade(true)
-                        .build(),
+                    model = appInfo.loadIcon(context),
                     contentDescription = appInfo.label,
                     modifier = Modifier
                         .padding(4.dp)
-                        .width(48.dp)
-                        .height(48.dp)
+                        .size(48.dp)
                 )
             },
             profile = profile,
@@ -160,7 +155,10 @@ private fun AppProfileInner(
 ) {
     val isRootGranted = profile.allowSu
 
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+    ) {
         ListItem(
             headlineContent = {
                 Text(

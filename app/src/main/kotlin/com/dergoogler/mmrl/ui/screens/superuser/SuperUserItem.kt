@@ -6,12 +6,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.LabelItemDefaults
@@ -22,6 +18,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Start
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.viewmodel.SuperUserViewModel
+import com.dergoogler.mmrl.viewmodel.SuperUserViewModel.AppInfo.Companion.loadIcon
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -31,7 +28,6 @@ fun ListScope.SuperUserItem(
     onClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    val density = LocalDensity.current
 
     ButtonItem(
         onClick = onClick
@@ -39,17 +35,9 @@ fun ListScope.SuperUserItem(
         Title(app.label)
         Description(app.packageName)
 
-        val gg = app.packageInfo.applicationInfo?.loadIcon(context.packageManager)
-        val cion = with(density) {
-            gg?.toBitmap()
-        }
-
         Start {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(cion)
-                    .crossfade(true)
-                    .build(),
+                model = app.loadIcon(context),
                 contentDescription = app.label,
                 modifier = Modifier.size(48.dp)
             )

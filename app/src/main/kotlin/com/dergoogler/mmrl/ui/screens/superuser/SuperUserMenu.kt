@@ -21,14 +21,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.R
-import com.dergoogler.mmrl.datastore.model.Option
-import com.dergoogler.mmrl.datastore.model.RepoListMode
 import com.dergoogler.mmrl.datastore.model.SuperUserMenu
 import com.dergoogler.mmrl.ui.component.BottomSheet
 import com.dergoogler.mmrl.ui.component.MenuChip
-import com.dergoogler.mmrl.ui.component.Segment
-import com.dergoogler.mmrl.ui.component.SegmentedButtons
-import com.dergoogler.mmrl.ui.component.SegmentedButtonsDefaults
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 
 @Composable
@@ -62,17 +57,6 @@ private fun MenuBottomSheet(
     menu: SuperUserMenu,
     setMenu: (SuperUserMenu) -> Unit,
 ) = BottomSheet(onDismissRequest = onClose) {
-    val options = listOf(
-        Option.Name to R.string.menu_sort_option_name,
-        Option.UpdatedTime to R.string.menu_sort_option_updated,
-        Option.Size to R.string.menu_sort_option_size
-    )
-
-    val optionsRepoListMode = listOf(
-        RepoListMode.Detailed to R.string.menu_sort_repolistmode_detailed,
-        RepoListMode.Compact to R.string.menu_sort_repolistmode_compact
-    )
-
     Text(
         text = stringResource(id = R.string.menu_advanced_menu),
         style = MaterialTheme.typography.headlineSmall,
@@ -88,26 +72,6 @@ private fun MenuBottomSheet(
             style = MaterialTheme.typography.titleSmall
         )
 
-        SegmentedButtons(
-            border = SegmentedButtonsDefaults.border(
-                color = MaterialTheme.colorScheme.secondary
-            )
-        ) {
-            options.forEach { (option, label) ->
-                Segment(
-                    selected = option == menu.option,
-                    onClick = { setMenu(menu.copy(option = option)) },
-                    colors = SegmentedButtonsDefaults.buttonColor(
-                        selectedContainerColor = MaterialTheme.colorScheme.secondary,
-                        selectedContentColor = MaterialTheme.colorScheme.onSecondary
-                    ),
-                    icon = null
-                ) {
-                    Text(text = stringResource(id = label))
-                }
-            }
-        }
-
         FlowRow(
             modifier = Modifier
                 .fillMaxWidth(1f)
@@ -115,17 +79,11 @@ private fun MenuBottomSheet(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            MenuChip(
-                selected = menu.descending,
-                onClick = { setMenu(menu.copy(descending = !menu.descending)) },
-                label = { Text(text = stringResource(id = R.string.menu_descending)) }
-            )
-
-            MenuChip(
+            /*MenuChip(
                 selected = menu.pinHasRoot,
                 onClick = { setMenu(menu.copy(pinHasRoot = !menu.pinHasRoot)) },
                 label = { Text(text = stringResource(id = R.string.menu_pin_installed)) }
-            )
+            )*/
 
             MenuChip(
                 selected = menu.showSystemApps,

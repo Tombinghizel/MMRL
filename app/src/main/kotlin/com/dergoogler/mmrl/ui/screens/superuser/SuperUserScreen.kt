@@ -1,6 +1,5 @@
 package com.dergoogler.mmrl.ui.screens.superuser
 
-import com.dergoogler.mmrl.viewmodel.SuperUserViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -22,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.datastore.model.SuperUserMenu
@@ -34,6 +32,7 @@ import com.dergoogler.mmrl.ui.component.PageIndicator
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurSearchToolbar
+import com.dergoogler.mmrl.ui.providable.LocalSuperUserViewModel
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -42,7 +41,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 @Composable
 fun SuperUserScreen() = LocalScreenProvider {
     val userPrefs = LocalUserPreferences.current
-    val viewModel = hiltViewModel<SuperUserViewModel>()
+    val viewModel = LocalSuperUserViewModel.current
 
     val list by viewModel.local.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()

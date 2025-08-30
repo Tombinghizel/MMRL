@@ -32,10 +32,12 @@ import com.dergoogler.mmrl.ui.providable.LocalLifecycleScope
 import com.dergoogler.mmrl.ui.providable.LocalMainNavController
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSettings
+import com.dergoogler.mmrl.ui.providable.LocalSuperUserViewModel
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.ui.theme.Colors
 import com.dergoogler.mmrl.ui.theme.MMRLAppTheme
 import com.dergoogler.mmrl.viewmodel.SettingsViewModel
+import com.dergoogler.mmrl.viewmodel.SuperUserViewModel
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import dev.dergoogler.mmrl.compat.BuildCompat
@@ -202,6 +204,7 @@ fun BaseContent(
         providerValues = arrayOf(
             LocalDestinationsNavigator provides navigator,
             LocalActivity provides activity,
+            LocalSuperUserViewModel provides hiltViewModel<SuperUserViewModel>(activity),
             LocalSettings provides hiltViewModel<SettingsViewModel>(activity),
             LocalUserPreferences provides preferences,
             dev.dergoogler.mmrl.compat.core.LocalUriHandler provides MMRLUriHandlerImpl(

@@ -1,16 +1,22 @@
 package com.dergoogler.mmrl.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.Density
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewModelScope
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.dergoogler.mmrl.datastore.UserPreferencesRepository
-import com.dergoogler.mmrl.datastore.model.Option
 import com.dergoogler.mmrl.datastore.model.SuperUserMenu
 import com.dergoogler.mmrl.platform.PlatformManager
 import com.dergoogler.mmrl.platform.ksu.KsuNative
@@ -32,7 +38,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
-import java.io.File
+import java.text.Collator
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -82,66 +89,51 @@ class SuperUserViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    private val comparator = compareBy<AppInfo> {
+        when {
+            it.profile != null && it.profile.allowSu -> 0
+            it.profile != null && (
+                    if (it.profile.allowSu) !it.profile.rootUseDefault else !it.profile.nonRootUseDefault
+                    ) -> 1
+
+            else -> 2
+        }
+    }.then(compareBy(Collator.getInstance(Locale.getDefault()), AppInfo::label))
+
     private fun dataObserver() {
         combine(cacheFlow, superUserMenu) { list, menu ->
             if (list.isEmpty()) return@combine
 
+            val comparator = compareBy<AppInfo> {
+                when {
+                    it.allowSu -> 0
+                    it.hasCustomProfile -> 1
+                    else -> 2
+                }
+            }.then(compareBy(Collator.getInstance(Locale.getDefault()), AppInfo::label))
+
             localFlow.value = list
-                .filter { it.uid != 2000 }
-                .let { f ->
-                    if (!menu.showSystemApps) {
-                        f.filter {
-                            it.packageInfo.applicationInfo!!.flags.and(ApplicationInfo.FLAG_SYSTEM) == 0
-                        }
-                    } else f
-                }
-                .sortedWith(
-                    comparator(menu.option, menu.descending)
-                ).let { v ->
-                    if (menu.pinHasRoot) {
-                        v.sortedByDescending { it.allowSu }
-                    } else {
-                        v
-                    }
-                }
-
-            isLoadingFlow.update { false }
-
+                .filter { menu.showSystemApps || (it.uid == 2000 || (it.packageInfo.applicationInfo!!.flags and ApplicationInfo.FLAG_SYSTEM) == 0) }
+                .sortedWith(comparator)
         }.launchIn(viewModelScope)
     }
 
     private fun keyObserver() {
-        combine(keyFlow, cacheFlow) { key, source ->
+        combine(keyFlow, cacheFlow, superUserMenu) { key, source, menu ->
             val newKey = key.trim()
             localFlow.value = source.filter {
                 if (newKey.isNotBlank()) {
                     it.label.contains(newKey, true) ||
                             it.packageName.contains(newKey, true)
                 } else true
-            }.map { app ->
-                profileOverrides[app.packageName]?.let { app.copy(profile = it) } ?: app
             }
+                .map { app ->
+                    profileOverrides[app.packageName]?.let { app.copy(profile = it) } ?: app
+                }
+                .filter { menu.showSystemApps || (it.uid == 2000 || (it.packageInfo.applicationInfo!!.flags and ApplicationInfo.FLAG_SYSTEM) == 0) }
+                .sortedWith(comparator)
         }.launchIn(viewModelScope)
     }
-
-    private fun comparator(option: Option, descending: Boolean): Comparator<AppInfo> =
-        if (descending) {
-            when (option) {
-                Option.Name -> compareByDescending { it.label.lowercase() }
-                Option.UpdatedTime -> compareBy { it.packageInfo.lastUpdateTime }
-                Option.Size -> compareByDescending {
-                    it.packageInfo.applicationInfo?.sourceDir?.let { f -> File(f).length() } ?: 0
-                }
-            }
-        } else {
-            when (option) {
-                Option.Name -> compareBy { it.label.lowercase() }
-                Option.UpdatedTime -> compareByDescending { it.packageInfo.lastUpdateTime }
-                Option.Size -> compareBy {
-                    it.packageInfo.applicationInfo?.sourceDir?.let { f -> File(f).length() } ?: 0
-                }
-            }
-        }
 
     fun search(key: String) {
         keyFlow.value = key
@@ -152,7 +144,8 @@ class SuperUserViewModel @Inject constructor(
     }
 
     fun closeSearch() {
-        isSearch = false; keyFlow.value = ""
+        isSearch = false
+        keyFlow.value = ""
     }
 
     fun setSuperUserMenu(value: SuperUserMenu) = viewModelScope.launch {
@@ -206,6 +199,22 @@ class SuperUserViewModel @Inject constructor(
             get() = profile?.let {
                 if (it.allowSu) !it.rootUseDefault else !it.nonRootUseDefault
             } ?: false
+
+        companion object {
+            fun AppInfo.loadIcon(context: Context): ImageRequest {
+                val drawable: Drawable? =
+                    packageInfo.applicationInfo?.loadIcon(context.packageManager)
+                val density = Density(context)
+                val icon: Bitmap? = with(density) {
+                    drawable?.toBitmap()
+                }
+
+                return ImageRequest.Builder(context)
+                    .data(icon)
+                    .crossfade(true)
+                    .build()
+            }
+        }
     }
 
     data class SuperUserScreenState(
