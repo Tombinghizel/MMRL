@@ -100,5 +100,12 @@ fun AppearanceScreen() {
                 }
             }
         }
+
+        SwitchItem(
+            checked = userPreferences.hideBottomBarLabels,
+            onChange = viewModel::setHideBottomBarLabels
+        ) {
+            Title(R.string.settings_hide_bottom_bar_labels)
+        }
     }
 }

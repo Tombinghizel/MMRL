@@ -331,6 +331,14 @@ class UserPreferencesDataSource @Inject constructor(
         }
     }
 
+    suspend fun setHideBottomBarLabels(value: Boolean) = withContext(Dispatchers.IO) {
+        userPreferences.updateData {
+            it.copy(
+                hideBottomBarLabels = value
+            )
+        }
+    }
+
     suspend fun setWebUIEngine(value: WebUIEngine) = withContext(Dispatchers.IO) {
         userPreferences.updateData {
             it.copy(

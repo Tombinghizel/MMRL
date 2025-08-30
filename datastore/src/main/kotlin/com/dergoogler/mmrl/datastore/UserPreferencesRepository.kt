@@ -125,6 +125,9 @@ class UserPreferencesRepository @Inject constructor(
     suspend fun setEnableToolbarEvents(value: Boolean) =
         userPreferencesDataSource.setEnableToolbarEvents(value)
 
+    suspend fun setHideBottomBarLabels(value: Boolean) =
+        userPreferencesDataSource.setHideBottomBarLabels(value)
+
     suspend fun setWebUIEngine(value: WebUIEngine) =
         userPreferencesDataSource.setWebUIEngine(value)
 }

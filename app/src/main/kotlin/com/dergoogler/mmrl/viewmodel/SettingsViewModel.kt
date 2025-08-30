@@ -271,6 +271,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setHideBottomBarLabels(value: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setHideBottomBarLabels(value)
+        }
+    }
+
     fun setWebUIEngine(value: WebUIEngine) {
         viewModelScope.launch {
             userPreferencesRepository.setWebUIEngine(value)

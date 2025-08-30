@@ -72,6 +72,7 @@ data class UserPreferences(
     @ProtoNumber(39) val devAlwaysShowUpdateAlert: Boolean = false,
     @ProtoNumber(40) val webuixPackageName: String = "com.dergoogler.mmrl.wx${if (BuildConfig.DEBUG) ".debug" else ""}",
     @ProtoNumber(41) val enableBlur: Boolean = true,
+    @ProtoNumber(42) val hideBottomBarLabels: Boolean = false,
 ) {
     fun isDarkMode() = when (darkMode) {
         DarkMode.AlwaysOff -> false

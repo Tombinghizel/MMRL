@@ -32,6 +32,7 @@
     <string name="license_fsf_libre">FSF Libre</string>
     <!-- Page -->
     <string name="page_home">Home</string>
+    <string name="page_superuser">SuperUser</string>
     <string name="page_repository">Repository</string>
     <string name="page_modules">Modules</string>
     <string name="page_settings">Settings</string>
@@ -437,4 +438,5 @@
     <string name="settings_set_spoofed_wxp_desc">Set a custom spoofed WebUI X Portable Package name.</string>
     <string name="settings_enable_blur">Enable Blur</string>
     <string name="settings_enable_blur_desc">Enabled blur effect in components</string>
+    <string name="settings_hide_bottom_bar_labels">Hide Bottom Bar Lables</string>
 </resources>

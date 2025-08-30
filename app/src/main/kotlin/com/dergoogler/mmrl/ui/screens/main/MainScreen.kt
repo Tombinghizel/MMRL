@@ -46,6 +46,7 @@ import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
 import com.dergoogler.mmrl.ui.component.toolbar.BlurBottomToolbar
 import com.dergoogler.mmrl.ui.navigation.MainDestination
+import com.dergoogler.mmrl.ui.navigation.isAccessible
 import com.dergoogler.mmrl.ui.providable.LocalBulkInstall
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
@@ -53,7 +54,6 @@ import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.ui.remember.rememberIsRoot
 import com.dergoogler.mmrl.ui.remember.rememberUpdatableModuleCount
 import com.dergoogler.mmrl.utils.initPlatform
 import com.dergoogler.mmrl.viewmodel.BulkInstallViewModel
@@ -117,6 +117,8 @@ fun MainScreen() {
                                 ) { screen ->
                                     val isSelected by navController.isRouteOnBackStackAsState(screen.direction)
 
+                                    if (!screen.isAccessible) return@items
+
                                     NavigationDrawerItem(
                                         icon = {
                                             BaseNavIcon(screen, isSelected, updates)
@@ -139,7 +141,7 @@ fun MainScreen() {
                                                 launchSingleTop = true
                                                 restoreState = true
                                             }
-                                        }
+                                        },
                                     )
                                 }
                             }
@@ -195,6 +197,7 @@ private fun CurrentNavHost(modifier: Modifier = Modifier) {
 
 @Composable
 private fun BottomNav(updates: Int) {
+    val prefs = LocalUserPreferences.current
     val navigator = LocalDestinationsNavigator.current
     val navController = LocalNavController.current
 
@@ -205,8 +208,7 @@ private fun BottomNav(updates: Int) {
         MainDestination.entries.forEach { screen ->
             val isSelected by navController.isRouteOnBackStackAsState(screen.direction)
 
-            val isRoot = rememberIsRoot()
-            if (screen.requiresRoot && !isRoot) return@forEach
+            if (!screen.isAccessible) return@forEach
 
             NavigationBarItem(
                 icon = {
@@ -218,7 +220,7 @@ private fun BottomNav(updates: Int) {
                         style = MaterialTheme.typography.labelLarge
                     )
                 },
-                alwaysShowLabel = true,
+                alwaysShowLabel = !prefs.hideBottomBarLabels,
                 selected = isSelected,
                 onClick = {
                     if (isSelected) {
@@ -239,6 +241,7 @@ private fun BottomNav(updates: Int) {
 
 @Composable
 private fun RailNav(updates: Int) {
+    val prefs= LocalUserPreferences.current
     val navigator = LocalDestinationsNavigator.current
     val navController = LocalNavController.current
 
@@ -250,8 +253,7 @@ private fun RailNav(updates: Int) {
         MainDestination.entries.forEach { screen ->
             val isSelected by navController.isRouteOnBackStackAsState(screen.direction)
 
-            val isRoot = rememberIsRoot()
-            if (screen.requiresRoot && !isRoot) return@forEach
+            if (!screen.isAccessible) return@forEach
 
             NavigationRailItem(
                 icon = {
@@ -263,7 +265,7 @@ private fun RailNav(updates: Int) {
                         style = MaterialTheme.typography.labelLarge
                     )
                 },
-                alwaysShowLabel = true,
+                alwaysShowLabel = !prefs.hideBottomBarLabels,
                 selected = isSelected,
                 onClick = {
                     if (isSelected) {
