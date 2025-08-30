@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -25,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,79 +70,89 @@ fun RootProfileConfig(
             )
         }
 
-        /*
         var expanded by remember { mutableStateOf(false) }
         val currentNamespace = when (profile.namespace) {
-            Natives.Profile.Namespace.INHERITED.ordinal -> stringResource(R.string.profile_namespace_inherited)
-            Natives.Profile.Namespace.GLOBAL.ordinal -> stringResource(R.string.profile_namespace_global)
-            Natives.Profile.Namespace.INDIVIDUAL.ordinal -> stringResource(R.string.profile_namespace_individual)
+            Profile.Namespace.INHERITED.ordinal -> stringResource(R.string.profile_namespace_inherited)
+            Profile.Namespace.GLOBAL.ordinal -> stringResource(R.string.profile_namespace_global)
+            Profile.Namespace.INDIVIDUAL.ordinal -> stringResource(R.string.profile_namespace_individual)
             else -> stringResource(R.string.profile_namespace_inherited)
         }
-        ListItem(headlineContent = {
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                        .fillMaxWidth(),
-                    readOnly = true,
-                    label = { Text(stringResource(R.string.profile_namespace)) },
-                    value = currentNamespace,
-                    onValueChange = {},
-                    trailingIcon = {
-                        if (expanded) Icon(Icons.Filled.ArrowDropUp, null)
-                        else Icon(Icons.Filled.ArrowDropDown, null)
-                    },
-                )
-                ExposedDropdownMenu(
+
+        ListItem(
+            headlineContent = {
+                ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onExpandedChange = { expanded = !expanded }
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.profile_namespace_inherited)) },
-                        onClick = {
-                            onProfileChange(profile.copy(namespace = Natives.Profile.Namespace.INHERITED.ordinal))
-                            expanded = false
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth(),
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.profile_namespace)) },
+                        value = currentNamespace,
+                        onValueChange = {},
+                        trailingIcon = {
+                            R.drawable.caret_down_filled
+                            if (expanded) Icon(painterResource(R.drawable.caret_up_filled), null)
+                            else Icon(painterResource(R.drawable.caret_down_filled), null)
                         },
                     )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.profile_namespace_global)) },
-                        onClick = {
-                            onProfileChange(profile.copy(namespace = Natives.Profile.Namespace.GLOBAL.ordinal))
-                            expanded = false
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.profile_namespace_individual)) },
-                        onClick = {
-                            onProfileChange(profile.copy(namespace = Natives.Profile.Namespace.INDIVIDUAL.ordinal))
-                            expanded = false
-                        },
-                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.profile_namespace_inherited)) },
+                            onClick = {
+                                onProfileChange(profile.copy(namespace = Profile.Namespace.INHERITED.ordinal))
+                                expanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.profile_namespace_global)) },
+                            onClick = {
+                                onProfileChange(profile.copy(namespace = Profile.Namespace.GLOBAL.ordinal))
+                                expanded = false
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.profile_namespace_individual)) },
+                            onClick = {
+                                onProfileChange(profile.copy(namespace = Profile.Namespace.INDIVIDUAL.ordinal))
+                                expanded = false
+                            },
+                        )
+                    }
                 }
             }
-        })
-        */
+        )
 
-        UidPanel(uid = profile.uid, label = "uid", onUidChange = {
-            onProfileChange(
-                profile.copy(
-                    uid = it,
-                    rootUseDefault = false
+        UidPanel(
+            uid = profile.uid,
+            label = "uid",
+            onUidChange = {
+                onProfileChange(
+                    profile.copy(
+                        uid = it,
+                        rootUseDefault = false
+                    )
                 )
-            )
-        })
+            }
+        )
 
-        UidPanel(uid = profile.gid, label = "gid", onUidChange = {
-            onProfileChange(
-                profile.copy(
-                    gid = it,
-                    rootUseDefault = false
+        UidPanel(
+            uid = profile.gid,
+            label = "gid",
+            onUidChange = {
+                onProfileChange(
+                    profile.copy(
+                        gid = it,
+                        rootUseDefault = false
+                    )
                 )
-            )
-        })
+            }
+        )
 
         val selectedGroups = profile.groups.ifEmpty { listOf(0) }.let { e ->
             e.mapNotNull { g ->

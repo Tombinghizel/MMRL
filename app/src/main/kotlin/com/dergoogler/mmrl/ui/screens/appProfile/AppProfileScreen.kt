@@ -5,9 +5,11 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -33,6 +35,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -50,6 +53,7 @@ import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.platform.ksu.Profile
 import com.dergoogler.mmrl.ui.component.listItem.ListSwitchItem
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalSuperUserViewModel
 import com.dergoogler.mmrl.ui.screens.appProfile.items.AppProfileConfig
@@ -88,6 +92,10 @@ fun AppProfileScreen(
         mutableStateOf(initialProfile)
     }
 
+    val icon = remember {
+        appInfo.loadIcon(context)
+    }
+
     Scaffold(
         modifier = Modifier
             .nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -107,7 +115,7 @@ fun AppProfileScreen(
             appLabel = appInfo.label,
             appIcon = {
                 AsyncImage(
-                    model = appInfo.loadIcon(context),
+                    model = icon,
                     contentDescription = appInfo.label,
                     modifier = Modifier
                         .padding(4.dp)
@@ -153,6 +161,7 @@ private fun AppProfileInner(
     profile: Profile,
     onProfileChange: (Profile) -> Unit,
 ) {
+    val bottomBarPaddingValues = LocalMainScreenInnerPaddings.current
     val isRootGranted = profile.allowSu
 
     Column(
@@ -226,6 +235,8 @@ private fun AppProfileInner(
                 }
             }
         }
+
+        Spacer(Modifier.height(bottomBarPaddingValues.calculateBottomPadding()))
     }
 }
 
