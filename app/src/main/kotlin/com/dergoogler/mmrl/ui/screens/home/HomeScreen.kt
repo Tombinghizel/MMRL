@@ -234,6 +234,7 @@ fun HomeScreen() = LocalScreenProvider {
                                     }
                                 )
                             }
+
                             scope.Item {
                                 Icon(painter = painterResource(R.drawable.cpu_2))
                                 Title(R.string.architecture)

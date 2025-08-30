@@ -1,15 +1,13 @@
 package com.dergoogler.mmrl.utils
 
-import android.R.id.input
-import android.content.ComponentName
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import com.dergoogler.mmrl.App
 import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.datastore.model.UserPreferences
 import com.dergoogler.mmrl.datastore.model.WebUIEngine
@@ -17,15 +15,15 @@ import com.dergoogler.mmrl.ext.findActivity
 import com.dergoogler.mmrl.ext.toFormattedDateSafely
 import com.dergoogler.mmrl.modconf.helper.ModConfLauncher
 import com.dergoogler.mmrl.model.local.LocalModule
+import com.dergoogler.mmrl.platform.PlatformManager
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasModConf
 import com.dergoogler.mmrl.platform.content.LocalModule.Companion.hasWebUI
-import com.dergoogler.mmrl.platform.model.ModId
+import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.platform.model.toModuleConfig
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.dergoogler.mmrl.webui.helper.WebUILauncher
 import com.topjohnwu.superuser.NoShellException
 import com.topjohnwu.superuser.Shell
-import org.apache.commons.compress.harmony.pack200.PackingUtils.config
 
 val Float.toFormattedDateSafely: String
     @Composable
@@ -66,6 +64,7 @@ fun createRootShell(
     return builder.build(*commands)
 }
 
+@SuppressLint("MissingPermission")
 @Composable
 fun UserPreferences.webUILauncher(context: Context, module: LocalModule): () -> Unit {
     val modId = module.id
@@ -100,7 +99,8 @@ fun UserPreferences.webUILauncher(context: Context, module: LocalModule): () -> 
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
         if (!result.allGranted { perm ->
-                Toast.makeText(context, "Permission denied! Requires $perm", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Permission denied! Requires $perm", Toast.LENGTH_SHORT)
+                    .show()
             }
         ) return@rememberLauncherForActivityResult
 
@@ -115,7 +115,8 @@ fun UserPreferences.webUILauncher(context: Context, module: LocalModule): () -> 
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
         if (!result.allGranted { perm ->
-                Toast.makeText(context, "Permission denied! Requires $perm", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Permission denied! Requires $perm", Toast.LENGTH_SHORT)
+                    .show()
             }
         ) return@rememberLauncherForActivityResult
 
@@ -130,6 +131,7 @@ fun UserPreferences.webUILauncher(context: Context, module: LocalModule): () -> 
                     }
                 }
             } ?: WebUIEngine.WX
+
             else -> webuiEngine
         }
 
@@ -149,7 +151,14 @@ fun UserPreferences.webUILauncher(context: Context, module: LocalModule): () -> 
                     webuiLauncher.permissions.WEBUI_LEGACY
                 )
             )
+
             else -> Toast.makeText(context, "Unsupported module", Toast.LENGTH_SHORT).show()
         }
     }
 }
+
+val KsuNative.isManager: Boolean
+    get() {
+        val pkg = App.context.packageName
+        return PlatformManager.platform.isKernelSU && becomeManager(pkg)
+    }
