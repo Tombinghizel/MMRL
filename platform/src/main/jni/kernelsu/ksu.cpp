@@ -75,21 +75,7 @@ bool get_app_profile(p_key_t key, app_profile *profile) {
 	return ksuctl(CMD_GET_APP_PROFILE, (void*) profile, nullptr);
 }
 
-// ksu_set_policy using prctl
 bool ksu_set_policy(const FfiPolicy* policy) {
 	if (!policy) return false;
-	uint32_t result = 0;
-
-	int ret = prctl(
-			KERNEL_SU_OPTION,          // option (overflowed like Rust)
-			CMD_SET_SEPOLICY,          // sub-command
-			(void*)policy,             // policy struct pointer
-			nullptr,                   // reserved
-			&result                    // pointer to result
-	);
-
-	// prctl returns -1 on error, otherwise 0
-	if (ret != 0) return false;
-
-	return result == static_cast<uint32_t>(KERNEL_SU_OPTION);
+	return ksuctl(CMD_SET_SEPOLICY, (void*) policy, nullptr);
 }
