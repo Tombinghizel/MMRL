@@ -28,23 +28,6 @@ fun AppProfileConfig(
             )
         }
 
-        ListSwitchItem(
-            title = stringResource(R.string.settings_umount_modules_default),
-            desc = stringResource(R.string.settings_umount_modules_default_summary),
-            checked = if (enabled) {
-                profile.umountModules
-            } else {
-                KsuNative.isDefaultUmountModules()
-            },
-            enabled = enabled,
-            onChange = {
-                onProfileChange(
-                    profile.copy(
-                        umountModules = it,
-                        nonRootUseDefault = false
-                    )
-                )
-            }
-        )
+
     }
 }

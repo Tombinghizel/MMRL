@@ -443,11 +443,15 @@
     <string name="settings_hide_bottom_bar_labels">Hide Bottom Bar Lables</string>
     <string name="failed_to_update_app_profile">Failed to update App Profile for %s</string>
     <string name="failed_to_update_sepolicy">Failed to update SELinux rules for %s</string>
-    <string name="su_not_allowed">Couldn\\\'t grant Superuser access to %s</string>
+    <string name="su_not_allowed">Couldn\'t grant Superuser access to %s</string>
     <string name="profile_default">Default</string>
     <string name="profile_custom">Custom</string>
+    <string name="profile_custom_desc">Create your own profile with flexible options, including rules, permissions, security context, and more.</string>
+    <string name="profile_edit_custom">Edit Custom Profile</string>
+    <string name="profile_edit_custom_desc">Modify the settings of your custom profile.</string>
     <string name="profile">App Profile</string>
-    <string name="allow_root">Allow Root</string>
+    <string name="allow_root_access">Enable Root Access</string>
+    <string name="allow_root_access_desc">Granting root access gives this app advanced control over your device, including system files and settings.</string>
     <string name="profile_name">Profile Name</string>
     <string name="profile_groups">Groups</string>
     <string name="profile_selinux_rules">Rules</string>

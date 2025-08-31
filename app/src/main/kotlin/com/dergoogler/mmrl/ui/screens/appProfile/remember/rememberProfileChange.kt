@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.platform.ksu.Profile
@@ -68,7 +69,7 @@ fun rememberProfileChange(info: SuperUserViewModel.AppInfo): Pair<Profile, (Prof
 private data class ErrorMessages(
     val failToUpdateAppProfile: Int,
     val failToUpdateSepolicy: Int,
-    val suNotAllowed: Int
+    val suNotAllowed: Int,
 )
 
 private sealed class UpdateResult {
@@ -82,7 +83,7 @@ private suspend fun updateProfileSafely(
     profile: Profile,
     info: SuperUserViewModel.AppInfo,
     errorMessages: ErrorMessages,
-    snackBarHost: SnackbarHostState
+    snackBarHost: SnackbarHostState,
 ): UpdateResult {
     if (profile.allowSu) {
         // Validate system UID restrictions
@@ -121,4 +122,8 @@ private fun isSystemUidForbidden(uid: Int): Boolean {
 
 private fun shouldUpdateSepolicy(profile: Profile): Boolean {
     return !profile.rootUseDefault && profile.rules.isNotEmpty()
+}
+
+val LocalProfileChange = staticCompositionLocalOf<Pair<Profile, (Profile) -> Unit>> {
+    error("CompositionLocal LocalProfileChange not present")
 }

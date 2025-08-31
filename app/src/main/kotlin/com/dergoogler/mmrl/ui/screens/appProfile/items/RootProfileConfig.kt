@@ -10,13 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -29,17 +25,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.platform.ksu.Capabilities
 import com.dergoogler.mmrl.platform.ksu.Groups
 import com.dergoogler.mmrl.platform.ksu.Profile
+import com.dergoogler.mmrl.platform.ksu.Profile.Namespace
+import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Section
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.DialogSupportingText
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.utils.SePolicy.isSepolicyValid
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
@@ -55,82 +58,40 @@ import com.maxkeppeler.sheets.list.models.ListSelection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RootProfileConfig(
+fun ListScope.RootProfileConfig(
     modifier: Modifier = Modifier,
     fixedName: Boolean,
     profile: Profile,
     onProfileChange: (Profile) -> Unit,
 ) {
-    Column(modifier = modifier) {
-        if (!fixedName) {
-            OutlinedTextField(
-                label = { Text(stringResource(R.string.profile_name)) },
-                value = profile.name,
-                onValueChange = { onProfileChange(profile.copy(name = it)) }
-            )
-        }
+//    Column(modifier = modifier) {
+//        if (!fixedName) {
+//            OutlinedTextField(
+//                label = { Text(stringResource(R.string.profile_name)) },
+//                value = profile.name,
+//                onValueChange = { onProfileChange(profile.copy(name = it)) }
+//            )
+//        }
 
-        var expanded by remember { mutableStateOf(false) }
-        val currentNamespace = when (profile.namespace) {
-            Profile.Namespace.INHERITED.ordinal -> stringResource(R.string.profile_namespace_inherited)
-            Profile.Namespace.GLOBAL.ordinal -> stringResource(R.string.profile_namespace_global)
-            Profile.Namespace.INDIVIDUAL.ordinal -> stringResource(R.string.profile_namespace_individual)
-            else -> stringResource(R.string.profile_namespace_inherited)
-        }
-
-        ListItem(
-            headlineContent = {
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                            .fillMaxWidth(),
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.profile_namespace)) },
-                        value = currentNamespace,
-                        onValueChange = {},
-                        trailingIcon = {
-                            R.drawable.caret_down_filled
-                            if (expanded) Icon(painterResource(R.drawable.caret_up_filled), null)
-                            else Icon(painterResource(R.drawable.caret_down_filled), null)
-                        },
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.profile_namespace_inherited)) },
-                            onClick = {
-                                onProfileChange(profile.copy(namespace = Profile.Namespace.INHERITED.ordinal))
-                                expanded = false
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.profile_namespace_global)) },
-                            onClick = {
-                                onProfileChange(profile.copy(namespace = Profile.Namespace.GLOBAL.ordinal))
-                                expanded = false
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.profile_namespace_individual)) },
-                            onClick = {
-                                onProfileChange(profile.copy(namespace = Profile.Namespace.INDIVIDUAL.ordinal))
-                                expanded = false
-                            },
-                        )
-                    }
-                }
+    Section(
+        title = stringResource(R.string.profile_custom)
+    ) {
+        RadioDialogItem(
+            selection = profile.namespace,
+            options = NamespaceOptions,
+            onConfirm = {
+                onProfileChange(profile.copy(namespace = it.value))
             }
-        )
+        ) {
+            Title(R.string.profile_namespace)
+            it.title.nullable { t ->
+                Description(t)
+            }
+        }
 
         UidPanel(
             uid = profile.uid,
-            label = "uid",
+            label = "User Identifier (UID)",
             onUidChange = {
                 onProfileChange(
                     profile.copy(
@@ -143,7 +104,7 @@ fun RootProfileConfig(
 
         UidPanel(
             uid = profile.gid,
-            label = "gid",
+            label = "Group Identifier (GID)",
             onUidChange = {
                 onProfileChange(
                     profile.copy(
@@ -154,35 +115,39 @@ fun RootProfileConfig(
             }
         )
 
-        val selectedGroups = profile.groups.ifEmpty { listOf(0) }.let { e ->
-            e.mapNotNull { g ->
-                Groups.entries.find { it.gid == g }
-            }
-        }
+    }
 
-        GroupsPanel(selectedGroups) {
-            onProfileChange(
-                profile.copy(
-                    groups = it.map { group -> group.gid }.ifEmpty { listOf(0) },
-                    rootUseDefault = false
-                )
+    val selectedGroups = profile.groups.ifEmpty { listOf(0) }.let { e ->
+        e.mapNotNull { g ->
+            Groups.entries.find { it.gid == g }
+        }
+    }
+
+    GroupsPanel(selectedGroups) {
+        onProfileChange(
+            profile.copy(
+                groups = it.map { group -> group.gid }.ifEmpty { listOf(0) },
+                rootUseDefault = false
             )
-        }
+        )
+    }
 
-        val selectedCaps = profile.capabilities.mapNotNull { e ->
-            Capabilities.entries.find { it.cap == e }
-        }
+    val selectedCaps = profile.capabilities.mapNotNull { e ->
+        Capabilities.entries.find { it.cap == e }
+    }
 
-        CapsPanel(selectedCaps) {
-            onProfileChange(
-                profile.copy(
-                    capabilities = it.map { cap -> cap.cap },
-                    rootUseDefault = false
-                )
+    CapsPanel(selectedCaps) {
+        onProfileChange(
+            profile.copy(
+                capabilities = it.map { cap -> cap.cap },
+                rootUseDefault = false
             )
-        }
+        )
+    }
 
-        SELinuxPanel(profile = profile, onSELinuxChange = { domain, rules ->
+    SELinuxPanel(
+        profile = profile,
+        onSELinuxChange = { domain, rules ->
             onProfileChange(
                 profile.copy(
                     context = domain,
@@ -190,9 +155,8 @@ fun RootProfileConfig(
                     rootUseDefault = false
                 )
             )
-        })
-
-    }
+        }
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -354,48 +318,46 @@ fun CapsPanel(
 }
 
 @Composable
-private fun UidPanel(uid: Int, label: String, onUidChange: (Int) -> Unit) {
-    ListItem(
-        headlineContent = {
-            var isError by remember {
-                mutableStateOf(false)
+private fun ListScope.UidPanel(uid: Int, label: String, onUidChange: (Int) -> Unit) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    var lastValidUid by remember {
+        mutableIntStateOf(uid)
+    }
+
+    TextEditDialogItem(
+        value = uid.toString(),
+        onValid = {
+            isTextValidUid(it)
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(onDone = {
+            keyboardController?.hide()
+        }),
+        onConfirm = {
+            if (it.isEmpty()) {
+                onUidChange(0)
+                return@TextEditDialogItem
             }
-            var lastValidUid by remember {
-                mutableIntStateOf(uid)
+            val valid = isTextValidUid(it)
+
+            val targetUid = if (valid) it.toInt() else lastValidUid
+            if (valid) {
+                lastValidUid = it.toInt()
             }
-            val keyboardController = LocalSoftwareKeyboardController.current
 
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(label) },
-                value = uid.toString(),
-                isError = isError,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(onDone = {
-                    keyboardController?.hide()
-                }),
-                onValueChange = {
-                    if (it.isEmpty()) {
-                        onUidChange(0)
-                        return@OutlinedTextField
-                    }
-                    val valid = isTextValidUid(it)
-
-                    val targetUid = if (valid) it.toInt() else lastValidUid
-                    if (valid) {
-                        lastValidUid = it.toInt()
-                    }
-
-                    onUidChange(targetUid)
-
-                    isError = !valid
-                }
-            )
+            onUidChange(targetUid)
         }
-    )
+    ) {
+        Title(label)
+        Description(it.value)
+        if (it.isError) {
+            DialogSupportingText("Invalid Input!")
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -496,14 +458,23 @@ private fun SELinuxPanel(
     )
 }
 
-@Preview
-@Composable
-private fun RootProfileConfigPreview() {
-    var profile by remember { mutableStateOf(Profile("")) }
-    RootProfileConfig(fixedName = true, profile = profile) {
-        profile = it
+
+@get:Composable
+private val NamespaceOptions: List<RadioDialogItem<Int>>
+    get() {
+        return enumValues<Namespace>().map {
+            val title = when (it) {
+                Namespace.INHERITED -> stringResource(R.string.profile_namespace_inherited)
+                Namespace.GLOBAL -> stringResource(R.string.profile_namespace_global)
+                Namespace.INDIVIDUAL -> stringResource(R.string.profile_namespace_individual)
+            }
+
+            RadioDialogItem(
+                value = it.ordinal,
+                title = title
+            )
+        }
     }
-}
 
 private fun isTextValidUid(text: String): Boolean {
     return text.isNotEmpty() && text.isDigitsOnly() && text.toInt() >= 0 && text.toInt() <= Int.MAX_VALUE
