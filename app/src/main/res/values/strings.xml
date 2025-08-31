@@ -461,11 +461,13 @@
     <string name="profile_selinux_context">SELinux Context</string>
     <string name="profile_selinux_context_invalid">Invalid Context!</string>
     <string name="settings_umount_modules_default">Umount modules</string>
-    <string name="settings_umount_modules_default_summary">The global default value for \"Umount modules\" in App Profile. If enabled, it will remove all module modifications to the system for apps that don\'t have a profile set.</string>
+    <string name="settings_umount_modules_default_desc">The global default value for \"Umount modules\" in App Profile. If enabled, it will remove all module modifications to the system for apps that don\'t have a profile set.</string>
     <string name="profile_selinux_domain">Domain</string>
     <string name="profile_namespace">Mount namespace</string>
     <string name="profile_namespace_inherited">Inherited</string>
     <string name="profile_namespace_global">Global</string>
     <string name="profile_namespace_individual">Individual</string>
     <string name="empty">Empty</string>
+    <string name="settings_disable_su">Disable su compatibility</string>
+    <string name="settings_disable_su_desc">Temporarily disable the ability of any app to gain root privileges via the ⁠su command (Existing root processes won\'t be affected).</string>
 </resources>

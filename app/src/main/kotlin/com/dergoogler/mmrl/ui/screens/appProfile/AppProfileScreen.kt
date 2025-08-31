@@ -195,7 +195,7 @@ fun AppProfileScreen(
                             }
                         ) {
                             Title(R.string.settings_umount_modules_default)
-                            Description(R.string.settings_umount_modules_default_summary)
+                            Description(R.string.settings_umount_modules_default_desc)
                         }
                     }
                 }

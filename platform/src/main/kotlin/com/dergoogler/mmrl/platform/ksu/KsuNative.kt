@@ -3,6 +3,7 @@
 package com.dergoogler.mmrl.platform.ksu
 
 import com.dergoogler.mmrl.platform.AtomicStatement
+import com.dergoogler.mmrl.platform.PlatformManager
 
 object KsuNative {
     // minimal supported kernel version
@@ -73,7 +74,7 @@ object KsuNative {
     external fun applyPolicyRules(statements: Array<AtomicStatement>, strict: Boolean): Boolean
 
     fun requireNewKernel(): Boolean {
-        return getVersion() < MINIMAL_SUPPORTED_KERNEL
+        return getVersion() < PlatformManager.type.MINIMAL_SUPPORTED_KERNEL
     }
 
     /**

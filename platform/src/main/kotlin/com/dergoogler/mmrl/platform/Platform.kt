@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "PropertyName")
 
 package com.dergoogler.mmrl.platform
 
@@ -14,14 +14,37 @@ import android.util.Log
  * particularly distinguishing between various root solutions and non-root environments.
  */
 sealed class PlatformType(val id: String) {
+    open val MINIMAL_SUPPORTED_SU_COMPAT: Int = -1
+    open val MINIMAL_SUPPORTED_KERNEL_LKM: Int = -1
+    open val MINIMAL_SUPPORTED_KERNEL: Int = -1
+
+    // KernelSU Next
+    open val MINIMAL_SUPPORTED_HOOK_MODE = -1
+    open val MINIMAL_SUPPORTED_MANAGER_UID = -1
+
+    // SukiSU Ultra
+    open val MINIMAL_SUPPORTED_KERNEL_FULL = ""
+    open val MINIMAL_SUPPORTED_KPM = -1
+    open val MINIMAL_SUPPORTED_DYNAMIC_MANAGER = -1
+
     /** Represents the Magisk platform. */
     data object Magisk : PlatformType("magisk")
 
     /** Represents the base class for KernelSU and its variants. */
-    open class KernelSU(id: String = "kernelsu") : PlatformType(id)
+    open class KernelSU(id: String = "kernelsu") : PlatformType(id) {
+        override val MINIMAL_SUPPORTED_KERNEL = 11071
+        override val MINIMAL_SUPPORTED_KERNEL_LKM = 11648
+        override val MINIMAL_SUPPORTED_SU_COMPAT = 12040
+    }
 
     /** Represents the KernelSU Next Gen variant, inheriting from [KernelSU]. */
-    data object KernelSuNext : KernelSU("ksunext")
+    data object KernelSuNext : KernelSU("ksunext") {
+        override val MINIMAL_SUPPORTED_KERNEL = 12797
+        override val MINIMAL_SUPPORTED_KERNEL_LKM = 12797
+        override val MINIMAL_SUPPORTED_SU_COMPAT = 12404
+        override val MINIMAL_SUPPORTED_HOOK_MODE = 12569
+        override val MINIMAL_SUPPORTED_MANAGER_UID = 12751
+    }
 
     /** Represents the APatch platform. */
     data object APatch : PlatformType("apatch")
@@ -30,10 +53,21 @@ sealed class PlatformType(val id: String) {
     data object MKSU : KernelSU("mksu")
 
     /** Represents the SukiSU variant, inheriting from [KernelSU]. */
-    data object SukiSU : KernelSU("sukisu")
+    data object SukiSU : KernelSU("sukisu") {
+        override val MINIMAL_SUPPORTED_KERNEL = 11071
+        override val MINIMAL_SUPPORTED_KERNEL_LKM = 11648
+        override val MINIMAL_SUPPORTED_SU_COMPAT = 12040
+        override val MINIMAL_SUPPORTED_KERNEL_FULL = "v3.1.5"
+        override val MINIMAL_SUPPORTED_KPM = 12800
+        override val MINIMAL_SUPPORTED_DYNAMIC_MANAGER = 13215
+    }
 
     /** Represents the RKSU variant, inheriting from [KernelSU]. */
-    data object RKSU : KernelSU("rksu")
+    data object RKSU : KernelSU("rksu") {
+        override val MINIMAL_SUPPORTED_SU_COMPAT: Int = 12071
+        override val MINIMAL_SUPPORTED_KERNEL_LKM: Int = 11648
+        override val MINIMAL_SUPPORTED_KERNEL: Int = 11071
+    }
 
     /**
      * Represents the Shizuku platform, which provides a way to use system APIs
