@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -46,7 +45,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.dergoogler.mmrl.R
-import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.platform.ksu.Profile
 import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.listItem.ListSwitchItem
@@ -55,16 +53,14 @@ import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalHazeState
 import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
-import com.dergoogler.mmrl.ui.providable.LocalSuperUserViewModel
 import com.dergoogler.mmrl.ui.screens.appProfile.items.AppProfileConfig
 import com.dergoogler.mmrl.ui.screens.appProfile.items.RootProfileConfig
-import com.dergoogler.mmrl.utils.SePolicy.getSepolicy
+import com.dergoogler.mmrl.ui.screens.appProfile.remember.rememberProfileChange
 import com.dergoogler.mmrl.viewmodel.SuperUserViewModel
 import com.dergoogler.mmrl.viewmodel.SuperUserViewModel.AppInfo.Companion.loadIcon
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import dev.chrisbanes.haze.hazeSource
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
@@ -75,22 +71,8 @@ fun AppProfileScreen(
     val context = LocalContext.current
     val snackBarHost = LocalSnackbarHost.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val scope = rememberCoroutineScope()
-    val viewModel = LocalSuperUserViewModel.current
-    val failToUpdateAppProfile =
-        stringResource(R.string.failed_to_update_app_profile, appInfo.label)
-    val failToUpdateSepolicy =
-        stringResource(R.string.failed_to_update_sepolicy, appInfo.label)
-    val suNotAllowed = stringResource(R.string.su_not_allowed, appInfo.label)
 
-    val packageName = appInfo.packageName
-    val initialProfile = KsuNative.getAppProfile(packageName, appInfo.uid)
-    if (initialProfile.allowSu) {
-        initialProfile.rules = getSepolicy(packageName)
-    }
-    var profile by rememberSaveable {
-        mutableStateOf(initialProfile)
-    }
+    val (profile, onProfileChange) = rememberProfileChange(appInfo)
 
     val icon = remember {
         appInfo.loadIcon(context)
@@ -123,31 +105,7 @@ fun AppProfileScreen(
                 )
             },
             profile = profile,
-            onProfileChange = {
-                scope.launch {
-                    if (it.allowSu) {
-                        // sync with allowlist.c - forbid_system_uid
-                        if (appInfo.uid < 2000 && appInfo.uid != 1000) {
-                            snackBarHost.showSnackbar(suNotAllowed)
-                            return@launch
-                        }
-                        if (!it.rootUseDefault && it.rules.isNotEmpty() /*&& !setSepolicy(
-                                profile.name,
-                                it.rules
-                            )*/
-                        ) {
-                            snackBarHost.showSnackbar(failToUpdateSepolicy)
-                            return@launch
-                        }
-                    }
-                    if (!KsuNative.setAppProfile(it)) {
-                        snackBarHost.showSnackbar(failToUpdateAppProfile.format(appInfo.uid))
-                    } else {
-                        profile = it
-                        viewModel.updateAppProfile(packageName, it)
-                    }
-                }
-            },
+            onProfileChange = onProfileChange
         )
     }
 }
