@@ -1,19 +1,12 @@
 package com.dergoogler.mmrl.ui.screens.appProfile.items
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -28,7 +21,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.nullable
@@ -36,12 +28,16 @@ import com.dergoogler.mmrl.platform.ksu.Capabilities
 import com.dergoogler.mmrl.platform.ksu.Groups
 import com.dergoogler.mmrl.platform.ksu.Profile
 import com.dergoogler.mmrl.platform.ksu.Profile.Namespace
+import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Item
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Section
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.DialogSupportingText
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.utils.SePolicy.isSepolicyValid
 import com.maxkeppeker.sheets.core.models.base.Header
@@ -161,7 +157,10 @@ fun ListScope.RootProfileConfig(
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun GroupsPanel(selected: List<Groups>, closeSelection: (selection: Set<Groups>) -> Unit) {
+fun ListScope.GroupsPanel(
+    selected: List<Groups>,
+    closeSelection: (selection: Set<Groups>) -> Unit,
+) {
     var selectGroupsDialog by remember { mutableStateOf(false) }
     if (selectGroupsDialog) {
         val groups = Groups.entries.toTypedArray().sortedWith(
@@ -184,6 +183,7 @@ fun GroupsPanel(selected: List<Groups>, closeSelection: (selection: Set<Groups>)
                 selected = selected.contains(value),
             )
         }
+
 
         val selection = HashSet(selected)
         ListDialog(
@@ -213,43 +213,27 @@ fun GroupsPanel(selected: List<Groups>, closeSelection: (selection: Set<Groups>)
         )
     }
 
-    OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+    ButtonItem(
+        onClick = {
+            selectGroupsDialog = true
+        }
     ) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    selectGroupsDialog = true
-                }
-                .padding(16.dp)
-        ) {
-            Text(stringResource(R.string.profile_groups))
-            FlowRow {
-                selected.forEach { group ->
-                    AssistChip(
-                        modifier = Modifier.padding(3.dp),
-                        onClick = { /*TODO*/ },
-                        label = { Text(group.display) })
-                }
+        Title(R.string.profile_groups)
+        Labels {
+            selected.forEach {
+                LabelItem(it.display)
             }
         }
-
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun CapsPanel(
+fun ListScope.CapsPanel(
     selected: Collection<Capabilities>,
     closeSelection: (selection: Set<Capabilities>) -> Unit,
 ) {
-
     var selectCapabilitiesDialog by remember { mutableStateOf(false) }
-
     if (selectCapabilitiesDialog) {
         val caps = Capabilities.entries.toTypedArray().sortedWith(
             compareBy<Capabilities> { if (selected.contains(it)) 0 else 1 }
@@ -290,30 +274,17 @@ fun CapsPanel(
         )
     }
 
-    OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+    ButtonItem(
+        onClick = {
+            selectCapabilitiesDialog = true
+        }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    selectCapabilitiesDialog = true
-                }
-                .padding(16.dp)
-        ) {
-            Text(stringResource(R.string.profile_capabilities))
-            FlowRow {
-                selected.forEach { group ->
-                    AssistChip(
-                        modifier = Modifier.padding(3.dp),
-                        onClick = { /*TODO*/ },
-                        label = { Text(group.display) })
-                }
+        Title(R.string.profile_capabilities)
+        Labels {
+            selected.forEach {
+                LabelItem(it.display)
             }
         }
-
     }
 }
 
@@ -362,12 +333,11 @@ private fun ListScope.UidPanel(uid: Int, label: String, onUidChange: (Int) -> Un
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SELinuxPanel(
+private fun ListScope.SELinuxPanel(
     profile: Profile,
     onSELinuxChange: (domain: String, rules: String) -> Unit,
 ) {
     var editSELinuxDialog by remember { mutableStateOf(false) }
-
     if (editSELinuxDialog) {
         var domain by remember { mutableStateOf(profile.context) }
         var rules by remember { mutableStateOf(profile.rules) }
@@ -435,8 +405,8 @@ private fun SELinuxPanel(
         )
     }
 
-    ListItem(
-        headlineContent = {
+    Item {
+        Title {
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -455,7 +425,7 @@ private fun SELinuxPanel(
                 onValueChange = { }
             )
         }
-    )
+    }
 }
 
 

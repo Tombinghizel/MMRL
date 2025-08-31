@@ -14,10 +14,10 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.AlertDialogDefaults.textContentColor
 import androidx.compose.material3.AlertDialogDefaults.titleContentColor
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.R
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
@@ -46,25 +45,40 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Start
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.token.TypographyKeyTokens
 
-data class RadioDialogItem<T>(
+data class CheckboxItem<T>(
     val value: T,
+    val checked: Boolean = false,
     val title: String? = null,
     val desc: String? = null,
     val enabled: Boolean = true,
 )
 
 @Composable
-fun <T> ListScope.RadioDialogItem(
-    selection: T,
+fun <T> ListScope.CheckboxDialogItem(
     enabled: Boolean = true,
-    options: List<RadioDialogItem<T>>,
-    onConfirm: (RadioDialogItem<T>) -> Unit,
-    content: @Composable (ListItemScope.(RadioDialogItem<T>) -> Unit),
+    multiple: Boolean = false,
+    maxChoices: Int = Int.MAX_VALUE,
+    selection: T? = null, // Single selection for non-multiple mode
+    selections: List<T> = emptyList(), // Multiple selections for multiple mode
+    options: List<CheckboxItem<T>>,
+    onConfirm: (List<CheckboxItem<T>>) -> Unit, // Changed to return list
+    content: @Composable (ListItemScope.(List<CheckboxItem<T>>) -> Unit),
 ) {
     var open by remember { mutableStateOf(false) }
 
-    var selectedOption by remember {
-        mutableStateOf(options.find { it.value == selection } ?: RadioDialogItem(selection))
+    // Initialize selected options based on mode
+    val initialSelectedOptions = remember(selection, selections, options) {
+        if (multiple) {
+            options.filter { option -> selections.contains(option.value) }
+        } else {
+            selection?.let { sel ->
+                options.find { it.value == sel }?.let { listOf(it) }
+            } ?: emptyList()
+        }
+    }
+
+    val selectedOptions by remember {
+        mutableStateOf(initialSelectedOptions)
     }
 
     ButtonItem(
@@ -73,27 +87,28 @@ fun <T> ListScope.RadioDialogItem(
             open = true
         },
         content = {
-            content(selectedOption)
+            content(selectedOptions)
 
             if (open) {
-                this@RadioDialogItem.AlertRadioDialog(
+                this@CheckboxDialogItem.AlertCheckboxDialog(
                     title = {
                         ProvideTitleTypography(
                             token = TypographyKeyTokens.HeadlineSmall
                         ) {
                             this@ButtonItem.FromSlot(ListItemSlot.Title) {
-                                content(selectedOption)
+                                content(selectedOptions)
                             }
                         }
                     },
-                    selection = selection,
+                    multiple = multiple,
+                    maxChoices = maxChoices,
+                    initialSelections = selectedOptions.map { it.value },
                     options = options,
                     onClose = {
                         open = false
                     },
-                    onConfirm = {
-                        selectedOption = it
-                        onConfirm(it)
+                    onConfirm = { confirmedOptions ->
+                        onConfirm(confirmedOptions)
                     }
                 )
             }
@@ -102,22 +117,29 @@ fun <T> ListScope.RadioDialogItem(
 }
 
 @Composable
-private fun <T> ListScope.AlertRadioDialog(
+private fun <T> ListScope.AlertCheckboxDialog(
     title: @Composable () -> Unit,
-    selection: T,
-    options: List<RadioDialogItem<T>>,
+    multiple: Boolean = false,
+    maxChoices: Int = Int.MAX_VALUE,
+    initialSelections: List<T> = emptyList(),
+    options: List<CheckboxItem<T>>,
     onDismiss: (() -> Unit)? = null,
     onClose: () -> Unit,
-    onConfirm: (RadioDialogItem<T>) -> Unit,
+    onConfirm: (List<CheckboxItem<T>>) -> Unit,
 ) {
-    var selectedOption by remember {
-        mutableStateOf(options.find { it.value == selection } ?: RadioDialogItem(selection))
+    var selectedValues by remember {
+        mutableStateOf(initialSelections.toSet())
     }
 
+    val selectedOptions = options.filter { selectedValues.contains(it.value) }
+    val hasReachedMaxChoices = selectedValues.size >= maxChoices
+
     val onDone: () -> Unit = {
-        onConfirm(selectedOption)
+        onConfirm(selectedOptions)
         onClose()
     }
+
+    val canSelectMore = !hasReachedMaxChoices || !multiple
 
     Dialog(
         onDismissRequest = {
@@ -151,33 +173,65 @@ private fun <T> ListScope.AlertRadioDialog(
                     }
                 }
 
+                if (multiple && maxChoices != Int.MAX_VALUE) {
+                    CompositionLocalProvider(LocalContentColor provides textContentColor) {
+                        Text(
+                            text = "Selected: ${selectedValues.size}/$maxChoices",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(horizontal = 25.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+
                 CompositionLocalProvider(LocalContentColor provides textContentColor) {
                     Box {
                         LazyColumn {
+                            stickyHeader {  }
+
                             items(
                                 items = options,
+                                key = { it.value.hashCode() }
                             ) { option ->
-                                val checked = option.value == selectedOption.value
+                                val isChecked = selectedValues.contains(option.value)
                                 val interactionSource = remember { MutableInteractionSource() }
 
                                 if (option.title == null) return@items
 
+                                val isOptionEnabled = option.enabled &&
+                                        (isChecked || canSelectMore || !multiple)
+
                                 Row(
                                     modifier = Modifier
                                         .toggleable(
-                                            enabled = option.enabled,
-                                            value = checked,
-                                            onValueChange = {
-                                                selectedOption = option
+                                            enabled = isOptionEnabled,
+                                            value = isChecked,
+                                            onValueChange = { checked ->
+                                                if (multiple) {
+                                                    selectedValues = if (checked) {
+                                                        if (selectedValues.size < maxChoices) {
+                                                            selectedValues + option.value
+                                                        } else {
+                                                            selectedValues // Don't add if at max
+                                                        }
+                                                    } else {
+                                                        selectedValues - option.value
+                                                    }
+                                                } else {
+                                                    selectedValues = if (checked) {
+                                                        setOf(option.value)
+                                                    } else {
+                                                        emptySet()
+                                                    }
+                                                }
                                             },
-                                            role = Role.RadioButton,
+                                            role = Role.Checkbox,
                                             interactionSource = interactionSource,
                                             indication = ripple()
                                         )
                                         .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    this@AlertRadioDialog.Item(
+                                    this@AlertCheckboxDialog.Item(
                                         contentPadding = PaddingValues(
                                             vertical = 8.dp,
                                             horizontal = 25.dp
@@ -185,15 +239,15 @@ private fun <T> ListScope.AlertRadioDialog(
                                     ) {
                                         Title(option.title)
 
-                                        option.desc.nullable {
+                                        option.desc?.let {
                                             Description(it)
                                         }
 
                                         Start {
-                                            RadioButton(
-                                                enabled = option.enabled,
-                                                selected = checked,
-                                                onClick = null
+                                            Checkbox(
+                                                enabled = isOptionEnabled,
+                                                checked = isChecked,
+                                                onCheckedChange = null
                                             )
                                         }
                                     }
@@ -213,7 +267,10 @@ private fun <T> ListScope.AlertRadioDialog(
                         Text(stringResource(id = R.string.cancel))
                     }
 
-                    TextButton(onClick = onDone) {
+                    TextButton(
+                        onClick = onDone,
+                        enabled = if (multiple) selectedValues.isNotEmpty() else true
+                    ) {
                         Text(stringResource(id = R.string.confirm))
                     }
                 }
