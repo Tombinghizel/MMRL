@@ -23,6 +23,7 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.model.local.FeaturedManager
+import com.dergoogler.mmrl.model.local.FeaturedManager.Companion.name
 import com.dergoogler.mmrl.platform.PlatformManager.isAlive
 import com.dergoogler.mmrl.platform.PlatformManager.platform
 import com.dergoogler.mmrl.ui.component.LabelItem
@@ -118,10 +119,7 @@ internal fun RootItem(
                 Text(
                     text = if (isAlive) {
                         stringResource(
-                            id = R.string.settings_root_provider,
-                            stringResource(
-                                id = manager?.name ?: R.string.settings_root_none
-                            )
+                            id = R.string.settings_root_provider, manager.name
                         )
                     } else {
                         stringResource(
