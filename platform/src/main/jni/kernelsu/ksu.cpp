@@ -77,5 +77,5 @@ bool get_app_profile(p_key_t key, app_profile *profile) {
 
 bool ksu_set_policy(const FfiPolicy* policy) {
 	if (!policy) return false;
-	return ksuctl(CMD_SET_SEPOLICY, (void*) policy, nullptr);
+	return ksuctl(CMD_SET_SEPOLICY, nullptr,(void*) policy);
 }

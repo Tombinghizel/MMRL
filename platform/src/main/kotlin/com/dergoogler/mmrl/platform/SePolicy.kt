@@ -98,13 +98,14 @@ object SePolicy {
 
     private fun applyPolicyRules(pkg: String, rules: String): Boolean {
         return try {
-            val parseResult = SePolicyParser.parseSepolicy(rules, strict = true)
+            val parseResult = SePolicyParser.parseSepolicy(rules, strict = false)
             parseResult.fold(
                 onSuccess = { statements ->
                     // Convert to atomic statements for system application
                     val atomicStatements = statements.flatMap { it.toAtomicStatements() }
 
-                    val success = KsuNative.applyPolicyRules(atomicStatements.toTypedArray(), true)
+                    val success =
+                        KsuNative.applyPolicyRules(atomicStatements.toTypedArray(), strict = false)
                     if (!success) return false
 
                     Log.i(
