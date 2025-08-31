@@ -53,6 +53,96 @@ JNIEXPORT jobject JNICALL
 Java_com_dergoogler_mmrl_platform_ksu_KsuNative_isLkmMode(JNIEnv *env, jobject thiz) {
     return reinterpret_cast<jobject>(is_lkm_mode());
 }
+const char* jbyteArrayToCString(JNIEnv* env, jbyteArray arr) {
+	if (!arr) return nullptr;
+	jsize len = env->GetArrayLength(arr);
+	jbyte* data = env->GetByteArrayElements(arr, nullptr);
+	char* cstr = new char[len + 1];
+	std::memcpy(cstr, data, len);
+	cstr[len] = '\0';
+	env->ReleaseByteArrayElements(arr, data, JNI_ABORT);
+	return cstr;
+}
+
+jbyteArray extractByteArray(JNIEnv* env, jobject policyObj) {
+	if (!policyObj) return nullptr;
+
+	jclass oneCls = env->FindClass("com/dergoogler/mmrl/platform/PolicyObject$One");
+	if (env->IsInstanceOf(policyObj, oneCls)) {
+		jfieldID valueId = env->GetFieldID(oneCls, "value", "[B");
+		return (jbyteArray) env->GetObjectField(policyObj, valueId);
+	}
+
+	// PolicyObject.All or None → treat as null
+	return nullptr;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_dergoogler_mmrl_platform_ksu_KsuNative_applyPolicyRules(
+		JNIEnv* env,
+		jobject /* this */,
+		jobjectArray atomicStatements, // Java AtomicStatement[]
+		jboolean strict
+) {
+	jsize count = env->GetArrayLength(atomicStatements);
+
+	for (jsize i = 0; i < count; ++i) {
+		jobject atomicStmt = env->GetObjectArrayElement(atomicStatements, i);
+		jclass cls = env->GetObjectClass(atomicStmt);
+
+		// Field IDs
+		jfieldID cmdId = env->GetFieldID(cls, "cmd", "I");
+		jfieldID subcmdId = env->GetFieldID(cls, "subcmd", "I");
+		jfieldID sepol1Id = env->GetFieldID(cls, "sepol1", "Lcom/dergoogler/mmrl/platform/PolicyObject;");
+		jfieldID sepol2Id = env->GetFieldID(cls, "sepol2", "Lcom/dergoogler/mmrl/platform/PolicyObject;");
+		jfieldID sepol3Id = env->GetFieldID(cls, "sepol3", "Lcom/dergoogler/mmrl/platform/PolicyObject;");
+		jfieldID sepol4Id = env->GetFieldID(cls, "sepol4", "Lcom/dergoogler/mmrl/platform/PolicyObject;");
+		jfieldID sepol5Id = env->GetFieldID(cls, "sepol5", "Lcom/dergoogler/mmrl/platform/PolicyObject;");
+		jfieldID sepol6Id = env->GetFieldID(cls, "sepol6", "Lcom/dergoogler/mmrl/platform/PolicyObject;");
+		jfieldID sepol7Id = env->GetFieldID(cls, "sepol7", "Lcom/dergoogler/mmrl/platform/PolicyObject;");
+
+		// Extract PolicyObject.One.value -> byte[]
+		jbyteArray arr1 = extractByteArray(env, env->GetObjectField(atomicStmt, sepol1Id));
+		jbyteArray arr2 = extractByteArray(env, env->GetObjectField(atomicStmt, sepol2Id));
+		jbyteArray arr3 = extractByteArray(env, env->GetObjectField(atomicStmt, sepol3Id));
+		jbyteArray arr4 = extractByteArray(env, env->GetObjectField(atomicStmt, sepol4Id));
+		jbyteArray arr5 = extractByteArray(env, env->GetObjectField(atomicStmt, sepol5Id));
+		jbyteArray arr6 = extractByteArray(env, env->GetObjectField(atomicStmt, sepol6Id));
+		jbyteArray arr7 = extractByteArray(env, env->GetObjectField(atomicStmt, sepol7Id));
+
+		// Populate FfiPolicy
+		FfiPolicy policy{};
+		policy.cmd = env->GetIntField(atomicStmt, cmdId);
+		policy.subcmd = env->GetIntField(atomicStmt, subcmdId);
+		policy.sepol1 = jbyteArrayToCString(env, arr1);
+		policy.sepol2 = jbyteArrayToCString(env, arr2);
+		policy.sepol3 = jbyteArrayToCString(env, arr3);
+		policy.sepol4 = jbyteArrayToCString(env, arr4);
+		policy.sepol5 = jbyteArrayToCString(env, arr5);
+		policy.sepol6 = jbyteArrayToCString(env, arr6);
+		policy.sepol7 = jbyteArrayToCString(env, arr7);
+
+		// Apply policy
+		if (!ksu_set_policy(&policy)) {
+			// Free memory before throwing
+			delete[] policy.sepol1; delete[] policy.sepol2; delete[] policy.sepol3;
+			delete[] policy.sepol4; delete[] policy.sepol5; delete[] policy.sepol6; delete[] policy.sepol7;
+
+			if (strict) {
+				jclass exceptionCls = env->FindClass("java/lang/RuntimeException");
+				env->ThrowNew(exceptionCls, "apply rule failed");
+				return JNI_FALSE;
+			}
+		}
+
+		// Free memory
+		delete[] policy.sepol1; delete[] policy.sepol2; delete[] policy.sepol3;
+		delete[] policy.sepol4; delete[] policy.sepol5; delete[] policy.sepol6; delete[] policy.sepol7;
+	}
+
+	return JNI_TRUE;
+}
 
 static void fillIntArray(JNIEnv *env, jobject list, int *data, int count) {
 	auto cls = env->GetObjectClass(list);

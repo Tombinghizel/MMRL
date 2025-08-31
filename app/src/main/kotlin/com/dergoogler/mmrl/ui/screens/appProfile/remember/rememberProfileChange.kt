@@ -11,11 +11,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.dergoogler.mmrl.R
+import com.dergoogler.mmrl.platform.SePolicy
+import com.dergoogler.mmrl.platform.SePolicy.getSepolicy
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.platform.ksu.Profile
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalSuperUserViewModel
-import com.dergoogler.mmrl.utils.SePolicy.getSepolicy
 import com.dergoogler.mmrl.viewmodel.SuperUserViewModel
 import kotlinx.coroutines.launch
 
@@ -50,7 +51,9 @@ fun rememberProfileChange(info: SuperUserViewModel.AppInfo): Pair<Profile, (Prof
         { newProfile ->
             scope.launch {
                 try {
-                    val result = updateProfileSafely(newProfile, info, errorMessages, snackBarHost)
+                    val result = updateProfileSafely(
+                        newProfile, info, errorMessages, snackBarHost,
+                    )
                     if (result.isSuccess) {
                         profile = newProfile
                         viewModel.updateAppProfile(info.packageName, newProfile)
@@ -97,11 +100,11 @@ private suspend fun updateProfileSafely(
 
         // Handle SELinux policy updates
         if (shouldUpdateSepolicy(profile)) {
-//            val sepolicyResult = setSepolicy(profile.name, profile.rules)
-//            if (!sepolicyResult) {
-//                snackBarHost.showSnackbar("Failed to update SEPolicy for ${info.label}")
-//                return UpdateResult.Error(errorMessages.failToUpdateSepolicy, listOf(info.label))
-//            }
+            val sepolicyResult = SePolicy.setSePolicy(profile.name, profile.rules)
+            if (!sepolicyResult) {
+                snackBarHost.showSnackbar("Failed to update SEPolicy for ${info.label}")
+                return UpdateResult.Error(errorMessages.failToUpdateSepolicy, listOf(info.label))
+            }
         }
     }
 

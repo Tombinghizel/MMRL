@@ -1,5 +1,6 @@
 package com.dergoogler.mmrl.platform.manager
 
+import com.dergoogler.mmrl.platform.SePolicy
 import com.dergoogler.mmrl.platform.content.ModuleCompatibility
 import com.dergoogler.mmrl.platform.content.NullableBoolean
 import com.dergoogler.mmrl.platform.ksu.KsuNative

@@ -1,4 +1,8 @@
+@file:Suppress("unused")
+
 package com.dergoogler.mmrl.platform.ksu
+
+import com.dergoogler.mmrl.platform.AtomicStatement
 
 object KsuNative {
     // minimal supported kernel version
@@ -65,6 +69,8 @@ object KsuNative {
     private const val NON_ROOT_DEFAULT_PROFILE_KEY = "$"
     private const val NOBODY_UID = 9999
 
+    @Throws(RuntimeException::class)
+    external fun applyPolicyRules(statements: Array<AtomicStatement>, strict: Boolean): Boolean
 
     fun requireNewKernel(): Boolean {
         return getVersion() < MINIMAL_SUPPORTED_KERNEL

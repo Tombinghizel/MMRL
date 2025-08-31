@@ -454,9 +454,12 @@
     <string name="allow_root_access_desc">Granting root access gives this app advanced control over your device, including system files and settings.</string>
     <string name="profile_name">Profile Name</string>
     <string name="profile_groups">Groups</string>
-    <string name="profile_selinux_rules">Rules</string>
+    <string name="profile_selinux_rules">SELinux Rules</string>
+    <string name="profile_selinux_rules_invalid">Invalid Rules!</string>
     <string name="profile_capabilities">Capabilities</string>
-    <string name="profile_selinux_context">SELinux context</string>
+    <string name="profile_selinux">SELinux</string>
+    <string name="profile_selinux_context">SELinux Context</string>
+    <string name="profile_selinux_context_invalid">Invalid Context!</string>
     <string name="settings_umount_modules_default">Umount modules</string>
     <string name="settings_umount_modules_default_summary">The global default value for \"Umount modules\" in App Profile. If enabled, it will remove all module modifications to the system for apps that don\'t have a profile set.</string>
     <string name="profile_selinux_domain">Domain</string>
@@ -464,4 +467,5 @@
     <string name="profile_namespace_inherited">Inherited</string>
     <string name="profile_namespace_global">Global</string>
     <string name="profile_namespace_individual">Individual</string>
+    <string name="empty">Empty</string>
 </resources>

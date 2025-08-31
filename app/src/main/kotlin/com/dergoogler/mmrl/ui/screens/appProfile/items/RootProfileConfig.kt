@@ -1,15 +1,9 @@
 package com.dergoogler.mmrl.ui.screens.appProfile.items
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.text.isDigitsOnly
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.nullable
+import com.dergoogler.mmrl.platform.SePolicy.isSepolicyValid
 import com.dergoogler.mmrl.platform.ksu.Capabilities
 import com.dergoogler.mmrl.platform.ksu.Groups
 import com.dergoogler.mmrl.platform.ksu.Profile
@@ -31,7 +26,6 @@ import com.dergoogler.mmrl.platform.ksu.Profile.Namespace
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
-import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Item
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Section
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogItem
@@ -39,15 +33,8 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.DialogSupportingText
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.dergoogler.mmrl.utils.SePolicy.isSepolicyValid
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
-import com.maxkeppeler.sheets.input.InputDialog
-import com.maxkeppeler.sheets.input.models.InputHeader
-import com.maxkeppeler.sheets.input.models.InputSelection
-import com.maxkeppeler.sheets.input.models.InputTextField
-import com.maxkeppeler.sheets.input.models.InputTextFieldType
-import com.maxkeppeler.sheets.input.models.ValidationResult
 import com.maxkeppeler.sheets.list.ListDialog
 import com.maxkeppeler.sheets.list.models.ListOption
 import com.maxkeppeler.sheets.list.models.ListSelection
@@ -111,48 +98,51 @@ fun ListScope.RootProfileConfig(
             }
         )
 
-    }
-
-    val selectedGroups = profile.groups.ifEmpty { listOf(0) }.let { e ->
-        e.mapNotNull { g ->
-            Groups.entries.find { it.gid == g }
+        val selectedGroups = profile.groups.ifEmpty { listOf(0) }.let { e ->
+            e.mapNotNull { g ->
+                Groups.entries.find { it.gid == g }
+            }
         }
-    }
 
-    GroupsPanel(selectedGroups) {
-        onProfileChange(
-            profile.copy(
-                groups = it.map { group -> group.gid }.ifEmpty { listOf(0) },
-                rootUseDefault = false
-            )
-        )
-    }
-
-    val selectedCaps = profile.capabilities.mapNotNull { e ->
-        Capabilities.entries.find { it.cap == e }
-    }
-
-    CapsPanel(selectedCaps) {
-        onProfileChange(
-            profile.copy(
-                capabilities = it.map { cap -> cap.cap },
-                rootUseDefault = false
-            )
-        )
-    }
-
-    SELinuxPanel(
-        profile = profile,
-        onSELinuxChange = { domain, rules ->
+        GroupsPanel(selectedGroups) {
             onProfileChange(
                 profile.copy(
-                    context = domain,
-                    rules = rules,
+                    groups = it.map { group -> group.gid }.ifEmpty { listOf(0) },
                     rootUseDefault = false
                 )
             )
         }
-    )
+
+        val selectedCaps = profile.capabilities.mapNotNull { e ->
+            Capabilities.entries.find { it.cap == e }
+        }
+
+        CapsPanel(selectedCaps) {
+            onProfileChange(
+                profile.copy(
+                    capabilities = it.map { cap -> cap.cap },
+                    rootUseDefault = false
+                )
+            )
+        }
+    }
+
+    Section(
+        stringResource(R.string.profile_selinux)
+    ) {
+        SELinuxPanel(
+            profile = profile,
+            onSELinuxChange = { domain, rules ->
+                onProfileChange(
+                    profile.copy(
+                        context = domain,
+                        rules = rules,
+                        rootUseDefault = false
+                    )
+                )
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -337,93 +327,44 @@ private fun ListScope.SELinuxPanel(
     profile: Profile,
     onSELinuxChange: (domain: String, rules: String) -> Unit,
 ) {
-    var editSELinuxDialog by remember { mutableStateOf(false) }
-    if (editSELinuxDialog) {
-        var domain by remember { mutableStateOf(profile.context) }
-        var rules by remember { mutableStateOf(profile.rules) }
+    TextEditDialogItem(
+        value = profile.context,
+        strict = false,
+        onValid = {
+            it.matches(Regex("^[a-z_]+:[a-z0-9_]+:[a-z0-9_]+(:[a-z0-9_]+)?$"))
+        },
+        onConfirm = {
+            onSELinuxChange(it, profile.rules)
+        }
+    ) {
+        if (it.isError) {
+            DialogSupportingText(stringResource(R.string.profile_selinux_context_invalid))
+        }
 
-        val inputOptions = listOf(
-            InputTextField(
-                text = domain,
-                header = InputHeader(
-                    title = stringResource(id = R.string.profile_selinux_domain),
-                ),
-                type = InputTextFieldType.OUTLINED,
-                required = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Ascii,
-                    imeAction = ImeAction.Next
-                ),
-                resultListener = {
-                    domain = it ?: ""
-                },
-                validationListener = { value ->
-                    // value can be a-zA-Z0-9_
-                    val regex = Regex("^[a-z_]+:[a-z0-9_]+:[a-z0-9_]+(:[a-z0-9_]+)?$")
-                    if (value?.matches(regex) == true) ValidationResult.Valid
-                    else ValidationResult.Invalid("Domain must be in the format of \"user:role:type:level\"")
-                }
-            ),
-            InputTextField(
-                text = rules,
-                header = InputHeader(
-                    title = stringResource(id = R.string.profile_selinux_rules),
-                ),
-                type = InputTextFieldType.OUTLINED,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Ascii,
-                ),
-                singleLine = false,
-                resultListener = {
-                    rules = it ?: ""
-                },
-                validationListener = { value ->
-                    if (isSepolicyValid(value)) ValidationResult.Valid
-                    else ValidationResult.Invalid("SELinux rules is invalid!")
-                }
-            )
-        )
-
-        InputDialog(
-            state = rememberUseCaseState(
-                visible = true,
-                onFinishedRequest = {
-                    onSELinuxChange(domain, rules)
-                },
-                onCloseRequest = {
-                    editSELinuxDialog = false
-                }),
-            header = Header.Default(
-                title = stringResource(R.string.profile_selinux_context),
-            ),
-            selection = InputSelection(
-                input = inputOptions,
-                onPositiveClick = { result ->
-                    // Handle selection
-                },
-            )
-        )
+        Title(stringResource(R.string.profile_selinux_context))
+        Description(it.value)
     }
 
-    Item {
-        Title {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        editSELinuxDialog = true
-                    },
-                enabled = false,
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                    disabledBorderColor = MaterialTheme.colorScheme.outline,
-                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                label = { Text(text = stringResource(R.string.profile_selinux_context)) },
-                value = profile.context,
-                onValueChange = { }
-            )
+    TextEditDialogItem(
+        value = profile.rules,
+        strict = false,
+        onValid = {
+            isSepolicyValid(it)
+        },
+        onConfirm = {
+            onSELinuxChange(profile.context, it)
+        }
+    ) {
+        Title(stringResource(R.string.profile_selinux_rules))
+
+        if (it.isError) {
+            DialogSupportingText(stringResource(R.string.profile_selinux_rules_invalid))
+        }
+
+        if (it.value.isBlank()) {
+            Description(stringResource(R.string.empty))
+        } else {
+            Description(it.value)
         }
     }
 }

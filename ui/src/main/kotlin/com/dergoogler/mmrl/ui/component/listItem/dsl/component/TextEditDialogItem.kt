@@ -44,6 +44,7 @@ data class TextEditDialogItemData(
 fun ListScope.TextEditDialogItem(
     enabled: Boolean = true,
     value: String,
+    strict: Boolean = true,
     onValid: ((String) -> Boolean)? = null,
     onConfirm: (String) -> Unit,
     keyboardOptions: KeyboardOptions? = null,
@@ -112,7 +113,7 @@ fun ListScope.TextEditDialogItem(
                     confirmButton = {
                         TextButton(
                             onClick = onDone,
-                            enabled = !isError && text.isNotEmpty()
+                            enabled = !isError && (!strict || text.isNotEmpty())
                         ) {
                             Text(text = stringResource(id = R.string.confirm))
                         }

@@ -101,7 +101,7 @@ data class NormalPerm(
     val source: SeObject,
     val target: SeObject,
     val objectClass: SeObject,
-    val perm: SeObject
+    val perm: SeObject,
 ) {
     companion object {
         fun parse(input: String): ParseResult<NormalPerm> {
@@ -145,7 +145,13 @@ data class NormalPerm(
             if (permResult !is ParseResult.Success) return ParseResult.Error("Failed to parse perm")
 
             return ParseResult.Success(
-                NormalPerm(opResult.value, sourceResult.value, targetResult.value, classResult.value, permResult.value),
+                NormalPerm(
+                    opResult.value,
+                    sourceResult.value,
+                    targetResult.value,
+                    classResult.value,
+                    permResult.value
+                ),
                 permResult.remaining
             )
         }
@@ -158,7 +164,7 @@ data class XPerm(
     val target: SeObject,
     val objectClass: SeObject,
     val operation: String,
-    val permSet: String
+    val permSet: String,
 ) {
     companion object {
         fun parse(input: String): ParseResult<XPerm> {
@@ -209,7 +215,14 @@ data class XPerm(
             if (permSetResult !is ParseResult.Success) return ParseResult.Error("Failed to parse perm set")
 
             return ParseResult.Success(
-                XPerm(opResult.value, sourceResult.value, targetResult.value, classResult.value, operationResult.value, permSetResult.value),
+                XPerm(
+                    opResult.value,
+                    sourceResult.value,
+                    targetResult.value,
+                    classResult.value,
+                    operationResult.value,
+                    permSetResult.value
+                ),
                 permSetResult.remaining
             )
         }
@@ -218,7 +231,7 @@ data class XPerm(
 
 data class TypeState(
     val op: String,
-    val stype: SeObject
+    val stype: SeObject,
 ) {
     companion object {
         fun parse(input: String): ParseResult<TypeState> {
@@ -247,7 +260,7 @@ data class TypeState(
 
 data class TypeDef(
     val name: String,
-    val attrs: SeObject
+    val attrs: SeObject,
 ) {
     companion object {
         fun parse(input: String): ParseResult<TypeDef> {
@@ -283,7 +296,7 @@ data class TypeDef(
 
 data class TypeAttr(
     val stype: SeObject,
-    val sattr: SeObject
+    val sattr: SeObject,
 ) {
     companion object {
         fun parse(input: String): ParseResult<TypeAttr> {
@@ -314,7 +327,7 @@ data class TypeAttr(
 }
 
 data class Attr(
-    val name: String
+    val name: String,
 ) {
     companion object {
         fun parse(input: String): ParseResult<Attr> {
@@ -341,7 +354,7 @@ data class TypeTransition(
     val target: String,
     val objectClass: String,
     val defaultType: String,
-    val objectName: String?
+    val objectName: String?,
 ) {
     companion object {
         fun parse(input: String): ParseResult<TypeTransition> {
@@ -381,7 +394,13 @@ data class TypeTransition(
             } else null
 
             return ParseResult.Success(
-                TypeTransition(sourceResult.value, targetResult.value, classResult.value, defaultResult.value, objectName),
+                TypeTransition(
+                    sourceResult.value,
+                    targetResult.value,
+                    classResult.value,
+                    defaultResult.value,
+                    objectName
+                ),
                 remaining
             )
         }
@@ -393,7 +412,7 @@ data class TypeChange(
     val source: String,
     val target: String,
     val objectClass: String,
-    val defaultType: String
+    val defaultType: String,
 ) {
     companion object {
         fun parse(input: String): ParseResult<TypeChange> {
@@ -424,7 +443,13 @@ data class TypeChange(
             if (defaultResult !is ParseResult.Success) return ParseResult.Error("Failed to parse default type")
 
             return ParseResult.Success(
-                TypeChange(opResult.value, sourceResult.value, targetResult.value, classResult.value, defaultResult.value),
+                TypeChange(
+                    opResult.value,
+                    sourceResult.value,
+                    targetResult.value,
+                    classResult.value,
+                    defaultResult.value
+                ),
                 defaultResult.remaining
             )
         }
@@ -434,7 +459,7 @@ data class TypeChange(
 data class GenFsCon(
     val fsName: String,
     val partialPath: String,
-    val fsContext: String
+    val fsContext: String,
 ) {
     companion object {
         fun parse(input: String): ParseResult<GenFsCon> {
@@ -482,15 +507,78 @@ sealed class PolicyStatement {
 
             // Try each parser in order
             val parsers = listOf(
-                { s: String -> NormalPerm.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(NormalPermission(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> XPerm.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(XPermission(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> TypeState.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(TypeStateStmt(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> TypeDef.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(TypeDefStmt(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> TypeAttr.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(TypeAttrStmt(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> Attr.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(AttrStmt(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> TypeTransition.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(TypeTransitionStmt(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> TypeChange.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(TypeChangeStmt(it.value), it.remaining) else it as ParseResult<PolicyStatement> } },
-                { s: String -> GenFsCon.parse(s).let { if (it is ParseResult.Success) ParseResult.Success(GenFsConStmt(it.value), it.remaining) else it as ParseResult<PolicyStatement> } }
+                { s: String ->
+                    NormalPerm.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            NormalPermission(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    XPerm.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            XPermission(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    TypeState.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            TypeStateStmt(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    TypeDef.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            TypeDefStmt(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    TypeAttr.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            TypeAttrStmt(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    Attr.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            AttrStmt(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    TypeTransition.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            TypeTransitionStmt(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    TypeChange.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            TypeChangeStmt(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                },
+                { s: String ->
+                    GenFsCon.parse(s).let {
+                        if (it is ParseResult.Success) ParseResult.Success(
+                            GenFsConStmt(it.value),
+                            it.remaining
+                        ) else it as ParseResult<PolicyStatement>
+                    }
+                }
             )
 
             for (parser in parsers) {
@@ -534,8 +622,10 @@ sealed class PolicyObject {
             other as One
             return value.contentEquals(other.value)
         }
+
         override fun hashCode(): Int = value.contentHashCode()
     }
+
     object None : PolicyObject()
 
     companion object {
@@ -549,6 +639,8 @@ sealed class PolicyObject {
             s.toByteArray().copyInto(buf, 0, 0, s.length)
             return One(buf)
         }
+
+
     }
 }
 
@@ -562,7 +654,7 @@ data class AtomicStatement(
     val sepol4: PolicyObject,
     val sepol5: PolicyObject,
     val sepol6: PolicyObject,
-    val sepol7: PolicyObject
+    val sepol7: PolicyObject,
 )
 
 // Main parser class
@@ -651,17 +743,19 @@ fun NormalPerm.toAtomicStatements(): List<AtomicStatement> {
         for (t in target) {
             for (c in objectClass) {
                 for (p in perm) {
-                    result.add(AtomicStatement(
-                        cmd = PolicyCommands.CMD_NORMAL_PERM,
-                        subcmd = subcmd,
-                        sepol1 = PolicyObject.fromString(s),
-                        sepol2 = PolicyObject.fromString(t),
-                        sepol3 = PolicyObject.fromString(c),
-                        sepol4 = PolicyObject.fromString(p),
-                        sepol5 = PolicyObject.None,
-                        sepol6 = PolicyObject.None,
-                        sepol7 = PolicyObject.None
-                    ))
+                    result.add(
+                        AtomicStatement(
+                            cmd = PolicyCommands.CMD_NORMAL_PERM,
+                            subcmd = subcmd,
+                            sepol1 = PolicyObject.fromString(s),
+                            sepol2 = PolicyObject.fromString(t),
+                            sepol3 = PolicyObject.fromString(c),
+                            sepol4 = PolicyObject.fromString(p),
+                            sepol5 = PolicyObject.None,
+                            sepol6 = PolicyObject.None,
+                            sepol7 = PolicyObject.None
+                        )
+                    )
                 }
             }
         }
@@ -681,17 +775,19 @@ fun XPerm.toAtomicStatements(): List<AtomicStatement> {
     for (s in source) {
         for (t in target) {
             for (c in objectClass) {
-                result.add(AtomicStatement(
-                    cmd = PolicyCommands.CMD_XPERM,
-                    subcmd = subcmd,
-                    sepol1 = PolicyObject.fromString(s),
-                    sepol2 = PolicyObject.fromString(t),
-                    sepol3 = PolicyObject.fromString(c),
-                    sepol4 = PolicyObject.fromString(operation),
-                    sepol5 = PolicyObject.fromString(permSet),
-                    sepol6 = PolicyObject.None,
-                    sepol7 = PolicyObject.None
-                ))
+                result.add(
+                    AtomicStatement(
+                        cmd = PolicyCommands.CMD_XPERM,
+                        subcmd = subcmd,
+                        sepol1 = PolicyObject.fromString(s),
+                        sepol2 = PolicyObject.fromString(t),
+                        sepol3 = PolicyObject.fromString(c),
+                        sepol4 = PolicyObject.fromString(operation),
+                        sepol5 = PolicyObject.fromString(permSet),
+                        sepol6 = PolicyObject.None,
+                        sepol7 = PolicyObject.None
+                    )
+                )
             }
         }
     }
@@ -707,17 +803,19 @@ fun TypeState.toAtomicStatements(): List<AtomicStatement> {
     }
 
     for (t in stype) {
-        result.add(AtomicStatement(
-            cmd = PolicyCommands.CMD_TYPE_STATE,
-            subcmd = subcmd,
-            sepol1 = PolicyObject.fromString(t),
-            sepol2 = PolicyObject.None,
-            sepol3 = PolicyObject.None,
-            sepol4 = PolicyObject.None,
-            sepol5 = PolicyObject.None,
-            sepol6 = PolicyObject.None,
-            sepol7 = PolicyObject.None
-        ))
+        result.add(
+            AtomicStatement(
+                cmd = PolicyCommands.CMD_TYPE_STATE,
+                subcmd = subcmd,
+                sepol1 = PolicyObject.fromString(t),
+                sepol2 = PolicyObject.None,
+                sepol3 = PolicyObject.None,
+                sepol4 = PolicyObject.None,
+                sepol5 = PolicyObject.None,
+                sepol6 = PolicyObject.None,
+                sepol7 = PolicyObject.None
+            )
+        )
     }
     return result
 }
@@ -725,17 +823,19 @@ fun TypeState.toAtomicStatements(): List<AtomicStatement> {
 fun TypeDef.toAtomicStatements(): List<AtomicStatement> {
     val result = mutableListOf<AtomicStatement>()
     for (attr in attrs) {
-        result.add(AtomicStatement(
-            cmd = PolicyCommands.CMD_TYPE,
-            subcmd = 0u,
-            sepol1 = PolicyObject.fromString(name),
-            sepol2 = PolicyObject.fromString(attr),
-            sepol3 = PolicyObject.None,
-            sepol4 = PolicyObject.None,
-            sepol5 = PolicyObject.None,
-            sepol6 = PolicyObject.None,
-            sepol7 = PolicyObject.None
-        ))
+        result.add(
+            AtomicStatement(
+                cmd = PolicyCommands.CMD_TYPE,
+                subcmd = 0u,
+                sepol1 = PolicyObject.fromString(name),
+                sepol2 = PolicyObject.fromString(attr),
+                sepol3 = PolicyObject.None,
+                sepol4 = PolicyObject.None,
+                sepol5 = PolicyObject.None,
+                sepol6 = PolicyObject.None,
+                sepol7 = PolicyObject.None
+            )
+        )
     }
     return result
 }
@@ -744,49 +844,55 @@ fun TypeAttr.toAtomicStatements(): List<AtomicStatement> {
     val result = mutableListOf<AtomicStatement>()
     for (t in stype) {
         for (attr in sattr) {
-            result.add(AtomicStatement(
-                cmd = PolicyCommands.CMD_TYPE_ATTR,
-                subcmd = 0u,
-                sepol1 = PolicyObject.fromString(t),
-                sepol2 = PolicyObject.fromString(attr),
-                sepol3 = PolicyObject.None,
-                sepol4 = PolicyObject.None,
-                sepol5 = PolicyObject.None,
-                sepol6 = PolicyObject.None,
-                sepol7 = PolicyObject.None
-            ))
+            result.add(
+                AtomicStatement(
+                    cmd = PolicyCommands.CMD_TYPE_ATTR,
+                    subcmd = 0u,
+                    sepol1 = PolicyObject.fromString(t),
+                    sepol2 = PolicyObject.fromString(attr),
+                    sepol3 = PolicyObject.None,
+                    sepol4 = PolicyObject.None,
+                    sepol5 = PolicyObject.None,
+                    sepol6 = PolicyObject.None,
+                    sepol7 = PolicyObject.None
+                )
+            )
         }
     }
     return result
 }
 
 fun Attr.toAtomicStatements(): List<AtomicStatement> {
-    return listOf(AtomicStatement(
-        cmd = PolicyCommands.CMD_ATTR,
-        subcmd = 0u,
-        sepol1 = PolicyObject.fromString(name),
-        sepol2 = PolicyObject.None,
-        sepol3 = PolicyObject.None,
-        sepol4 = PolicyObject.None,
-        sepol5 = PolicyObject.None,
-        sepol6 = PolicyObject.None,
-        sepol7 = PolicyObject.None
-    ))
+    return listOf(
+        AtomicStatement(
+            cmd = PolicyCommands.CMD_ATTR,
+            subcmd = 0u,
+            sepol1 = PolicyObject.fromString(name),
+            sepol2 = PolicyObject.None,
+            sepol3 = PolicyObject.None,
+            sepol4 = PolicyObject.None,
+            sepol5 = PolicyObject.None,
+            sepol6 = PolicyObject.None,
+            sepol7 = PolicyObject.None
+        )
+    )
 }
 
 fun TypeTransition.toAtomicStatements(): List<AtomicStatement> {
     val obj = objectName?.let { PolicyObject.fromString(it) } ?: PolicyObject.None
-    return listOf(AtomicStatement(
-        cmd = PolicyCommands.CMD_TYPE_TRANSITION,
-        subcmd = 0u,
-        sepol1 = PolicyObject.fromString(source),
-        sepol2 = PolicyObject.fromString(target),
-        sepol3 = PolicyObject.fromString(objectClass),
-        sepol4 = PolicyObject.fromString(defaultType),
-        sepol5 = obj,
-        sepol6 = PolicyObject.None,
-        sepol7 = PolicyObject.None
-    ))
+    return listOf(
+        AtomicStatement(
+            cmd = PolicyCommands.CMD_TYPE_TRANSITION,
+            subcmd = 0u,
+            sepol1 = PolicyObject.fromString(source),
+            sepol2 = PolicyObject.fromString(target),
+            sepol3 = PolicyObject.fromString(objectClass),
+            sepol4 = PolicyObject.fromString(defaultType),
+            sepol5 = obj,
+            sepol6 = PolicyObject.None,
+            sepol7 = PolicyObject.None
+        )
+    )
 }
 
 fun TypeChange.toAtomicStatements(): List<AtomicStatement> {
@@ -795,31 +901,35 @@ fun TypeChange.toAtomicStatements(): List<AtomicStatement> {
         "type_member" -> 2u
         else -> 0u
     }
-    return listOf(AtomicStatement(
-        cmd = PolicyCommands.CMD_TYPE_CHANGE,
-        subcmd = subcmd,
-        sepol1 = PolicyObject.fromString(source),
-        sepol2 = PolicyObject.fromString(target),
-        sepol3 = PolicyObject.fromString(objectClass),
-        sepol4 = PolicyObject.fromString(defaultType),
-        sepol5 = PolicyObject.None,
-        sepol6 = PolicyObject.None,
-        sepol7 = PolicyObject.None
-    ))
+    return listOf(
+        AtomicStatement(
+            cmd = PolicyCommands.CMD_TYPE_CHANGE,
+            subcmd = subcmd,
+            sepol1 = PolicyObject.fromString(source),
+            sepol2 = PolicyObject.fromString(target),
+            sepol3 = PolicyObject.fromString(objectClass),
+            sepol4 = PolicyObject.fromString(defaultType),
+            sepol5 = PolicyObject.None,
+            sepol6 = PolicyObject.None,
+            sepol7 = PolicyObject.None
+        )
+    )
 }
 
 fun GenFsCon.toAtomicStatements(): List<AtomicStatement> {
-    return listOf(AtomicStatement(
-        cmd = PolicyCommands.CMD_GENFSCON,
-        subcmd = 0u,
-        sepol1 = PolicyObject.fromString(fsName),
-        sepol2 = PolicyObject.fromString(partialPath),
-        sepol3 = PolicyObject.fromString(fsContext),
-        sepol4 = PolicyObject.None,
-        sepol5 = PolicyObject.None,
-        sepol6 = PolicyObject.None,
-        sepol7 = PolicyObject.None
-    ))
+    return listOf(
+        AtomicStatement(
+            cmd = PolicyCommands.CMD_GENFSCON,
+            subcmd = 0u,
+            sepol1 = PolicyObject.fromString(fsName),
+            sepol2 = PolicyObject.fromString(partialPath),
+            sepol3 = PolicyObject.fromString(fsContext),
+            sepol4 = PolicyObject.None,
+            sepol5 = PolicyObject.None,
+            sepol6 = PolicyObject.None,
+            sepol7 = PolicyObject.None
+        )
+    )
 }
 
 // FFI Policy structure for C interop
@@ -832,7 +942,7 @@ data class FfiPolicy(
     val sepol4: ByteArray?,
     val sepol5: ByteArray?,
     val sepol6: ByteArray?,
-    val sepol7: ByteArray?
+    val sepol7: ByteArray?,
 ) {
     companion object {
         fun fromAtomicStatement(statement: AtomicStatement): FfiPolicy {
