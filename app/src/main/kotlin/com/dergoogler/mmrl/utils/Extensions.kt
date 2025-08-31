@@ -160,5 +160,5 @@ fun UserPreferences.webUILauncher(context: Context, module: LocalModule): () -> 
 val KsuNative.isManager: Boolean
     get() {
         val pkg = App.context.packageName
-        return PlatformManager.platform.isKernelSU && becomeManager(pkg)
+        return PlatformManager.platform.isKernelSuVariant && becomeManager(pkg)
     }
