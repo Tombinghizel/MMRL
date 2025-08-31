@@ -372,7 +372,7 @@
     <string name="settings_webui_engine">Motor WebUI</string>
     <string name="settings_webui_engine_desc">Seleccione su motor preferido</string>
     <string name="settings_webui_engine_wx">WebUI X</string>
-    <string name="settings_webui_engine_ksu">KSU WebUI</string>
+    <string name="settings_webui_engine_ksu">WebUI de KSU</string>
     <string name="settings_webui_engine_prefer_module">Definido por la configuración del módulo</string>
     <string name="menu_sort_option_size">Tamaño</string>
     <string name="settings_date_pattern_dialog_desc">El patrón de fecha será el siguiente:\n[color=primary]%1$s[/color]</string>
@@ -406,4 +406,6 @@
     <string name="build_tools_version">Versión de Build Tools</string>
     <string name="compile_sdk">Compilación de SDK</string>
     <string name="latest_commit_id">ID del último commit</string>
+    <string name="settings_set_spoofed_wxp_desc">Establezca un nombre de paquete personalizado para WebUI X portable.</string>
+    <string name="settings_set_spoofed_wxp">Paquete portable de WebUI X</string>
 </resources>
