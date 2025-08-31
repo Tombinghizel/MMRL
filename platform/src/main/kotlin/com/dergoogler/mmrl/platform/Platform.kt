@@ -8,6 +8,47 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 
+/**
+ * A sealed interface representing the hierarchy of supported platforms.
+ * This is used for type-safe checking and categorization of different platform implementations,
+ * particularly distinguishing between various root solutions and non-root environments.
+ */
+sealed class PlatformType(val id: String) {
+    /** Represents the Magisk platform. */
+    data object Magisk : PlatformType("magisk")
+
+    /** Represents the base class for KernelSU and its variants. */
+    open class KernelSU(id: String = "kernelsu") : PlatformType(id)
+
+    /** Represents the KernelSU Next Gen variant, inheriting from [KernelSU]. */
+    data object KernelSuNext : KernelSU("ksunext")
+
+    /** Represents the APatch platform. */
+    data object APatch : PlatformType("apatch")
+
+    /** Represents the MKSU variant, inheriting from [KernelSU]. */
+    data object MKSU : KernelSU("mksu")
+
+    /** Represents the SukiSU variant, inheriting from [KernelSU]. */
+    data object SukiSU : KernelSU("sukisu")
+
+    /** Represents the RKSU variant, inheriting from [KernelSU]. */
+    data object RKSU : KernelSU("rksu")
+
+    /**
+     * Represents the Shizuku platform, which provides a way to use system APIs
+     * without root, via a user-granted ADB or root service.
+     */
+    data object Shizuku : PlatformType("shizuku")
+
+    /**
+     * Represents a non-root environment where no elevated privileges are available.
+     */
+    data object NonRoot : PlatformType("nonroot")
+
+    data object Unknown : PlatformType("unknown")
+}
+
 const val TIMEOUT_MILLIS = 15_000L
 const val PLATFORM_KEY = "PLATFORM"
 internal const val BINDER_TRANSACTION = 84398154
@@ -15,24 +56,26 @@ internal const val BINDER_TRANSACTION = 84398154
 /**
  * Represents the various platforms supported by the application.
  *
- * @property id A unique identifier for the platform.
+ * @property type The platform type instance containing the unique identifier.
  */
-enum class Platform(val id: String) {
-    Magisk("magisk"),
-    KernelSU("kernelsu"),
-    KsuNext("ksunext"),
-    APatch("apatch"),
-    MKSU("mksu"),
-    SukiSU("sukisu"),
-    RKSU("rksu"),
-    Shizuku("shizuku"),
-    NonRoot("nonroot"),
-    Unknown("unknown");
+enum class Platform(val type: PlatformType) {
+    Magisk(PlatformType.Magisk),
+    KernelSU(PlatformType.KernelSU()),
+    KsuNext(PlatformType.KernelSuNext),
+    APatch(PlatformType.APatch),
+    MKSU(PlatformType.MKSU),
+    SukiSU(PlatformType.SukiSU),
+    RKSU(PlatformType.RKSU),
+    Shizuku(PlatformType.Shizuku),
+    NonRoot(PlatformType.NonRoot),
+    Unknown(PlatformType.Unknown);
+
+    val id: String get() = type.id
 
     companion object {
-        fun from(value: String): Platform {
-            return entries.firstOrNull { it.id == value } ?: NonRoot
-        }
+        private val platformMap = entries.associateBy { it.id }
+
+        fun from(value: String): Platform = platformMap[value] ?: NonRoot
 
         /**
          * Creates an [Intent] for a specific platform.
@@ -51,19 +94,16 @@ enum class Platform(val id: String) {
          */
         inline fun <reified T> Context.createPlatformIntent(platform: Platform): Intent =
             Intent().apply {
-                component = ComponentName(
-                    packageName,
-                    T::class.java.name
-                )
+                component = ComponentName(packageName, T::class.java.name)
                 putExtra(PLATFORM_KEY, platform)
             }
 
         fun Intent.getPlatform(): Platform? = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                this.getSerializableExtra(PLATFORM_KEY, Platform::class.java)
+                getSerializableExtra(PLATFORM_KEY, Platform::class.java)
             } else {
                 @Suppress("DEPRECATION")
-                this.getSerializableExtra(PLATFORM_KEY) as? Platform
+                getSerializableExtra(PLATFORM_KEY) as? Platform
             }
         } catch (e: Exception) {
             Log.e("Platform", "Error getting platform", e)
@@ -75,30 +115,34 @@ enum class Platform(val id: String) {
         }
     }
 
-    val isMagisk get() = this == Magisk
-    val isKernelSU get() = this == KernelSU
-    val isKernelSuNext get() = this == KsuNext
-    val isAPatch get() = this == APatch
-    val isMKSU get() = this == MKSU
-    val isSukiSU get() = this == SukiSU
-    val isRKSU get() = this == RKSU
-    val isShizuku get() = this == Shizuku
+    // Primary platform checks
+    val isMagisk: Boolean get() = this == Magisk
+    val isKernelSU: Boolean get() = this == KernelSU
+    val isKernelSuNext: Boolean get() = this == KsuNext
+    val isAPatch: Boolean get() = this == APatch
+    val isMKSU: Boolean get() = this == MKSU
+    val isSukiSU: Boolean get() = this == SukiSU
+    val isRKSU: Boolean get() = this == RKSU
+    val isShizuku: Boolean get() = this == Shizuku
+    val isNonRoot: Boolean get() = this == NonRoot
 
-    val isNotMagisk get() = !isMagisk
-    val isNotKernelSU get() = this != KernelSU && this != KsuNext
-    val isNotKernelSuNext get() = !isKernelSuNext
-    val isNotAPatch get() = !isAPatch
-    val isNotMKSU get() = !isMKSU
-    val isNotSukiSU get() = !isSukiSU
-    val isNotRKSU get() = !isRKSU
-    val isNotShizuku get() = !isShizuku
+    // Category checks
+    val isKernelSuVariant: Boolean get() = type is PlatformType.KernelSU
+    val isKernelSuOrNext: Boolean get() = this == KernelSU || this == KsuNext
+    val isValid: Boolean get() = this != NonRoot
 
-    val isNotNonRoot get() = this != NonRoot
-    val isNonRoot get() = this == NonRoot
-    val isValid get() = this != NonRoot
-    val isNotValid get() = !isValid
-    val isKernelSuOrNext get() = this == KernelSU || this == KsuNext
+    // Negation checks (computed properties for consistency)
+    val isNotMagisk: Boolean get() = !isMagisk
+    val isNotKernelSU: Boolean get() = this != KernelSU && this != KsuNext
+    val isNotKernelSuNext: Boolean get() = !isKernelSuNext
+    val isNotAPatch: Boolean get() = !isAPatch
+    val isNotMKSU: Boolean get() = !isMKSU
+    val isNotSukiSU: Boolean get() = !isSukiSU
+    val isNotRKSU: Boolean get() = !isRKSU
+    val isNotShizuku: Boolean get() = !isShizuku
+    val isNotNonRoot: Boolean get() = !isNonRoot
+    val isNotValid: Boolean get() = !isValid
 
-    val current get() = id
+    @Deprecated("Use 'id' property instead", ReplaceWith("id"))
+    val current: String get() = id
 }
-
