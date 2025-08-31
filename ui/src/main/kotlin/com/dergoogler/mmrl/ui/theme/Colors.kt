@@ -8,7 +8,6 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.dergoogler.mmrl.ui.theme.color.AlmondBlossomDarkScheme
@@ -27,7 +26,6 @@ import com.dergoogler.mmrl.ui.theme.color.SoleilLevantDarkScheme
 import com.dergoogler.mmrl.ui.theme.color.SoleilLevantLightScheme
 import com.dergoogler.mmrl.ui.theme.color.WildRosesDarkScheme
 import com.dergoogler.mmrl.ui.theme.color.WildRosesLightScheme
-import com.dergoogler.mmrl.ui.token.ColorSchemeKeyTokens
 
 sealed class Colors(
     val id: Int,
@@ -145,3 +143,11 @@ sealed class Colors(
     }
 }
 
+fun Color.darken(by: Float = 0.3f): Color {
+    return copy(
+        red = red * by,
+        green = green * by,
+        blue = blue * by,
+        alpha = alpha
+    )
+}

@@ -10,6 +10,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 data class FeaturedManager(
     private val nameAs: Any,
     @DrawableRes val icon: Int,
+    private val desc: Any? = null,
     val workingMode: WorkingMode,
 ) {
     @Composable
@@ -31,6 +32,18 @@ data class FeaturedManager(
                 }
             }
 
+        @get:Composable
+        val FeaturedManager?.description: String?
+            get() {
+                if (this == null) return null
+
+                return when (desc) {
+                    is String -> desc
+                    is Int -> stringResource(desc)
+                    else -> null
+                }
+            }
+
         val managers
             get() = listOf(
                 FeaturedManager(
@@ -46,12 +59,6 @@ data class FeaturedManager(
                 ),
 
                 FeaturedManager(
-                    nameAs = R.string.working_mode_kernelsu_next_title,
-                    icon = com.dergoogler.mmrl.ui.R.drawable.kernelsu_next_logo,
-                    workingMode = WorkingMode.MODE_KERNEL_SU_NEXT,
-                ),
-
-                FeaturedManager(
                     nameAs = "rsuntk/KernelSU",
                     icon = com.dergoogler.mmrl.ui.R.drawable.kernelsu_logo,
                     workingMode = WorkingMode.MODE_RKSU,
@@ -61,6 +68,12 @@ data class FeaturedManager(
                     nameAs = "5ec1cff/KernelSU",
                     icon = com.dergoogler.mmrl.ui.R.drawable.kernelsu_logo,
                     workingMode = WorkingMode.MODE_MKSU,
+                ),
+
+                FeaturedManager(
+                    nameAs = R.string.working_mode_kernelsu_next_title,
+                    icon = com.dergoogler.mmrl.ui.R.drawable.kernelsu_next_logo,
+                    workingMode = WorkingMode.MODE_KERNEL_SU_NEXT,
                 ),
 
                 FeaturedManager(
