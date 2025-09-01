@@ -1,13 +1,21 @@
+@file:Suppress("unused")
+
 package com.dergoogler.mmrl.platform.file
 
-import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.system.ErrnoException
 import android.system.Os
+import android.util.Log
+import com.dergoogler.mmrl.ext.isNotNullOrBlank
 import com.dergoogler.mmrl.platform.Platform
+import com.dergoogler.mmrl.platform.PlatformManager
+import com.dergoogler.mmrl.platform.stub.IFileManager
 import java.io.File
 import java.io.FileFilter
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -17,13 +25,6 @@ import java.util.Locale
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import com.dergoogler.mmrl.platform.stub.IFileManager
-import android.net.Uri
-import android.util.Log
-import com.dergoogler.mmrl.ext.isNotNullOrBlank
-import com.dergoogler.mmrl.platform.PlatformManager
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 
 /**
@@ -239,6 +240,18 @@ class SuFile(
         { this.setPermissions(path, permissions) },
         { false }
     )
+
+    val parentSuFile: SuFile?
+        get() = try {
+            val parent = this.parentFile
+            if (parent != null && parent.path != this.path) {
+                SuFile(parent)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
 
     fun setOwner(uid: Int, gid: Int): Boolean = fallback(
         {
