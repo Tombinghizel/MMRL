@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,10 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.R
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
@@ -153,7 +157,19 @@ private fun <T> ListScope.AlertRadioDialog(
 
                 CompositionLocalProvider(LocalContentColor provides textContentColor) {
                     Box {
-                        LazyColumn {
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(max = 450.dp)
+                                .fadingEdge(
+                                    Brush.verticalGradient(
+                                        0f to Color.Transparent,
+                                        0.03f to Color.Red,
+                                        0.97f to Color.Red,
+                                        1f to Color.Transparent
+                                    )
+                                ),
+                            contentPadding = PaddingValues(vertical = 4.dp)
+                        ) {
                             items(
                                 items = options,
                             ) { option ->

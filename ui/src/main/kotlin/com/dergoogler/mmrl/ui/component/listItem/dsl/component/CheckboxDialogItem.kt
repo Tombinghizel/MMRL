@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,10 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ui.R
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
@@ -43,6 +47,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.FromSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.ProvideTitleTypography
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Start
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
+import com.dergoogler.mmrl.ui.component.text.BBCodeText
 import com.dergoogler.mmrl.ui.token.TypographyKeyTokens
 
 data class CheckboxItem<T>(
@@ -58,34 +63,23 @@ fun <T> ListScope.CheckboxDialogItem(
     enabled: Boolean = true,
     multiple: Boolean = false,
     maxChoices: Int = Int.MAX_VALUE,
-    selection: T? = null, // Single selection for non-multiple mode
-    selections: List<T> = emptyList(), // Multiple selections for multiple mode
     options: List<CheckboxItem<T>>,
-    onConfirm: (List<CheckboxItem<T>>) -> Unit, // Changed to return list
+    onConfirm: (List<CheckboxItem<T>>) -> Unit,
     content: @Composable (ListItemScope.(List<CheckboxItem<T>>) -> Unit),
 ) {
     var open by remember { mutableStateOf(false) }
 
-    // Initialize selected options based on mode
-    val initialSelectedOptions = remember(selection, selections, options) {
-        if (multiple) {
-            options.filter { option -> selections.contains(option.value) }
-        } else {
-            selection?.let { sel ->
-                options.find { it.value == sel }?.let { listOf(it) }
-            } ?: emptyList()
-        }
+    val initialSelectedOptions = remember(options) {
+        options.filter { it.checked }
     }
 
-    val selectedOptions by remember {
+    var selectedOptions by remember {
         mutableStateOf(initialSelectedOptions)
     }
 
     ButtonItem(
         enabled = enabled,
-        onClick = {
-            open = true
-        },
+        onClick = { open = true },
         content = {
             content(selectedOptions)
 
@@ -104,10 +98,9 @@ fun <T> ListScope.CheckboxDialogItem(
                     maxChoices = maxChoices,
                     initialSelections = selectedOptions.map { it.value },
                     options = options,
-                    onClose = {
-                        open = false
-                    },
+                    onClose = { open = false },
                     onConfirm = { confirmedOptions ->
+                        selectedOptions = confirmedOptions
                         onConfirm(confirmedOptions)
                     }
                 )
@@ -159,35 +152,45 @@ private fun <T> ListScope.AlertCheckboxDialog(
             Column {
                 CompositionLocalProvider(LocalContentColor provides titleContentColor) {
                     ProvideTextStyle(MaterialTheme.typography.headlineSmall) {
-                        Box(
+                        Row(
                             modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(
                                     top = 25.dp,
                                     bottom = 16.dp,
                                     start = 25.dp,
                                     end = 25.dp
-                                )
+                                ),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             title()
-                        }
-                    }
-                }
 
-                if (multiple && maxChoices != Int.MAX_VALUE) {
-                    CompositionLocalProvider(LocalContentColor provides textContentColor) {
-                        Text(
-                            text = "Selected: ${selectedValues.size}/$maxChoices",
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(horizontal = 25.dp, vertical = 4.dp)
-                        )
+                            if (multiple && maxChoices != Int.MAX_VALUE) {
+                                BBCodeText(
+                                    text = "${selectedValues.size}/[color=primary]$maxChoices[/color]",
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
                     }
                 }
 
                 CompositionLocalProvider(LocalContentColor provides textContentColor) {
                     Box {
-                        LazyColumn {
-                            stickyHeader {  }
-
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(max = 450.dp)
+                                .fadingEdge(
+                                    Brush.verticalGradient(
+                                        0f to Color.Transparent,
+                                        0.03f to Color.Red,
+                                        0.97f to Color.Red,
+                                        1f to Color.Transparent
+                                    )
+                                ),
+                            contentPadding = PaddingValues(vertical = 4.dp)
+                        ) {
                             items(
                                 items = options,
                                 key = { it.value.hashCode() }

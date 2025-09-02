@@ -1,13 +1,11 @@
 package com.dergoogler.mmrl.ui.screens.appProfile.items
 
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -25,7 +23,8 @@ import com.dergoogler.mmrl.platform.ksu.Profile
 import com.dergoogler.mmrl.platform.ksu.Profile.Namespace
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
-import com.dergoogler.mmrl.ui.component.listItem.dsl.component.ButtonItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.CheckboxDialogItem
+import com.dergoogler.mmrl.ui.component.listItem.dsl.component.CheckboxItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.Section
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.TextEditDialogItem
@@ -33,13 +32,7 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.DialogSupportingText
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.maxkeppeker.sheets.core.models.base.Header
-import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
-import com.maxkeppeler.sheets.list.ListDialog
-import com.maxkeppeler.sheets.list.models.ListOption
-import com.maxkeppeler.sheets.list.models.ListSelection
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScope.RootProfileConfig(
     modifier: Modifier = Modifier,
@@ -47,15 +40,6 @@ fun ListScope.RootProfileConfig(
     profile: Profile,
     onProfileChange: (Profile) -> Unit,
 ) {
-//    Column(modifier = modifier) {
-//        if (!fixedName) {
-//            OutlinedTextField(
-//                label = { Text(stringResource(R.string.profile_name)) },
-//                value = profile.name,
-//                onValueChange = { onProfileChange(profile.copy(name = it)) }
-//            )
-//        }
-
     Section(
         title = stringResource(R.string.profile_custom)
     ) {
@@ -145,15 +129,13 @@ fun ListScope.RootProfileConfig(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ListScope.GroupsPanel(
     selected: List<Groups>,
-    closeSelection: (selection: Set<Groups>) -> Unit,
+    closeSelection: (selection: List<Groups>) -> Unit,
 ) {
-    var selectGroupsDialog by remember { mutableStateOf(false) }
-    if (selectGroupsDialog) {
-        val groups = Groups.entries.toTypedArray().sortedWith(
+    val groups = remember(selected) {
+        Groups.entries.toTypedArray().sortedWith(
             compareBy<Groups> { if (selected.contains(it)) 0 else 1 }
                 .then(compareBy {
                     when (it) {
@@ -166,46 +148,25 @@ fun ListScope.GroupsPanel(
                 .then(compareBy { it.name })
 
         )
-        val options = groups.map { value ->
-            ListOption(
-                titleText = value.display,
-                subtitleText = value.desc,
-                selected = selected.contains(value),
-            )
-        }
-
-
-        val selection = HashSet(selected)
-        ListDialog(
-            state = rememberUseCaseState(
-                visible = true, onFinishedRequest = {
-                    closeSelection(selection)
-                },
-                onCloseRequest = {
-                    selectGroupsDialog = false
-                }
-            ),
-            header = Header.Default(
-                title = stringResource(R.string.profile_groups),
-            ),
-            selection = ListSelection.Multiple(
-                showCheckBoxes = true,
-                options = options,
-                maxChoices = 32, // Kernel only supports 32 groups at most
-            ) { indecies, _ ->
-                // Handle selection
-                selection.clear()
-                indecies.forEach { index ->
-                    val group = groups[index]
-                    selection.add(group)
-                }
-            }
-        )
     }
 
-    ButtonItem(
-        onClick = {
-            selectGroupsDialog = true
+    val options = remember(groups) {
+        groups.map { value ->
+            CheckboxItem(
+                value = value,
+                title = value.display,
+                desc = value.desc,
+                checked = selected.contains(value),
+            )
+        }
+    }
+
+    CheckboxDialogItem(
+        multiple = true,
+        maxChoices = 32,
+        options = options,
+        onConfirm = {
+            closeSelection(it.map { item -> item.value })
         }
     ) {
         Title(R.string.profile_groups)
@@ -217,56 +178,34 @@ fun ListScope.GroupsPanel(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ListScope.CapsPanel(
     selected: Collection<Capabilities>,
-    closeSelection: (selection: Set<Capabilities>) -> Unit,
+    closeSelection: (selection: List<Capabilities>) -> Unit,
 ) {
-    var selectCapabilitiesDialog by remember { mutableStateOf(false) }
-    if (selectCapabilitiesDialog) {
-        val caps = Capabilities.entries.toTypedArray().sortedWith(
+    val caps = remember(selected) {
+        Capabilities.entries.toTypedArray().sortedWith(
             compareBy<Capabilities> { if (selected.contains(it)) 0 else 1 }
                 .then(compareBy { it.name })
         )
-        val options = caps.map { value ->
-            ListOption(
-                titleText = value.display,
-                subtitleText = value.desc,
-                selected = selected.contains(value),
-            )
-        }
-
-        val selection = HashSet(selected)
-        ListDialog(
-            state = rememberUseCaseState(
-                visible = true, onFinishedRequest = {
-                    closeSelection(selection)
-                },
-                onCloseRequest = {
-                    selectCapabilitiesDialog = false
-                }
-            ),
-            header = Header.Default(
-                title = stringResource(R.string.profile_capabilities),
-            ),
-            selection = ListSelection.Multiple(
-                showCheckBoxes = true,
-                options = options
-            ) { indecies, _ ->
-                // Handle selection
-                selection.clear()
-                indecies.forEach { index ->
-                    val group = caps[index]
-                    selection.add(group)
-                }
-            }
-        )
     }
 
-    ButtonItem(
-        onClick = {
-            selectCapabilitiesDialog = true
+    val options = remember(caps) {
+        caps.map { value ->
+            CheckboxItem(
+                value = value,
+                title = value.display,
+                desc = value.desc,
+                checked = selected.contains(value),
+            )
+        }
+    }
+
+    CheckboxDialogItem(
+        multiple = true,
+        options = options,
+        onConfirm = {
+            closeSelection(it.map { item -> item.value })
         }
     ) {
         Title(R.string.profile_capabilities)

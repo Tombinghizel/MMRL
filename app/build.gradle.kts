@@ -265,10 +265,6 @@ dependencies {
     implementation("dev.chrisbanes.haze:haze:1.6.10")
     implementation("dev.chrisbanes.haze:haze-materials:1.6.10")
 
-    implementation(libs.sheet.compose.dialogs.core)
-    implementation(libs.sheet.compose.dialogs.list)
-    implementation(libs.sheet.compose.dialogs.input)
-
     implementation(libs.composedestinations.core)
     ksp(libs.composedestinations.ksp)
 }
