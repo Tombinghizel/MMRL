@@ -206,7 +206,10 @@ private fun <T> ListScope.AlertRadioDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
+                        .padding(
+                            vertical = 16.dp,
+                            horizontal = 24.dp
+                        ),
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onClose) {
