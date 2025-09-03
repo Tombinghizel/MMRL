@@ -162,6 +162,7 @@ fun ListScope.GroupsPanel(
     }
 
     CheckboxDialogItem(
+        strict = false,
         multiple = true,
         maxChoices = 32,
         options = options,
@@ -202,6 +203,7 @@ fun ListScope.CapsPanel(
     }
 
     CheckboxDialogItem(
+        strict = false,
         multiple = true,
         options = options,
         onConfirm = {

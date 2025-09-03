@@ -1,30 +1,19 @@
 package com.dergoogler.mmrl.ui.component.listItem.dsl.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.AlertDialogDefaults.textContentColor
-import androidx.compose.material3.AlertDialogDefaults.titleContentColor
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,10 +25,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.R
+import com.dergoogler.mmrl.ui.component.dialog.DialogContainer
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
@@ -107,7 +96,7 @@ fun <T> ListScope.RadioDialogItem(
 
 @Composable
 private fun <T> ListScope.AlertRadioDialog(
-    title: @Composable () -> Unit,
+    title: @Composable RowScope.() -> Unit,
     selection: T,
     options: List<RadioDialogItem<T>>,
     onDismiss: (() -> Unit)? = null,
@@ -123,117 +112,81 @@ private fun <T> ListScope.AlertRadioDialog(
         onClose()
     }
 
-    Dialog(
+    DialogContainer(
         onDismissRequest = {
             if (onDismiss != null) {
                 onDismiss()
-                return@Dialog
+                return@DialogContainer
             }
 
             onClose()
         },
+        title = title,
+        buttons = {
+            TextButton(onClick = onClose) {
+                Text(stringResource(id = R.string.cancel))
+            }
+
+            TextButton(onClick = onDone) {
+                Text(stringResource(id = R.string.confirm))
+            }
+        }
     ) {
-        Surface(
-            shape = AlertDialogDefaults.shape,
-            color = AlertDialogDefaults.containerColor,
-            tonalElevation = AlertDialogDefaults.TonalElevation
+        LazyColumn(
+            modifier = Modifier
+                .heightIn(max = 450.dp)
+                .fadingEdge(
+                    Brush.verticalGradient(
+                        0f to Color.Transparent,
+                        0.03f to Color.Red,
+                        0.97f to Color.Red,
+                        1f to Color.Transparent
+                    )
+                ),
+            contentPadding = PaddingValues(vertical = 4.dp)
         ) {
-            Column {
-                CompositionLocalProvider(LocalContentColor provides titleContentColor) {
-                    ProvideTextStyle(MaterialTheme.typography.headlineSmall) {
-                        Box(
-                            modifier = Modifier
-                                .padding(
-                                    top = 25.dp,
-                                    bottom = 16.dp,
-                                    start = 25.dp,
-                                    end = 25.dp
-                                )
-                        ) {
-                            title()
-                        }
-                    }
-                }
+            items(
+                items = options,
+            ) { option ->
+                val checked = option.value == selectedOption.value
+                val interactionSource = remember { MutableInteractionSource() }
 
-                CompositionLocalProvider(LocalContentColor provides textContentColor) {
-                    Box {
-                        LazyColumn(
-                            modifier = Modifier
-                                .heightIn(max = 450.dp)
-                                .fadingEdge(
-                                    Brush.verticalGradient(
-                                        0f to Color.Transparent,
-                                        0.03f to Color.Red,
-                                        0.97f to Color.Red,
-                                        1f to Color.Transparent
-                                    )
-                                ),
-                            contentPadding = PaddingValues(vertical = 4.dp)
-                        ) {
-                            items(
-                                items = options,
-                            ) { option ->
-                                val checked = option.value == selectedOption.value
-                                val interactionSource = remember { MutableInteractionSource() }
-
-                                if (option.title == null) return@items
-
-                                Row(
-                                    modifier = Modifier
-                                        .toggleable(
-                                            enabled = option.enabled,
-                                            value = checked,
-                                            onValueChange = {
-                                                selectedOption = option
-                                            },
-                                            role = Role.RadioButton,
-                                            interactionSource = interactionSource,
-                                            indication = ripple()
-                                        )
-                                        .fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    this@AlertRadioDialog.Item(
-                                        contentPadding = PaddingValues(
-                                            vertical = 8.dp,
-                                            horizontal = 25.dp
-                                        )
-                                    ) {
-                                        Title(option.title)
-
-                                        option.desc.nullable {
-                                            Description(it)
-                                        }
-
-                                        Start {
-                                            RadioButton(
-                                                enabled = option.enabled,
-                                                selected = checked,
-                                                onClick = null
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                if (option.title == null) return@items
 
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            vertical = 16.dp,
-                            horizontal = 24.dp
-                        ),
-                    horizontalArrangement = Arrangement.End
+                        .toggleable(
+                            enabled = option.enabled,
+                            value = checked,
+                            onValueChange = {
+                                selectedOption = option
+                            },
+                            role = Role.RadioButton,
+                            interactionSource = interactionSource,
+                            indication = ripple()
+                        )
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TextButton(onClick = onClose) {
-                        Text(stringResource(id = R.string.cancel))
-                    }
+                    this@AlertRadioDialog.Item(
+                        contentPadding = PaddingValues(
+                            vertical = 8.dp,
+                            horizontal = 25.dp
+                        )
+                    ) {
+                        Title(option.title)
 
-                    TextButton(onClick = onDone) {
-                        Text(stringResource(id = R.string.confirm))
+                        option.desc.nullable {
+                            Description(it)
+                        }
+
+                        Start {
+                            RadioButton(
+                                enabled = option.enabled,
+                                selected = checked,
+                                onClick = null
+                            )
+                        }
                     }
                 }
             }

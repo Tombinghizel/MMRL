@@ -1,30 +1,19 @@
 package com.dergoogler.mmrl.ui.component.listItem.dsl.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.AlertDialogDefaults.textContentColor
-import androidx.compose.material3.AlertDialogDefaults.titleContentColor
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,9 +25,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ui.R
+import com.dergoogler.mmrl.ui.component.dialog.DialogContainer
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
@@ -62,6 +51,7 @@ data class CheckboxItem<T>(
 fun <T> ListScope.CheckboxDialogItem(
     enabled: Boolean = true,
     multiple: Boolean = false,
+    strict: Boolean = true,
     maxChoices: Int = Int.MAX_VALUE,
     options: List<CheckboxItem<T>>,
     onConfirm: (List<CheckboxItem<T>>) -> Unit,
@@ -85,6 +75,7 @@ fun <T> ListScope.CheckboxDialogItem(
 
             if (open) {
                 this@CheckboxDialogItem.AlertCheckboxDialog(
+                    strict = strict,
                     title = {
                         ProvideTitleTypography(
                             token = TypographyKeyTokens.HeadlineSmall
@@ -113,6 +104,7 @@ fun <T> ListScope.CheckboxDialogItem(
 private fun <T> ListScope.AlertCheckboxDialog(
     title: @Composable () -> Unit,
     multiple: Boolean = false,
+    strict: Boolean = true,
     maxChoices: Int = Int.MAX_VALUE,
     initialSelections: List<T> = emptyList(),
     options: List<CheckboxItem<T>>,
@@ -133,151 +125,113 @@ private fun <T> ListScope.AlertCheckboxDialog(
     }
 
     val canSelectMore = !hasReachedMaxChoices || !multiple
-
-    Dialog(
+    DialogContainer(
         onDismissRequest = {
             if (onDismiss != null) {
                 onDismiss()
-                return@Dialog
+                return@DialogContainer
             }
 
             onClose()
         },
+        title = {
+            title()
+
+            if (multiple && maxChoices != Int.MAX_VALUE) {
+                BBCodeText(
+                    text = "${selectedValues.size}/[color=primary]$maxChoices[/color]",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        },
+        buttons = {
+            TextButton(onClick = onClose) {
+                Text(stringResource(id = R.string.cancel))
+            }
+
+            TextButton(
+                onClick = onDone,
+                enabled = if (multiple && strict) selectedValues.isNotEmpty() else true
+            ) {
+                Text(stringResource(id = R.string.confirm))
+            }
+        }
     ) {
-        Surface(
-            shape = AlertDialogDefaults.shape,
-            color = AlertDialogDefaults.containerColor,
-            tonalElevation = AlertDialogDefaults.TonalElevation
+        LazyColumn(
+            modifier = Modifier
+                .heightIn(max = 450.dp)
+                .fadingEdge(
+                    Brush.verticalGradient(
+                        0f to Color.Transparent,
+                        0.03f to Color.Red,
+                        0.97f to Color.Red,
+                        1f to Color.Transparent
+                    )
+                ),
+            contentPadding = PaddingValues(vertical = 4.dp)
         ) {
-            Column {
-                CompositionLocalProvider(LocalContentColor provides titleContentColor) {
-                    ProvideTextStyle(MaterialTheme.typography.headlineSmall) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    top = 25.dp,
-                                    bottom = 16.dp,
-                                    start = 25.dp,
-                                    end = 25.dp
-                                ),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            title()
+            items(
+                items = options,
+                key = { it.value.hashCode() }
+            ) { option ->
+                val isChecked = selectedValues.contains(option.value)
+                val interactionSource = remember { MutableInteractionSource() }
 
-                            if (multiple && maxChoices != Int.MAX_VALUE) {
-                                BBCodeText(
-                                    text = "${selectedValues.size}/[color=primary]$maxChoices[/color]",
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                        }
-                    }
-                }
+                if (option.title == null) return@items
 
-                CompositionLocalProvider(LocalContentColor provides textContentColor) {
-                    Box {
-                        LazyColumn(
-                            modifier = Modifier
-                                .heightIn(max = 450.dp)
-                                .fadingEdge(
-                                    Brush.verticalGradient(
-                                        0f to Color.Transparent,
-                                        0.03f to Color.Red,
-                                        0.97f to Color.Red,
-                                        1f to Color.Transparent
-                                    )
-                                ),
-                            contentPadding = PaddingValues(vertical = 4.dp)
-                        ) {
-                            items(
-                                items = options,
-                                key = { it.value.hashCode() }
-                            ) { option ->
-                                val isChecked = selectedValues.contains(option.value)
-                                val interactionSource = remember { MutableInteractionSource() }
-
-                                if (option.title == null) return@items
-
-                                val isOptionEnabled = option.enabled &&
-                                        (isChecked || canSelectMore || !multiple)
-
-                                Row(
-                                    modifier = Modifier
-                                        .toggleable(
-                                            enabled = isOptionEnabled,
-                                            value = isChecked,
-                                            onValueChange = { checked ->
-                                                if (multiple) {
-                                                    selectedValues = if (checked) {
-                                                        if (selectedValues.size < maxChoices) {
-                                                            selectedValues + option.value
-                                                        } else {
-                                                            selectedValues // Don't add if at max
-                                                        }
-                                                    } else {
-                                                        selectedValues - option.value
-                                                    }
-                                                } else {
-                                                    selectedValues = if (checked) {
-                                                        setOf(option.value)
-                                                    } else {
-                                                        emptySet()
-                                                    }
-                                                }
-                                            },
-                                            role = Role.Checkbox,
-                                            interactionSource = interactionSource,
-                                            indication = ripple()
-                                        )
-                                        .fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    this@AlertCheckboxDialog.Item(
-                                        contentPadding = PaddingValues(
-                                            vertical = 8.dp,
-                                            horizontal = 25.dp
-                                        )
-                                    ) {
-                                        Title(option.title)
-
-                                        option.desc?.let {
-                                            Description(it)
-                                        }
-
-                                        Start {
-                                            Checkbox(
-                                                enabled = isOptionEnabled,
-                                                checked = isChecked,
-                                                onCheckedChange = null
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                val isOptionEnabled = option.enabled &&
+                        (isChecked || canSelectMore || !multiple)
 
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            vertical = 16.dp,
-                            horizontal = 24.dp
-                        ),
-                    horizontalArrangement = Arrangement.End
+                        .toggleable(
+                            enabled = isOptionEnabled,
+                            value = isChecked,
+                            onValueChange = { checked ->
+                                if (multiple) {
+                                    selectedValues = if (checked) {
+                                        if (selectedValues.size < maxChoices) {
+                                            selectedValues + option.value
+                                        } else {
+                                            selectedValues
+                                        }
+                                    } else {
+                                        selectedValues - option.value
+                                    }
+                                } else {
+                                    selectedValues = if (checked) {
+                                        setOf(option.value)
+                                    } else {
+                                        emptySet()
+                                    }
+                                }
+                            },
+                            role = Role.Checkbox,
+                            interactionSource = interactionSource,
+                            indication = ripple()
+                        )
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TextButton(onClick = onClose) {
-                        Text(stringResource(id = R.string.cancel))
-                    }
-
-                    TextButton(
-                        onClick = onDone,
-                        enabled = if (multiple) selectedValues.isNotEmpty() else true
+                    this@AlertCheckboxDialog.Item(
+                        contentPadding = PaddingValues(
+                            vertical = 8.dp,
+                            horizontal = 25.dp
+                        )
                     ) {
-                        Text(stringResource(id = R.string.confirm))
+                        Title(option.title)
+
+                        option.desc?.let {
+                            Description(it)
+                        }
+
+                        Start {
+                            Checkbox(
+                                enabled = isOptionEnabled,
+                                checked = isChecked,
+                                onCheckedChange = null
+                            )
+                        }
                     }
                 }
             }
