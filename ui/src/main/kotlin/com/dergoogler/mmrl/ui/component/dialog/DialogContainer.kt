@@ -1,3 +1,5 @@
+@file:Suppress("PropertyName")
+
 package com.dergoogler.mmrl.ui.component.dialog
 
 import androidx.compose.foundation.border
@@ -13,19 +15,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.dergoogler.mmrl.ext.nullable
+import com.dergoogler.mmrl.ui.component.card.card
 import com.dergoogler.mmrl.ui.token.DialogContainerTokens
+import com.dergoogler.mmrl.ui.token.applyTonalElevation
 import com.dergoogler.mmrl.ui.token.value
 
 @Composable
@@ -38,50 +45,65 @@ fun DialogContainer(
     buttons: (@Composable RowScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
+    val density = LocalDensity.current
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = properties
     ) {
-        Surface(
-            modifier = Modifier.border(
-                style.borderWidth,
-                style.containerOutline,
-                style.shape
-            ),
-            shape = style.shape,
-            color = style.containerColor,
-            tonalElevation = style.tonalElevation
+        Column(
+            modifier = Modifier
+                .border(
+                    style.borderWidth,
+                    style.containerOutline,
+                    style.shape
+                )
+                .card(
+                    shape = style.shape,
+                    border = null,
+                    backgroundColor = MaterialTheme.colorScheme.applyTonalElevation(
+                        style.containerColor,
+                        style.tonalElevation
+                    ),
+                    shadowElevation = with(density) { style.tonalElevation.toPx() }
+                )
+                .semantics(mergeDescendants = false) {
+                    isTraversalGroup = true
+                }
+                .pointerInput(Unit) {},
         ) {
-            Column {
-                title.nullable {
-                    CompositionLocalProvider(LocalContentColor provides style.titleContentColor) {
-                        ProvideTextStyle(MaterialTheme.typography.headlineSmall) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(contentPadding.title),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                it()
-                            }
+            title.nullable {
+                CompositionLocalProvider(LocalContentColor provides style.titleContentColor) {
+                    ProvideTextStyle(MaterialTheme.typography.headlineSmall) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(contentPadding.title),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            it()
                         }
                     }
                 }
+            }
 
-                CompositionLocalProvider(LocalContentColor provides style.textContentColor) {
-                    Box(content = content)
+            CompositionLocalProvider(LocalContentColor provides style.textContentColor) {
+                Box(
+                    modifier = Modifier.padding(contentPadding.content)
+                ) {
+                    content()
                 }
+            }
 
-                buttons.nullable {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(contentPadding.buttons),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        it()
-                    }
+            buttons.nullable {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(contentPadding.buttons),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    it()
                 }
             }
         }
@@ -101,8 +123,11 @@ data class DialogContainerStyle(
 
 data class DialogContentPadding(
     val title: PaddingValues,
+    val content: PaddingValues,
     val buttons: PaddingValues
-)
+) {
+    val EMPTY_CONTENT get() = this.copy(content = PaddingValues(0.dp))
+}
 
 object DialogContainerDefaults {
     val contentPadding = DialogContentPadding(
@@ -112,9 +137,13 @@ object DialogContainerDefaults {
             start = 25.dp,
             end = 25.dp
         ),
+        content = PaddingValues(
+            vertical = 0.dp,
+            horizontal = 25.dp
+        ),
         buttons = PaddingValues(
             vertical = 16.dp,
-            horizontal = 24.dp
+            horizontal = 25.dp
         )
     )
 

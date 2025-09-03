@@ -29,6 +29,7 @@ import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.R
 import com.dergoogler.mmrl.ui.component.dialog.DialogContainer
+import com.dergoogler.mmrl.ui.component.dialog.DialogContainerDefaults
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
@@ -113,6 +114,7 @@ private fun <T> ListScope.AlertRadioDialog(
     }
 
     DialogContainer(
+        contentPadding = DialogContainerDefaults.contentPadding.EMPTY_CONTENT,
         onDismissRequest = {
             if (onDismiss != null) {
                 onDismiss()
