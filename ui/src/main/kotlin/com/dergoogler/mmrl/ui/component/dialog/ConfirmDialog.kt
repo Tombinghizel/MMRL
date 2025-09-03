@@ -1,7 +1,7 @@
 package com.dergoogler.mmrl.ui.component.dialog
 
 import androidx.annotation.StringRes
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -11,8 +11,8 @@ import com.dergoogler.mmrl.ui.R
 
 @Composable
 fun ConfirmDialog(
-    title: @Composable (() -> Unit)?,
-    description: @Composable (() -> Unit)?,
+    title: @Composable (RowScope.() -> Unit)?,
+    description: (@Composable DialogContainerContentScope.() -> Unit)?,
     confirmText: @Composable () -> Unit = {
         Text(text = stringResource(R.string.confirm))
     },
@@ -23,24 +23,23 @@ fun ConfirmDialog(
     onConfirm: () -> Unit,
     onDismissRequest: () -> Unit = onClose ?: onConfirm,
 ) {
-    AlertDialog(
-        title = title,
-        text = description,
+    DialogContainer(
         onDismissRequest = onDismissRequest,
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm
-            ) {
-                confirmText.invoke()
-            }
-        },
-        dismissButton = {
+        title = title,
+        content = description,
+        buttons = {
             onClose.nullable {
                 TextButton(
                     onClick = it
                 ) {
-                    closeText.invoke()
+                    closeText()
                 }
+            }
+
+            TextButton(
+                onClick = onConfirm
+            ) {
+                confirmText()
             }
         }
     )

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -17,6 +18,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +38,23 @@ import com.dergoogler.mmrl.ui.token.DialogContainerTokens
 import com.dergoogler.mmrl.ui.token.applyTonalElevation
 import com.dergoogler.mmrl.ui.token.value
 
+
+@LayoutScopeMarker
+@Immutable
+interface DialogContainerContentScope : BoxScope {
+    @Composable
+    fun Provider(content: @Composable () -> Unit)
+}
+
+internal class DialogContainerContentScopeInstance(
+    private val boxScope: BoxScope
+) : DialogContainerContentScope, BoxScope by boxScope {
+    @Composable
+    override fun Provider(content: @Composable () -> Unit) =
+        ProvideTextStyle(MaterialTheme.typography.bodyMedium, content)
+}
+
+
 @Composable
 fun DialogContainer(
     onDismissRequest: () -> Unit,
@@ -43,7 +63,7 @@ fun DialogContainer(
     contentPadding: DialogContentPadding = DialogContainerDefaults.contentPadding,
     title: (@Composable RowScope.() -> Unit)? = null,
     buttons: (@Composable RowScope.() -> Unit)? = null,
-    content: @Composable BoxScope.() -> Unit,
+    content: (@Composable DialogContainerContentScope.() -> Unit)? = null,
 ) {
     val density = LocalDensity.current
 
@@ -88,11 +108,17 @@ fun DialogContainer(
                 }
             }
 
-            CompositionLocalProvider(LocalContentColor provides style.textContentColor) {
-                Box(
-                    modifier = Modifier.padding(contentPadding.content)
-                ) {
-                    content()
+            content.nullable {
+                CompositionLocalProvider(LocalContentColor provides style.textContentColor) {
+                    Box(
+                        modifier = Modifier.padding(contentPadding.content)
+                    ) {
+                        val instance = remember {
+                            DialogContainerContentScopeInstance(this)
+                        }
+
+                        instance.it()
+                    }
                 }
             }
 
