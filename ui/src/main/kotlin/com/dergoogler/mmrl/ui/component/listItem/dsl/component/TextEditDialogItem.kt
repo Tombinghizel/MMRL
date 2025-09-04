@@ -97,7 +97,6 @@ fun ListScope.TextEditDialogItem(
 
             if (open) {
                 TextFieldDialog(
-                    shape = RoundedCornerShape(20.dp),
                     onDismissRequest = {
                         open = false
                     },

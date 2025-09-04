@@ -243,7 +243,6 @@ private fun AddDialog(
     }
 
     TextFieldDialog(
-        shape = RoundedCornerShape(20.dp),
         onDismissRequest = onClose,
         title = { Text(text = stringResource(id = R.string.repo_add_dialog_title)) },
         confirmButton = {
