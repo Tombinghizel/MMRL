@@ -28,7 +28,9 @@ fun rememberVisibility(
         }
     }
 
-    scope.content()
+    if (visible) {
+        scope.content()
+    }
 
     return actions
 }
