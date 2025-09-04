@@ -28,8 +28,10 @@ import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.R
-import com.dergoogler.mmrl.ui.component.dialog.DialogContainer
-import com.dergoogler.mmrl.ui.component.dialog.DialogContainerDefaults
+import com.dergoogler.mmrl.ui.component.dialog.dsl.DialogContainer
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Buttons
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Content
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Title
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
@@ -114,7 +116,6 @@ private fun <T> ListScope.AlertRadioDialog(
     }
 
     DialogContainer(
-        contentPadding = DialogContainerDefaults.contentPadding.EMPTY_CONTENT,
         onDismissRequest = {
             if (onDismiss != null) {
                 onDismiss()
@@ -123,74 +124,81 @@ private fun <T> ListScope.AlertRadioDialog(
 
             onClose()
         },
-        title = title,
-        buttons = {
+    ) {
+        Title(content = title)
+
+        Content(
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .heightIn(max = 450.dp)
+                    .fadingEdge(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.03f to Color.Red,
+                            0.97f to Color.Red,
+                            1f to Color.Transparent
+                        )
+                    ),
+                contentPadding = PaddingValues(vertical = 4.dp)
+            ) {
+                items(
+                    items = options,
+                ) { option ->
+                    val checked = option.value == selectedOption.value
+                    val interactionSource = remember { MutableInteractionSource() }
+
+                    if (option.title == null) return@items
+
+                    Row(
+                        modifier = Modifier
+                            .toggleable(
+                                enabled = option.enabled,
+                                value = checked,
+                                onValueChange = {
+                                    selectedOption = option
+                                },
+                                role = Role.RadioButton,
+                                interactionSource = interactionSource,
+                                indication = ripple()
+                            )
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        this@AlertRadioDialog.Item(
+                            contentPadding = PaddingValues(
+                                vertical = 8.dp,
+                                horizontal = 25.dp
+                            )
+                        ) {
+                            Title(option.title)
+
+                            option.desc.nullable {
+                                Description(it)
+                            }
+
+                            Start {
+                                RadioButton(
+                                    enabled = option.enabled,
+                                    selected = checked,
+                                    onClick = null
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        Buttons {
             TextButton(onClick = onClose) {
                 Text(stringResource(id = R.string.cancel))
             }
 
             TextButton(onClick = onDone) {
                 Text(stringResource(id = R.string.confirm))
-            }
-        }
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .heightIn(max = 450.dp)
-                .fadingEdge(
-                    Brush.verticalGradient(
-                        0f to Color.Transparent,
-                        0.03f to Color.Red,
-                        0.97f to Color.Red,
-                        1f to Color.Transparent
-                    )
-                ),
-            contentPadding = PaddingValues(vertical = 4.dp)
-        ) {
-            items(
-                items = options,
-            ) { option ->
-                val checked = option.value == selectedOption.value
-                val interactionSource = remember { MutableInteractionSource() }
-
-                if (option.title == null) return@items
-
-                Row(
-                    modifier = Modifier
-                        .toggleable(
-                            enabled = option.enabled,
-                            value = checked,
-                            onValueChange = {
-                                selectedOption = option
-                            },
-                            role = Role.RadioButton,
-                            interactionSource = interactionSource,
-                            indication = ripple()
-                        )
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    this@AlertRadioDialog.Item(
-                        contentPadding = PaddingValues(
-                            vertical = 8.dp,
-                            horizontal = 25.dp
-                        )
-                    ) {
-                        Title(option.title)
-
-                        option.desc.nullable {
-                            Description(it)
-                        }
-
-                        Start {
-                            RadioButton(
-                                enabled = option.enabled,
-                                selected = checked,
-                                onClick = null
-                            )
-                        }
-                    }
-                }
             }
         }
     }

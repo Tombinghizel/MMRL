@@ -1,18 +1,25 @@
 package com.dergoogler.mmrl.ui.component.dialog
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ui.R
+import com.dergoogler.mmrl.ui.component.dialog.dsl.DialogContainer
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Buttons
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Content
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Title
 
 @Composable
 fun ConfirmDialog(
     title: @Composable (RowScope.() -> Unit)?,
-    description: (@Composable DialogContainerContentScope.() -> Unit)?,
+    description: (@Composable BoxScope.() -> Unit)?,
     confirmText: @Composable () -> Unit = {
         Text(text = stringResource(R.string.confirm))
     },
@@ -25,9 +32,16 @@ fun ConfirmDialog(
 ) {
     DialogContainer(
         onDismissRequest = onDismissRequest,
-        title = title,
-        content = description,
-        buttons = {
+    ) {
+        title.nullable {
+            Title(content = it)
+        }
+
+        description.nullable {
+            Content(content = it)
+        }
+
+        Buttons {
             onClose.nullable {
                 TextButton(
                     onClick = it
@@ -42,7 +56,7 @@ fun ConfirmDialog(
                 confirmText()
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -87,7 +101,9 @@ fun ConfirmDialog(
         Text(text = stringResource(title))
     },
     description = {
-        Text(text = stringResource(description))
+        ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
+            Text(text = stringResource(description))
+        }
     },
     confirmText = {
         Text(text = stringResource(confirmText))

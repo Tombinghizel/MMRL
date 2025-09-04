@@ -27,8 +27,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.dergoogler.mmrl.ext.fadingEdge
 import com.dergoogler.mmrl.ui.R
-import com.dergoogler.mmrl.ui.component.dialog.DialogContainer
-import com.dergoogler.mmrl.ui.component.dialog.DialogContainerDefaults
+import com.dergoogler.mmrl.ui.component.dialog.dsl.DialogContainer
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Buttons
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Content
+import com.dergoogler.mmrl.ui.component.dialog.dsl.item.Title
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
@@ -126,8 +128,8 @@ private fun <T> ListScope.AlertCheckboxDialog(
     }
 
     val canSelectMore = !hasReachedMaxChoices || !multiple
+
     DialogContainer(
-        contentPadding = DialogContainerDefaults.contentPadding.EMPTY_CONTENT,
         onDismissRequest = {
             if (onDismiss != null) {
                 onDismiss()
@@ -136,7 +138,8 @@ private fun <T> ListScope.AlertCheckboxDialog(
 
             onClose()
         },
-        title = {
+    ) {
+        Title {
             title()
 
             if (multiple && maxChoices != Int.MAX_VALUE) {
@@ -145,8 +148,93 @@ private fun <T> ListScope.AlertCheckboxDialog(
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
-        },
-        buttons = {
+        }
+
+        Content(
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .heightIn(max = 450.dp)
+                    .fadingEdge(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.03f to Color.Red,
+                            0.97f to Color.Red,
+                            1f to Color.Transparent
+                        )
+                    ),
+                contentPadding = PaddingValues(vertical = 4.dp)
+            ) {
+                items(
+                    items = options,
+                    key = { it.value.hashCode() }
+                ) { option ->
+                    val isChecked = selectedValues.contains(option.value)
+                    val interactionSource = remember { MutableInteractionSource() }
+
+                    if (option.title == null) return@items
+
+                    val isOptionEnabled = option.enabled &&
+                            (isChecked || canSelectMore || !multiple)
+
+                    Row(
+                        modifier = Modifier
+                            .toggleable(
+                                enabled = isOptionEnabled,
+                                value = isChecked,
+                                onValueChange = { checked ->
+                                    if (multiple) {
+                                        selectedValues = if (checked) {
+                                            if (selectedValues.size < maxChoices) {
+                                                selectedValues + option.value
+                                            } else {
+                                                selectedValues
+                                            }
+                                        } else {
+                                            selectedValues - option.value
+                                        }
+                                    } else {
+                                        selectedValues = if (checked) {
+                                            setOf(option.value)
+                                        } else {
+                                            emptySet()
+                                        }
+                                    }
+                                },
+                                role = Role.Checkbox,
+                                interactionSource = interactionSource,
+                                indication = ripple()
+                            )
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        this@AlertCheckboxDialog.Item(
+                            contentPadding = PaddingValues(
+                                vertical = 8.dp,
+                                horizontal = 25.dp
+                            )
+                        ) {
+                            Title(option.title)
+
+                            option.desc?.let {
+                                Description(it)
+                            }
+
+                            Start {
+                                Checkbox(
+                                    enabled = isOptionEnabled,
+                                    checked = isChecked,
+                                    onCheckedChange = null
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Buttons {
             TextButton(onClick = onClose) {
                 Text(stringResource(id = R.string.cancel))
             }
@@ -156,86 +244,6 @@ private fun <T> ListScope.AlertCheckboxDialog(
                 enabled = if (multiple && strict) selectedValues.isNotEmpty() else true
             ) {
                 Text(stringResource(id = R.string.confirm))
-            }
-        }
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .heightIn(max = 450.dp)
-                .fadingEdge(
-                    Brush.verticalGradient(
-                        0f to Color.Transparent,
-                        0.03f to Color.Red,
-                        0.97f to Color.Red,
-                        1f to Color.Transparent
-                    )
-                ),
-            contentPadding = PaddingValues(vertical = 4.dp)
-        ) {
-            items(
-                items = options,
-                key = { it.value.hashCode() }
-            ) { option ->
-                val isChecked = selectedValues.contains(option.value)
-                val interactionSource = remember { MutableInteractionSource() }
-
-                if (option.title == null) return@items
-
-                val isOptionEnabled = option.enabled &&
-                        (isChecked || canSelectMore || !multiple)
-
-                Row(
-                    modifier = Modifier
-                        .toggleable(
-                            enabled = isOptionEnabled,
-                            value = isChecked,
-                            onValueChange = { checked ->
-                                if (multiple) {
-                                    selectedValues = if (checked) {
-                                        if (selectedValues.size < maxChoices) {
-                                            selectedValues + option.value
-                                        } else {
-                                            selectedValues
-                                        }
-                                    } else {
-                                        selectedValues - option.value
-                                    }
-                                } else {
-                                    selectedValues = if (checked) {
-                                        setOf(option.value)
-                                    } else {
-                                        emptySet()
-                                    }
-                                }
-                            },
-                            role = Role.Checkbox,
-                            interactionSource = interactionSource,
-                            indication = ripple()
-                        )
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    this@AlertCheckboxDialog.Item(
-                        contentPadding = PaddingValues(
-                            vertical = 8.dp,
-                            horizontal = 25.dp
-                        )
-                    ) {
-                        Title(option.title)
-
-                        option.desc?.let {
-                            Description(it)
-                        }
-
-                        Start {
-                            Checkbox(
-                                enabled = isOptionEnabled,
-                                checked = isChecked,
-                                onCheckedChange = null
-                            )
-                        }
-                    }
-                }
             }
         }
     }
