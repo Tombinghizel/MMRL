@@ -18,7 +18,6 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Labels
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.utils.isManager
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 
@@ -64,7 +63,7 @@ fun SecurityScreen() {
         }
 
         val isSuDisableSupported = remember {
-            KsuNative.isManager && viewModel.platform.isKernelSuVariant && (KsuNative.getVersion() >= PLM.type.MINIMAL_SUPPORTED_SU_COMPAT)
+            viewModel.platform.isKernelSuVariant && (KsuNative.getVersion() >= PLM.type.MINIMAL_SUPPORTED_SU_COMPAT)
         }
 
         var isSuDisabled by rememberSaveable {
