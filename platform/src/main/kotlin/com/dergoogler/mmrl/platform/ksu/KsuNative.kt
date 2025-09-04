@@ -4,6 +4,7 @@ package com.dergoogler.mmrl.platform.ksu
 
 import com.dergoogler.mmrl.platform.AtomicStatement
 import com.dergoogler.mmrl.platform.PlatformManager
+import com.dergoogler.mmrl.platform.PlatformType
 
 object KsuNative {
     // minimal supported kernel version
@@ -75,6 +76,13 @@ object KsuNative {
 
     fun requireNewKernel(): Boolean {
         return getVersion() < PlatformManager.type.MINIMAL_SUPPORTED_KERNEL
+    }
+
+    fun hasFeature(type: Int): Boolean = hasFeature { type }
+    fun hasFeature(feature: PlatformType.() -> Int): Boolean {
+        val type = feature(PlatformManager.type)
+        if (type == -1) return false
+        return getVersion() >= type
     }
 
     /**

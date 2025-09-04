@@ -8,7 +8,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.dergoogler.mmrl.R
-import com.dergoogler.mmrl.app.PLM
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.SettingsScaffold
@@ -63,7 +62,7 @@ fun SecurityScreen() {
         }
 
         val isSuDisableSupported = remember {
-            viewModel.platform.isKernelSuVariant && (KsuNative.getVersion() >= PLM.type.MINIMAL_SUPPORTED_SU_COMPAT)
+            KsuNative.hasFeature { MINIMAL_SUPPORTED_SU_COMPAT }
         }
 
         var isSuDisabled by rememberSaveable {
