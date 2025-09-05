@@ -2,8 +2,6 @@ package com.dergoogler.mmrl
 
 import android.app.Application
 import android.content.Context
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import com.dergoogler.mmrl.app.utils.NotificationUtils
 import com.dergoogler.mmrl.network.NetworkUtils
 import com.dergoogler.mmrl.platform.PlatformManager
@@ -20,10 +18,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         app = this
-
-        Modifier.composed {
-            Modifier
-        }
 
         PlatformManager.setHiddenApiExemptions()
 

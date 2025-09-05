@@ -169,7 +169,8 @@ class SuperUserViewModel @Inject constructor(
 
     private fun getAppList(): List<AppInfo> {
         val pm = context.packageManager
-        val packages = PlatformManager.getInstalledPackagesAll()
+        val packages =
+            PlatformManager.packageManager.getInstalledPackagesAll(PlatformManager.userManager, 0)
         return packages.map { pkg ->
             val appInfo = pkg.applicationInfo!!
             val uid = appInfo.uid
@@ -221,17 +222,4 @@ class SuperUserViewModel @Inject constructor(
         val items: List<AppInfo> = emptyList(),
         val isRefreshing: Boolean = false,
     )
-
-    private fun PlatformManager.getInstalledPackagesAll(): List<PackageInfo> {
-        return try {
-            val packages = mutableListOf<PackageInfo>()
-            val userInfos = userManager.getUsers()
-            for (userInfo in userInfos) {
-                packages.addAll(packageManager.getInstalledPackages(0, userInfo.id))
-            }
-            packages
-        } catch (_: Exception) {
-            packageManager.getInstalledPackages(0, userManager.myUserId)
-        }
-    }
 }
