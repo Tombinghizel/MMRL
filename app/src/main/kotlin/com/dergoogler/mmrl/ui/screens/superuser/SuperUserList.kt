@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
-import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.scaffold.ScaffoldScope
 import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
@@ -55,6 +54,4 @@ fun ScaffoldScope.SuperUserList(
             }
         }
     }
-
-
 }
