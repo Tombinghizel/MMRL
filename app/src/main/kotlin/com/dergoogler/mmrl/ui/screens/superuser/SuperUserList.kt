@@ -49,9 +49,7 @@ fun ScaffoldScope.SuperUserList(
                     key = { it.packageName + it.uid }
                 ) { app ->
                     SuperUserItem(app) {
-                        if (BuildConfig.BUILD_TYPE == "debug") {
-                            navigator.navigate(AppProfileScreenDestination(app))
-                        }
+                        navigator.navigate(AppProfileScreenDestination(app))
                     }
                 }
             }
