@@ -67,7 +67,6 @@ fun OtherScreen() {
             Description(R.string.settings_provider_service_desc)
         }
 
-        if (BuildConfig.IS_DEV_VERSION || BuildConfig.IS_SPOOFED_BUILD) {
             TextEditDialogItem(
                 value = userPreferences.webuixPackageName,
                 onConfirm = viewModel::setWebuixPackageName
@@ -75,6 +74,7 @@ fun OtherScreen() {
                 Title(context.getString(R.string.settings_set_spoofed_wxp))
                 Description(context.getString(R.string.settings_set_spoofed_wxp_desc))
             }
-        }
+    
     }
+
 }
