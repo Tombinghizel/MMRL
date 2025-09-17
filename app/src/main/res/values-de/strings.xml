@@ -186,4 +186,11 @@
     <string name="selinux_status_permissive">Permissive</string>
     <string name="selinux_status_unknown">Unbekannt</string>
     <string name="home_support_content">MMRL ist und bleibt kostenlos und Open Source. Sie können mir jedoch Ihr Interesse mit einer Spende zeigen.</string>
+    <string name="settings_appearance">aussehen</string>
+    <string name="settings_other">andere</string>
+    <string name="settings_other_desc">DoH, Download-Verzeichnis &amp; mehr</string>
+    <string name="settings_changelog">Changelog</string>
+    <string name="settings_open_notification_settings">Benachrichtigungseinstellungen öffnen</string>
+    <string name="settings_updates">Aktualisierungen</string>
+    <string name="settings_homepage">App-Startseite</string>
 </resources>
