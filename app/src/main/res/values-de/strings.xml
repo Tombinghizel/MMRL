@@ -42,8 +42,8 @@
     <string name="module_download">Herunterladen</string>
     <string name="settings_app">App</string>
     <string name="settings_root_provider">Anbieter: %s</string>
-    <string name="app_theme_palette">Farbpaletten</string>
-    <string name="app_theme_dark_theme">Nachtmodus</string>
+    <string name="app_theme_palette">Design-Palette</string>
+    <string name="app_theme_dark_theme">Dunkles Design</string>
     <string name="app_theme_dark_theme_auto">Automatisch</string>
     <string name="app_theme_dark_theme_light">Hell</string>
     <string name="app_theme_dark_theme_dark">Dunkel</string>
@@ -186,4 +186,20 @@
     <string name="selinux_status_permissive">Permissive</string>
     <string name="selinux_status_unknown">Unbekannt</string>
     <string name="home_support_content">MMRL ist und bleibt kostenlos und Open Source. Sie können mir jedoch Ihr Interesse mit einer Spende zeigen.</string>
+    <string name="settings_appearance">aussehen</string>
+    <string name="settings_other">andere</string>
+    <string name="settings_other_desc">DoH, Download-Verzeichnis &amp; mehr</string>
+    <string name="settings_changelog">Changelog</string>
+    <string name="settings_open_notification_settings">Benachrichtigungseinstellungen öffnen</string>
+    <string name="settings_updates">Aktualisierungen</string>
+    <string name="settings_homepage">App-Startseite</string>
+    <string name="settings_developer_mode">Entwicklermodus</string>
+    <string name="settings_webui_remote_url">WebUI-Remote-URL</string>
+    <string name="settings_webui_remote_url_desc">Um die Fehlerbehebung zu vereinfachen, geben Sie eine lokale Domäne wie http://localhost an. Weitere Informationen finden Sie in der obigen Warnmeldung.</string>
+    <string name="invalid_ip">Dies ist keine gültige lokale Domäne!</string>
+    <string name="settings_security_inject_eruda">Eruda injizieren</string>
+    <string name="select">Auswählen</string>
+    <string name="continue_with">Fortfahren mit %1$s</string>
+    <string name="welcome">Willkommen!</string>
+    <string name="menu_show_antifeatures">Zeige Anti-Features</string>
 </resources>
