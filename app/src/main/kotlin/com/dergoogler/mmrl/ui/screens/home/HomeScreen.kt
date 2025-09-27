@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +24,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
@@ -39,24 +41,23 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isNonRoot
 import com.dergoogler.mmrl.datastore.model.WorkingMode.Companion.isRoot
 import com.dergoogler.mmrl.ext.currentScreenWidth
 import com.dergoogler.mmrl.ext.managerVersion
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ext.none
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.model.online.Changelog
 import com.dergoogler.mmrl.network.runRequest
+import com.dergoogler.mmrl.platform.PlatformManager
 import com.dergoogler.mmrl.platform.file.SuFile.Companion.toFormattedFileSize
 import com.dergoogler.mmrl.platform.ksu.KsuNative
 import com.dergoogler.mmrl.stub.IMMRLApiManager
 import com.dergoogler.mmrl.ui.component.Alert
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
 import com.dergoogler.mmrl.ui.component.SELinuxStatus
-import com.dergoogler.mmrl.ui.component.TopAppBar
 import com.dergoogler.mmrl.ui.component.TopAppBarEventIcon
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.card.component.Relative
@@ -66,30 +67,41 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.component.scaffold.Scaffold
-import com.dergoogler.mmrl.ui.navigation.MainRoute
-import com.dergoogler.mmrl.ui.providable.LocalMainNavController
+import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.dergoogler.mmrl.ui.remember.rememberLocalAnalytics
+import com.dergoogler.mmrl.ui.remember.seLinuxContext
+import com.dergoogler.mmrl.ui.remember.superUserCount
+import com.dergoogler.mmrl.ui.remember.versionName
 import com.dergoogler.mmrl.ui.screens.home.items.NonRootItem
 import com.dergoogler.mmrl.ui.screens.home.items.RebootBottomSheet
 import com.dergoogler.mmrl.ui.screens.home.items.RootItem
 import com.dergoogler.mmrl.ui.screens.settings.changelogs.items.ChangelogBottomSheet
-import com.dergoogler.mmrl.viewmodel.HomeViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.AboutScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ThankYouScreenDestination
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 val listItemContentPaddingValues: PaddingValues = PaddingValues(vertical = 8.dp, horizontal = 25.dp)
 
+@Destination<RootGraph>(start = true)
 @OptIn(ExperimentalComposeApi::class)
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
-) {
+fun HomeScreen() = LocalScreenProvider {
+    val navigator = LocalDestinationsNavigator.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val context = LocalContext.current
-    val navController = LocalMainNavController.current
     val userPreferences = LocalUserPreferences.current
     val browser = LocalUriHandler.current
+
+    val analytics by rememberLocalAnalytics()
 
     var openRebootSheet by remember { mutableStateOf(false) }
     if (openRebootSheet) {
@@ -101,33 +113,33 @@ fun HomeScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                isProviderAlive = viewModel.isProviderAlive,
                 onInfoClick = {
-                    navController.navigateSingleTopTo(MainRoute.About.route)
+                    navigator.navigate(AboutScreenDestination)
                 },
                 onHeartClick = {
-                    navController.navigateSingleTopTo(MainRoute.ThankYou.route)
+                    navigator.navigate(ThankYouScreenDestination)
                 },
                 onRebootClick = {
                     openRebootSheet = true
                 },
+                scrollBehavior = scrollBehavior
             )
         },
         contentWindowInsets = WindowInsets.none
     ) { innerPadding ->
-        this@Scaffold.ResponsiveContent {
+        ResponsiveContent {
             Column(
                 modifier = Modifier
-                    .padding(innerPadding)
+                    .hazeSource(state = LocalHazeState.current)
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .padding(top = innerPadding.calculateTopPadding()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 when {
                     userPreferences.workingMode.isRoot -> RootItem(
                         developerMode = userPreferences.developerMode,
-                        viewModel = viewModel,
                     )
 
                     userPreferences.workingMode.isNonRoot -> NonRootItem(
@@ -222,6 +234,7 @@ fun HomeScreen(
                                     }
                                 )
                             }
+
                             scope.Item {
                                 Icon(painter = painterResource(R.drawable.cpu_2))
                                 Title(R.string.architecture)
@@ -230,17 +243,17 @@ fun HomeScreen(
 
                             scope.SELinuxStatus()
 
-                            viewModel.platform.isKernelSuOrNext.takeTrue {
+                            PlatformManager.platform.isKernelSuOrNext.takeTrue {
                                 scope.Item {
                                     Icon(painter = painterResource(R.drawable.user_outlined))
                                     Title(R.string.super_user_apps)
-                                    Description(viewModel.superUserCount.toString())
+                                    Description(superUserCount.toString())
                                 }
                             }
                         }
                     }
 
-                    viewModel.isProviderAlive.takeTrue {
+                    PlatformManager.isAlive.takeTrue {
                         userPreferences.developerMode.takeTrue {
                             Card(
                                 modifier = Modifier.padding(vertical = 16.dp)
@@ -250,15 +263,15 @@ fun HomeScreen(
                                 ) {
                                     scope.Item {
                                         Title(R.string.home_root_provider_version_name)
-                                        Description(viewModel.versionName)
+                                        Description(versionName)
                                     }
 
                                     scope.Item {
                                         Title(R.string.home_root_provider_se_linux_context)
-                                        Description(viewModel.seLinuxContext)
+                                        Description(seLinuxContext)
                                     }
 
-                                    if (viewModel.platform.isKernelSuNext) {
+                                    if (PlatformManager.platform.isKernelSuNext) {
                                         KsuNative.getHookMode().nullable {
                                             scope.Item {
                                                 Title(R.string.hook_mode)
@@ -267,7 +280,7 @@ fun HomeScreen(
                                         }
                                     }
 
-                                    if (viewModel.platform.isSukiSU) {
+                                    if (PlatformManager.platform.isSukiSU) {
                                         KsuNative.getHookType().nullable {
                                             scope.Item {
                                                 Title(R.string.hook_mode)
@@ -285,8 +298,8 @@ fun HomeScreen(
                         }
                     }
 
-                    if (viewModel.platform.isValid) {
-                        viewModel.analytics(context).nullable {
+                    if (PlatformManager.platform.isValid) {
+                        analytics.nullable {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
@@ -390,7 +403,7 @@ fun HomeScreen(
                             .padding(vertical = 16.dp)
                             .fillMaxWidth(),
                         onClick = {
-                            browser.openUri("https://github.com/sponsors/DerGoogler")
+                            browser.openUri("https://github.com/sponsors/MMRLApp")
                         }
                     ) {
                         Relative {
@@ -414,6 +427,9 @@ fun HomeScreen(
                         }
                     }
                 }
+
+                val paddingValues = LocalMainScreenInnerPaddings.current
+                Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         }
     }
@@ -421,21 +437,24 @@ fun HomeScreen(
 
 @Composable
 private fun TopBar(
-    isProviderAlive: Boolean,
     onRebootClick: () -> Unit = {},
     onInfoClick: () -> Unit = {},
     onHeartClick: () -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     val width = currentScreenWidth()
 
-    TopAppBar(
+    BlurToolbar(
+        scrollBehavior = scrollBehavior,
+        fade = true,
+        fadeDistance = 50f,
         title = {
-            if (!width.isSmall) return@TopAppBar
+            if (!width.isSmall) return@BlurToolbar
 
             TopAppBarEventIcon()
         },
         actions = {
-            if (isProviderAlive) {
+            if (PlatformManager.isAlive) {
                 IconButton(onClick = onRebootClick) {
                     Icon(
                         painter = painterResource(id = R.drawable.refresh),

@@ -1,7 +1,6 @@
 package com.dergoogler.mmrl.ui.component.listItem.dsl.component
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -38,15 +37,18 @@ import com.dergoogler.mmrl.ui.token.TypographyKeyTokens
 
 data class TextEditDialogItemData(
     val value: String,
-    val isError: Boolean
+    val isError: Boolean,
 )
 
 @Composable
 fun ListScope.TextEditDialogItem(
     enabled: Boolean = true,
     value: String,
+    strict: Boolean = true,
     onValid: ((String) -> Boolean)? = null,
     onConfirm: (String) -> Unit,
+    keyboardOptions: KeyboardOptions? = null,
+    keyboardActions: KeyboardActions? = null,
     content: @Composable (ListItemScope.(TextEditDialogItemData) -> Unit),
 ) {
     var open by remember { mutableStateOf(false) }
@@ -61,8 +63,21 @@ fun ListScope.TextEditDialogItem(
 
     onValid.nullable { c ->
         LaunchedEffect(c) {
-            isError = c(value)
+            isError = !c(value)
         }
+    }
+
+    val kbActions = remember(isError, text) {
+        keyboardActions ?: KeyboardActions {
+            if (text.isNotBlank() && !isError) onDone()
+        }
+    }
+
+    val kbOptions = remember {
+        keyboardOptions ?: KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done
+        )
     }
 
     val data = remember(text, isError) {
@@ -82,7 +97,6 @@ fun ListScope.TextEditDialogItem(
 
             if (open) {
                 TextFieldDialog(
-                    shape = RoundedCornerShape(20.dp),
                     onDismissRequest = {
                         open = false
                     },
@@ -98,7 +112,7 @@ fun ListScope.TextEditDialogItem(
                     confirmButton = {
                         TextButton(
                             onClick = onDone,
-                            enabled = !isError && text.isNotBlank()
+                            enabled = !isError && (!strict || text.isNotEmpty())
                         ) {
                             Text(text = stringResource(id = R.string.confirm))
                         }
@@ -127,7 +141,7 @@ fun ListScope.TextEditDialogItem(
                                         value = text,
                                         onValueChange = {
                                             text = it
-                                            isError = onValid?.invoke(it) == true
+                                            isError = onValid?.invoke(it) == false
                                         },
                                         singleLine = false,
                                         supportingText = {
@@ -155,13 +169,8 @@ fun ListScope.TextEditDialogItem(
                                             }
                                         },
                                         isError = isError,
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Text,
-                                            imeAction = ImeAction.Done
-                                        ),
-                                        keyboardActions = KeyboardActions {
-                                            if (text.isNotBlank() && !isError) onDone()
-                                        },
+                                        keyboardOptions = kbOptions,
+                                        keyboardActions = kbActions,
                                         shape = RoundedCornerShape(15.dp)
                                     )
                                 }

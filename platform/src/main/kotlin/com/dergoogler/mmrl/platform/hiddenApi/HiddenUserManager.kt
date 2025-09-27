@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.UserInfo
 import android.os.IUserManager
 import android.os.Process
+import android.os.RemoteException
 import com.dergoogler.mmrl.platform.PlatformManager.getSystemService
 import com.dergoogler.mmrl.platform.stub.IServiceManager
 
@@ -16,7 +17,19 @@ class HiddenUserManager(
         )
     }
 
-    fun getUsers(): List<UserInfo> = userManager.getUsers(true, true, true)
+    @Throws(RemoteException::class)
+    fun getUsers(
+        excludePartial: Boolean = true,
+        excludeDying: Boolean = true,
+        excludePreCreated: Boolean = true,
+    ): List<UserInfo> = userManager.getUsers(excludePartial, excludeDying, excludePreCreated)
+
+    @Throws(RemoteException::class)
+    fun getUsers(): List<UserInfo> = getUsers(
+        excludePartial = true,
+        excludeDying = true,
+        excludePreCreated = true
+    )
 
     fun getUserInfo(userId: Int): UserInfo = userManager.getUserInfo(userId)
 

@@ -5,7 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.dergoogler.mmrl.model.online.ModulesJson
 import com.dergoogler.mmrl.model.state.RepoState
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "repos")
 data class Repo(
     @PrimaryKey val url: String,
@@ -57,6 +59,7 @@ data class Repo(
     }
 }
 
+@Serializable
 @Entity(tableName = "metadata")
 data class RepoMetadata(
     val version: Int,

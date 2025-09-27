@@ -1,6 +1,5 @@
 package com.dergoogler.mmrl.ui.screens.home.items
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,21 +23,21 @@ import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeTrue
 import com.dergoogler.mmrl.model.local.FeaturedManager
+import com.dergoogler.mmrl.model.local.FeaturedManager.Companion.name
+import com.dergoogler.mmrl.platform.PlatformManager.isAlive
+import com.dergoogler.mmrl.platform.PlatformManager.platform
 import com.dergoogler.mmrl.ui.component.LabelItem
 import com.dergoogler.mmrl.ui.component.card.Card
 import com.dergoogler.mmrl.ui.component.text.TextRow
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
-import com.dergoogler.mmrl.viewmodel.HomeViewModel
+import com.dergoogler.mmrl.ui.remember.isLkmMode
+import com.dergoogler.mmrl.ui.remember.versionCode
 
 @Composable
 internal fun RootItem(
     developerMode: Boolean = false,
-    viewModel: HomeViewModel,
 ) {
     val userPreferences = LocalUserPreferences.current
-    val platform = viewModel.platform
-    val isAlive = viewModel.isProviderAlive
-    val versionCode = viewModel.versionCode
 
     val manager =
         FeaturedManager.managers.find { userPreferences.workingMode == it.workingMode }
@@ -92,7 +91,7 @@ internal fun RootItem(
                     verticalAlignment = Alignment.CenterVertically,
                     leadingContent = (developerMode && platform.isKernelSuOrNext) nullable {
                         LabelItem(
-                            text = when (viewModel.isLkmMode.value) {
+                            text = when (isLkmMode) {
                                 null -> "LTS"
                                 true -> "LKM"
                                 else -> "GKI"
@@ -120,10 +119,7 @@ internal fun RootItem(
                 Text(
                     text = if (isAlive) {
                         stringResource(
-                            id = R.string.settings_root_provider,
-                            stringResource(
-                                id = manager?.name ?: R.string.settings_root_none
-                            )
+                            id = R.string.settings_root_provider, manager.name
                         )
                     } else {
                         stringResource(

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -53,15 +54,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.ext.compose.providable.LocalActivity
-import com.dergoogler.mmrl.service.LogcatService
-import com.dergoogler.mmrl.ui.component.NavigateUpTopBar
-import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
-import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.ext.none
+import com.dergoogler.mmrl.service.LogcatService
 import com.dergoogler.mmrl.ui.activity.MMRLComponentActivity
+import com.dergoogler.mmrl.ui.component.LocalScreenProvider
+import com.dergoogler.mmrl.ui.component.scrollbar.VerticalFastScrollbar
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
+import com.dergoogler.mmrl.ui.providable.LocalNavController
 import com.dergoogler.mmrl.utils.log.LogText
 import com.dergoogler.mmrl.utils.log.LogText.Companion.toTextPriority
 import com.dergoogler.mmrl.utils.log.Logcat
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
 
 private val priorities = listOf("VERBOSE", "DEBUG", "INFO", "WARN", "ERROR")
@@ -101,13 +108,15 @@ object LogColors {
     }
 }
 
+@Destination<RootGraph>
 @Composable
-fun LogScreen() {
+fun LogScreen() = LocalScreenProvider {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val state = rememberLazyListState()
     var priority by remember { mutableStateOf("DEBUG") }
 
+    val paddingValues = LocalMainScreenInnerPaddings.current
     val activity = LocalActivity.current as MMRLComponentActivity
 
     val console by remember {
@@ -150,12 +159,16 @@ fun LogScreen() {
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
         ) {
             LazyColumn(
+                modifier = Modifier.hazeSource(LocalHazeState.current),
                 state = state,
-                reverseLayout = true
+                reverseLayout = true,
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding()
+                )
             ) {
                 items(console) { value ->
                     Column {
@@ -169,7 +182,12 @@ fun LogScreen() {
 
             VerticalFastScrollbar(
                 state = state,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding()
+                    )
             )
         }
     }
@@ -180,7 +198,7 @@ private fun TopBar(
     priority: String,
     onPriority: (String) -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-) = NavigateUpTopBar(
+) = BlurNavigateUpToolbar(
     title = stringResource(id = R.string.settings_log_viewer),
     navController = LocalNavController.current,
     actions = {

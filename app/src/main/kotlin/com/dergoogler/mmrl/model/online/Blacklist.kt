@@ -8,9 +8,11 @@ import androidx.compose.runtime.remember
 import com.dergoogler.mmrl.ext.isNotNullOrBlank
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@Serializable
 @JsonClass(generateAdapter = true)
 data class Blacklist(
     val id: String,

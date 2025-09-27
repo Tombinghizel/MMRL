@@ -66,3 +66,16 @@ bool is_su_enabled() {
     ksuctl(CMD_IS_SU_ENABLED, &enabled, nullptr);
     return enabled;
 }
+
+bool set_app_profile(const app_profile *profile) {
+	return ksuctl(CMD_SET_APP_PROFILE, (void*) profile, nullptr);
+}
+
+bool get_app_profile(p_key_t key, app_profile *profile) {
+	return ksuctl(CMD_GET_APP_PROFILE, (void*) profile, nullptr);
+}
+
+bool ksu_set_policy(const FfiPolicy* policy) {
+	if (!policy) return false;
+	return ksuctl(CMD_SET_SEPOLICY, nullptr,(void*) policy);
+}

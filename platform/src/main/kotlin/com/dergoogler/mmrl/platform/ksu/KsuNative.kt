@@ -1,4 +1,10 @@
+@file:Suppress("unused")
+
 package com.dergoogler.mmrl.platform.ksu
+
+import com.dergoogler.mmrl.platform.AtomicStatement
+import com.dergoogler.mmrl.platform.PlatformManager
+import com.dergoogler.mmrl.platform.PlatformType
 
 object KsuNative {
     // minimal supported kernel version
@@ -48,12 +54,35 @@ object KsuNative {
     external fun isSuEnabled(): Boolean
     external fun setSuEnabled(enabled: Boolean): Boolean
 
+    fun isDefaultUmountModules(): Boolean {
+        getAppProfile(NON_ROOT_DEFAULT_PROFILE_KEY, NOBODY_UID).let {
+            return it.umountModules
+        }
+    }
+
+    /**
+     * Get the profile of the given package.
+     * @param key usually the package name
+     * @return return null if failed.
+     */
+    external fun getAppProfile(key: String?, uid: Int): Profile
+    external fun setAppProfile(profile: Profile?): Boolean
+
     private const val NON_ROOT_DEFAULT_PROFILE_KEY = "$"
     private const val NOBODY_UID = 9999
 
+    @Throws(RuntimeException::class)
+    external fun applyPolicyRules(statements: Array<AtomicStatement>, strict: Boolean): Boolean
 
     fun requireNewKernel(): Boolean {
-        return getVersion() < MINIMAL_SUPPORTED_KERNEL
+        return getVersion() < PlatformManager.type.MINIMAL_SUPPORTED_KERNEL
+    }
+
+    fun hasFeature(type: Int): Boolean = hasFeature { type }
+    fun hasFeature(feature: PlatformType.() -> Int): Boolean {
+        val type = feature(PlatformManager.type)
+        if (type == -1) return false
+        return getVersion() >= type
     }
 
     /**

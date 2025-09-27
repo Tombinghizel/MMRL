@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.dergoogler.mmrl.platform.hiddenApi
 
 import android.content.Intent
@@ -6,12 +8,13 @@ import android.content.pm.IPackageManager
 import android.content.pm.PackageInfo
 import android.content.pm.ResolveInfo
 import android.os.SystemProperties
+import android.util.Log
 import com.dergoogler.mmrl.compat.BuildCompat
 import com.dergoogler.mmrl.platform.PlatformManager.getSystemService
 import com.dergoogler.mmrl.platform.stub.IServiceManager
 
 class HiddenPackageManager(
-    private val service: IServiceManager
+    private val service: IServiceManager,
 ) {
     private val packageManager by lazy {
         IPackageManager.Stub.asInterface(
@@ -59,11 +62,28 @@ class HiddenPackageManager(
         }.list
     }
 
+    fun getInstalledPackagesAll(userManager: HiddenUserManager, flags: Int = 0): List<PackageInfo> {
+        return try {
+            val packages = mutableListOf<PackageInfo>()
+            val userInfos = userManager.getUsers()
+            for (userInfo in userInfos) {
+                packages.addAll(getInstalledPackages(flags, userInfo.id))
+            }
+            packages
+        } catch (e: Exception) {
+            Log.e(TAG, "getInstalledPackagesAll", e)
+            getInstalledPackages(0, userManager.myUserId)
+        } catch (e: Exception) {
+            Log.e(TAG, "getInstalledPackagesAll", e)
+            emptyList()
+        }
+    }
+
     fun queryIntentActivities(
         intent: Intent,
         resolvedType: String?,
         flags: Int,
-        userId: Int
+        userId: Int,
     ): List<ResolveInfo> {
         return if (BuildCompat.atLeastT) {
             packageManager.queryIntentActivities(intent, resolvedType, flags.toLong(), userId)
@@ -112,5 +132,9 @@ class HiddenPackageManager(
             true,
             null
         )
+    }
+
+    companion object {
+        const val TAG = "HiddenPackageManager"
     }
 }

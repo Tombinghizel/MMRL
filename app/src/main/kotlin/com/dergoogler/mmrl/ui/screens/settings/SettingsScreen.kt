@@ -11,10 +11,10 @@ import com.dergoogler.mmrl.BuildConfig
 import com.dergoogler.mmrl.R
 import com.dergoogler.mmrl.app.Const
 import com.dergoogler.mmrl.ext.isPackageInstalled
-import com.dergoogler.mmrl.ext.navigateSingleTopTo
 import com.dergoogler.mmrl.ext.nullable
 import com.dergoogler.mmrl.ext.takeFalse
 import com.dergoogler.mmrl.model.local.FeaturedManager
+import com.dergoogler.mmrl.model.local.FeaturedManager.Companion.name
 import com.dergoogler.mmrl.ui.component.SettingsScaffold
 import com.dergoogler.mmrl.ui.component.dialog.ConfirmData
 import com.dergoogler.mmrl.ui.component.dialog.rememberConfirm
@@ -26,12 +26,25 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.RadioDialogItem
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Description
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Icon
 import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
-import com.dergoogler.mmrl.ui.navigation.graphs.SettingsScreen
-import com.dergoogler.mmrl.ui.providable.LocalNavController
+import com.dergoogler.mmrl.ui.providable.LocalDestinationsNavigator
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
 import com.jakewharton.processphoenix.ProcessPhoenix
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.AppearanceScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.BlacklistScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ChangelogScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.DeveloperScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.LogScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ModulesScreen2Destination
+import com.ramcosta.composedestinations.generated.destinations.OtherScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SecurityScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.TerminalScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.UpdatesScreenDestination
+import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
+@Destination<RootGraph>
 @Composable
 fun SettingsScreen() {
     val userPreferences = LocalUserPreferences.current
@@ -70,42 +83,42 @@ fun SettingsScreen() {
             }
 
             NavButton(
-                route = SettingsScreen.Appearance.route,
+                route = AppearanceScreenDestination,
                 icon = R.drawable.color_swatch,
                 title = R.string.settings_appearance,
                 desc = R.string.settings_appearance_desc
             )
 
             NavButton(
-                route = SettingsScreen.Security.route,
+                route = SecurityScreenDestination,
                 icon = R.drawable.shield,
                 title = R.string.settings_security,
                 desc = R.string.settings_security_desc
             )
 
             NavButton(
-                route = SettingsScreen.Updates.route,
+                route = UpdatesScreenDestination,
                 icon = R.drawable.refresh,
                 title = R.string.settings_updates,
                 desc = R.string.settings_updates_desc
             )
 
             NavButton(
-                route = SettingsScreen.Modules.route,
+                route = ModulesScreen2Destination,
                 icon = R.drawable.stack_middle,
                 title = R.string.settings_modules,
                 desc = R.string.settings_modules_desc
             )
 
             NavButton(
-                route = SettingsScreen.Terminal.route,
+                route = TerminalScreenDestination,
                 icon = R.drawable.terminal_2_outlined,
                 title = R.string.settings_terminal,
                 desc = R.string.settings_terminal_desc
             )
 
             NavButton(
-                route = SettingsScreen.Other.route,
+                route = OtherScreenDestination,
                 icon = R.drawable.tool,
                 title = R.string.settings_other,
                 desc = R.string.settings_other_desc
@@ -117,6 +130,7 @@ fun SettingsScreen() {
                 title = R.string.settings_resources,
                 desc = R.string.settings_resources_desc
             )
+
             val manager =
                 FeaturedManager.managers.find { userPreferences.workingMode == it.workingMode }
 
@@ -147,27 +161,27 @@ fun SettingsScreen() {
             }
 
             NavButton(
-                route = SettingsScreen.Changelog.route,
+                route = ChangelogScreenDestination,
                 icon = R.drawable.files,
                 title = R.string.settings_changelog,
                 desc = R.string.settings_changelo_desc
             )
 
             NavButton(
-                route = SettingsScreen.Blacklist.route,
+                route = BlacklistScreenDestination,
                 icon = R.drawable.file_shredder,
                 title = R.string.settings_blacklist,
                 desc = R.string.settings_blacklist_desc
             )
 
             NavButton(
-                route = SettingsScreen.LogViewer.route,
+                route = LogScreenDestination,
                 icon = R.drawable.logs,
                 title = R.string.settings_log_viewer,
             )
 
             NavButton(
-                route = SettingsScreen.Developer.route,
+                route = DeveloperScreenDestination,
                 icon = R.drawable.bug,
                 title = R.string.settings_developer,
                 desc = R.string.settings_developer_desc
@@ -190,16 +204,16 @@ fun SettingsScreen() {
 
 @Composable
 internal fun ListScope.NavButton(
-    route: String,
+    route: DirectionDestinationSpec,
     @DrawableRes icon: Int? = null,
     @StringRes title: Int,
     @StringRes desc: Int? = null,
 ) {
-    val navController = LocalNavController.current
+    val navigator = LocalDestinationsNavigator.current
 
     ButtonItem(
         onClick = {
-            navController.navigateSingleTopTo(route)
+            navigator.navigate(route)
         },
         content = {
             icon.nullable {

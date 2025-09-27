@@ -2,10 +2,13 @@ package com.dergoogler.mmrl.viewmodel
 
 import android.app.Application
 import android.os.Bundle
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import com.dergoogler.mmrl.database.entity.Repo
 import com.dergoogler.mmrl.database.entity.Repo.Companion.toRepo
 import com.dergoogler.mmrl.datastore.UserPreferencesRepository
 import com.dergoogler.mmrl.datastore.model.Option
@@ -17,6 +20,7 @@ import com.dergoogler.mmrl.repository.LocalRepository
 import com.dergoogler.mmrl.repository.ModulesRepository
 import com.dergoogler.mmrl.ext.panicString
 import com.dergoogler.mmrl.model.json.UpdateJson
+import com.dergoogler.mmrl.model.state.RepoState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -31,7 +35,7 @@ import timber.log.Timber
 
 @HiltViewModel(assistedFactory = RepositoryViewModel.Factory::class)
 class RepositoryViewModel @AssistedInject constructor(
-    @Assisted arguments: Bundle,
+    @Assisted val repo: Repo,
     application: Application,
     localRepository: LocalRepository,
     modulesRepository: ModulesRepository,
@@ -53,8 +57,6 @@ class RepositoryViewModel @AssistedInject constructor(
     var isLoading by mutableStateOf(true)
         private set
 
-    val repoUrl = arguments.panicString("repoUrl")
-
     init {
         Timber.d("RepositoryViewModel init")
         dataObserver()
@@ -62,8 +64,8 @@ class RepositoryViewModel @AssistedInject constructor(
     }
 
     private fun dataObserver() {
-        val onlineModules = if (repoUrl.isNotBlank()) {
-            localRepository.getOnlineAllByUrlAsFlow(repoUrl)
+        val onlineModules = if (repo.url.isNotBlank()) {
+            localRepository.getOnlineAllByUrlAsFlow(repo.url)
         } else {
             localRepository.getOnlineAllAsFlow()
         }
@@ -182,6 +184,15 @@ class RepositoryViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(arguments: Bundle): RepositoryViewModel
+        fun create(repo: Repo): RepositoryViewModel
+    }
+
+    companion object {
+        @Composable
+        fun build(repo: Repo): RepositoryViewModel {
+            return hiltViewModel<RepositoryViewModel, Factory> { factory ->
+                factory.create(repo)
+            }
+        }
     }
 }

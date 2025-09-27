@@ -9,7 +9,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.dergoogler.mmrl.R
@@ -50,7 +52,8 @@ import kotlin.collections.first
 
 @HiltViewModel(assistedFactory = ModuleViewModel.Factory::class)
 class ModuleViewModel @AssistedInject constructor(
-    @Assisted arguments: Bundle,
+    @Assisted val repo: Repo,
+    @Assisted val module: OnlineModule,
     localRepository: LocalRepository,
     modulesRepository: ModulesRepository,
     userPreferencesRepository: UserPreferencesRepository,
@@ -61,6 +64,11 @@ class ModuleViewModel @AssistedInject constructor(
     userPreferencesRepository = userPreferencesRepository,
     application = application,
 ) {
+    var installConfirm by mutableStateOf(false)
+    var menuExpanded by mutableStateOf(false)
+    var versionSelectBottomSheet by mutableStateOf(false)
+    var viewTrackBottomSheet by mutableStateOf(false)
+
     val version: String
         get() = PlatformManager.get("") {
             with(moduleManager) { version }
@@ -71,12 +79,7 @@ class ModuleViewModel @AssistedInject constructor(
             with(moduleManager) { versionCode }
         }
 
-    private val moduleId = arguments.panicString("moduleId")
-    val repoUrl = arguments.panicString("repoUrl")
-
     var online: OnlineModule by mutableStateOf(OnlineModule.example())
-        private set
-    var repo: Repo by mutableStateOf(Repo.example())
         private set
     val lastVersionItem by derivedStateOf {
         val firstRepo = versions.getOrNull(0)?.first
@@ -113,18 +116,18 @@ class ModuleViewModel @AssistedInject constructor(
     val tracks = mutableStateListOf<Pair<Repo, TrackJson>>()
 
     init {
-        Timber.d("ModuleViewModel init: $moduleId")
+        Timber.d("ModuleViewModel init: ${module.id}")
         loadData()
         modulesAll()
     }
 
     private fun loadData() = viewModelScope.launch {
-        localRepository.getOnlineByIdAndUrl(moduleId, repoUrl).let {
+        localRepository.getOnlineByIdAndUrl(module.id, repo.url).let {
             online = it
         }
 
-        localRepository.getOnlineAllById(moduleId).let {
-            val filtered = it.filter { f -> f.repoUrl != repoUrl }
+        localRepository.getOnlineAllById(module.id).let {
+            val filtered = it.filter { f -> f.repoUrl != repo.url }
 
             otherSources.addAll(filtered.map { module ->
                 OtherSources(
@@ -138,16 +141,12 @@ class ModuleViewModel @AssistedInject constructor(
             })
         }
 
-        localRepository.getRepoByUrl(repoUrl).let {
-            repo = it
-        }
-
-        localRepository.getLocalByIdOrNull(moduleId)?.let {
+        localRepository.getLocalByIdOrNull(module.id)?.let {
             local = it
-            notifyUpdates = localRepository.hasUpdatableTag(moduleId)
+            notifyUpdates = localRepository.hasUpdatableTag(module.id)
         }
 
-        localRepository.getVersionByIdAndUrl(moduleId, repoUrl).forEach {
+        localRepository.getVersionByIdAndUrl(module.id, repo.url).forEach {
             val repo = localRepository.getRepoByUrl(it.repoUrl)
 
             val item = repo to it
@@ -186,7 +185,7 @@ class ModuleViewModel @AssistedInject constructor(
     fun setUpdatesTag(updatable: Boolean) {
         viewModelScope.launch {
             notifyUpdates = updatable
-            localRepository.insertUpdatableTag(moduleId, updatable)
+            localRepository.insertUpdatableTag(module.id, updatable)
         }
     }
 
@@ -324,6 +323,15 @@ class ModuleViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(arguments: Bundle): ModuleViewModel
+        fun create(repo: Repo, module: OnlineModule): ModuleViewModel
+    }
+
+    companion object {
+        @Composable
+        fun build(repo: Repo, module: OnlineModule): ModuleViewModel {
+            return hiltViewModel<ModuleViewModel, Factory> { factory ->
+                factory.create(repo, module)
+            }
+        }
     }
 }

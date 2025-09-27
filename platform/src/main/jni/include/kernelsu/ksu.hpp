@@ -14,6 +14,7 @@
 #define CMD_DENY_SU 4
 #define CMD_GET_SU_LIST 5
 #define CMD_GET_DENY_LIST 6
+#define CMD_SET_SEPOLICY 8
 #define CMD_CHECK_SAFEMODE 9
 
 #define CMD_GET_APP_PROFILE 10
@@ -105,5 +106,19 @@ bool get_app_profile(p_key_t key, app_profile *profile);
 bool set_su_enabled(bool enabled);
 
 bool is_su_enabled();
+
+struct FfiPolicy {
+		uint32_t cmd;
+		uint32_t subcmd;
+		const char* sepol1;
+		const char* sepol2;
+		const char* sepol3;
+		const char* sepol4;
+		const char* sepol5;
+		const char* sepol6;
+		const char* sepol7;
+};
+
+bool ksu_set_policy(const FfiPolicy* policy);
 
 #endif //KERNELSU_KSU_HPP

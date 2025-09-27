@@ -4,8 +4,10 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,9 +22,13 @@ import com.dergoogler.mmrl.ext.systemBarsPaddingEnd
 import com.dergoogler.mmrl.ui.component.listItem.dsl.List
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListScope
 import com.dergoogler.mmrl.ui.component.scaffold.ResponsiveScaffold
-import com.dergoogler.mmrl.ui.component.toolbar.Toolbar
+import com.dergoogler.mmrl.ui.component.toolbar.BlurNavigateUpToolbar
+import com.dergoogler.mmrl.ui.component.toolbar.BlurToolbar
 import com.dergoogler.mmrl.ui.component.toolbar.ToolbarTitle
+import com.dergoogler.mmrl.ui.providable.LocalHazeState
+import com.dergoogler.mmrl.ui.providable.LocalMainScreenInnerPaddings
 import com.dergoogler.mmrl.ui.providable.LocalNavController
+import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun SettingsScaffold(
@@ -52,7 +58,7 @@ fun SettingsScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     absolute: @Composable (BoxScope.() -> Unit) = {},
     relative: @Composable (ListScope.() -> Unit),
-) {
+) = LocalScreenProvider {
     val navController = LocalNavController.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -60,17 +66,23 @@ fun SettingsScaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (allowNavigateBack) {
-                NavigateUpTopBar(
+                BlurNavigateUpToolbar(
                     title = title,
                     navController = navController,
-                    actions = actions
+                    actions = actions,
+                    fade = true,
+                    fadeDistance = 50f,
+                    scrollBehavior = scrollBehavior
                 )
             } else {
-                Toolbar(
+                BlurToolbar(
                     title = {
                         ToolbarTitle(title = title)
                     },
-                    actions = actions
+                    fade = true,
+                    fadeDistance = 50f,
+                    actions = actions,
+                    scrollBehavior = scrollBehavior
                 )
             }
         },
@@ -79,12 +91,19 @@ fun SettingsScaffold(
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .hazeSource(state = LocalHazeState.current)
                 .then(modifier.box)
         ) {
             List(
-                modifier = modifier.column.systemBarsPaddingEnd(),
-                content = relative
+                modifier = modifier.column
+                    .systemBarsPaddingEnd()
+                    .padding(top = innerPadding.calculateTopPadding()),
+                content = {
+                    relative()
+
+                    val paddingValues = LocalMainScreenInnerPaddings.current
+                    Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
+                }
             )
 
             absolute()

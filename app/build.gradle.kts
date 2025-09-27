@@ -1,6 +1,5 @@
+
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
-import org.gradle.internal.extensions.stdlib.capitalized
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.self.application)
@@ -56,7 +55,7 @@ android {
             keyAlias = project.releaseKeyAlias
             keyPassword = project.releaseKeyPassword
             enableV2Signing = true
-            enableV3Signing = true
+            enableV3Signing = false
         }
     } else {
         signingConfigs.getByName("debug")
@@ -262,6 +261,12 @@ dependencies {
     implementation(libs.square.logging.interceptor)
     implementation(libs.square.moshi)
     ksp(libs.square.moshi.kotlin)
+
+    implementation("dev.chrisbanes.haze:haze:1.6.10")
+    implementation("dev.chrisbanes.haze:haze-materials:1.6.10")
+
+    implementation(libs.composedestinations.core)
+    ksp(libs.composedestinations.ksp)
 }
 
 tasks.register("version") {

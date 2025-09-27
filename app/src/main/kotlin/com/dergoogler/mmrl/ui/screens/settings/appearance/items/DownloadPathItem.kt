@@ -52,7 +52,6 @@ private fun OpenDocumentTreeDialog(
     }
 
     TextFieldDialog(
-        shape = RoundedCornerShape(20.dp),
         onDismissRequest = onClose,
         title = { Text(text = stringResource(id = R.string.settings_download_path)) },
         confirmButton = {

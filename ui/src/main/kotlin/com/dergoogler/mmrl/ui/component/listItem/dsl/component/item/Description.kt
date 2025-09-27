@@ -3,14 +3,13 @@ package com.dergoogler.mmrl.ui.component.listItem.dsl.component.item
 import androidx.annotation.StringRes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import com.dergoogler.mmrl.ext.toStyleMarkup
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemScope
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlot
 import com.dergoogler.mmrl.ui.component.listItem.dsl.ListItemSlotScope
+import com.dergoogler.mmrl.ui.component.text.BBCodeText
 
 /**
  * A description for the list item.
@@ -56,7 +55,7 @@ fun ListItemScope.Description(
     styleTransform: (@Composable (TextStyle) -> TextStyle)? = null,
 ) {
     this.Description(styleTransform) {
-        Text(text.toStyleMarkup())
+        BBCodeText(text)
     }
 }
 

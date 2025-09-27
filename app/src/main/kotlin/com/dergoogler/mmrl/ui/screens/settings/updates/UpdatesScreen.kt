@@ -22,6 +22,8 @@ import com.dergoogler.mmrl.ui.component.listItem.dsl.component.item.Title
 import com.dergoogler.mmrl.ui.providable.LocalSettings
 import com.dergoogler.mmrl.ui.providable.LocalSnackbarHost
 import com.dergoogler.mmrl.ui.providable.LocalUserPreferences
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -33,6 +35,7 @@ fun radioDialogItem(interval: Long): RadioDialogItem<Long> {
     )
 }
 
+@Destination<RootGraph>
 @Composable
 fun UpdatesScreen() {
     val viewModel = LocalSettings.current

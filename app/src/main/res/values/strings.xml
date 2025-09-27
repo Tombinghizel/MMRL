@@ -32,6 +32,7 @@
     <string name="license_fsf_libre">FSF Libre</string>
     <!-- Page -->
     <string name="page_home">Home</string>
+    <string name="page_superuser">SuperUser</string>
     <string name="page_repository">Repository</string>
     <string name="page_modules">Modules</string>
     <string name="page_settings">Settings</string>
@@ -41,8 +42,10 @@
     <string name="module_new">New</string>
     <!-- Advanced Menu -->
     <string name="menu_pin_installed">Pin Installed</string>
+    <string name="menu_pin_has_root">Pin Has Root</string>
     <string name="menu_pin_updatable">Pin Updatable</string>
     <string name="menu_show_icon">Show Icon</string>
+    <string name="menu_show_system_apps">Show System Apps</string>
     <string name="menu_show_license">Show License</string>
     <string name="menu_show_cover">Show Cover</string>
     <string name="menu_show_verified">Show Verified</string>
@@ -235,6 +238,7 @@
     <string name="menu_pin_webui">Pin WebUI</string>
     <string name="menu_show_updated">Show Updated Time</string>
     <string name="menu_show_antifeatures">Show Anti-Features</string>
+    <string name="menu_show_category">Show Category</string>
     <string name="menu_export_modules_as_text">Export Modules as Text</string>
     <!-- Message -->
     <string name="message_download_success">Download successful</string>
@@ -434,4 +438,36 @@
     <string name="compile_sdk">Compile SDK</string>
     <string name="settings_set_spoofed_wxp">WebUI X Portable Package</string>
     <string name="settings_set_spoofed_wxp_desc">Set a custom spoofed WebUI X Portable Package name.</string>
+    <string name="settings_enable_blur">Enable Blur</string>
+    <string name="settings_enable_blur_desc">Enabled blur effect in components</string>
+    <string name="settings_hide_bottom_bar_labels">Hide Bottom Bar Lables</string>
+    <string name="failed_to_update_app_profile">Failed to update App Profile for %s</string>
+    <string name="failed_to_update_sepolicy">Failed to update SELinux rules for %s</string>
+    <string name="su_not_allowed">Couldn\'t grant Superuser access to %s</string>
+    <string name="profile_default">Default</string>
+    <string name="profile_custom">Custom</string>
+    <string name="profile_custom_desc">Create your own profile with flexible options, including rules, permissions, security context, and more.</string>
+    <string name="profile_edit_custom">Edit Custom Profile</string>
+    <string name="profile_edit_custom_desc">Modify the settings of your custom profile.</string>
+    <string name="profile">App Profile</string>
+    <string name="allow_root_access">Enable Root Access</string>
+    <string name="allow_root_access_desc">Granting root access gives this app advanced control over your device, including system files and settings.</string>
+    <string name="profile_name">Profile Name</string>
+    <string name="profile_groups">Groups</string>
+    <string name="profile_selinux_rules">SELinux Rules</string>
+    <string name="profile_selinux_rules_invalid">Invalid Rules!</string>
+    <string name="profile_capabilities">Capabilities</string>
+    <string name="profile_selinux">SELinux</string>
+    <string name="profile_selinux_context">SELinux Context</string>
+    <string name="profile_selinux_context_invalid">Invalid Context!</string>
+    <string name="settings_umount_modules_default">Umount modules</string>
+    <string name="settings_umount_modules_default_desc">The global default value for \"Umount modules\" in App Profile. If enabled, it will remove all module modifications to the system for apps that don\'t have a profile set.</string>
+    <string name="profile_selinux_domain">Domain</string>
+    <string name="profile_namespace">Mount namespace</string>
+    <string name="profile_namespace_inherited">Inherited</string>
+    <string name="profile_namespace_global">Global</string>
+    <string name="profile_namespace_individual">Individual</string>
+    <string name="empty">Empty</string>
+    <string name="settings_disable_su">Disable su compatibility</string>
+    <string name="settings_disable_su_desc">Temporarily disable the ability of any app to gain root privileges via the ⁠su command (Existing root processes won\'t be affected).</string>
 </resources>
