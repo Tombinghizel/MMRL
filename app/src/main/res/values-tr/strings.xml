@@ -384,4 +384,54 @@
     <string name="settings_webui_engine">WebUI Motoru</string>
     <string name="settings_webui_engine_wx">WebUI X</string>
     <string name="view_module_install_confirm_desc_deps">[color=surface_tint]%1$s[/color] yüklemek istediğinizden emin misiniz? Bu modül ayrıca şunları gerektirir:</string>
+    <string name="shortcut_not_supported">Kısayollar cihazınızda veya başlatıcınızda desteklenmiyor</string>
+    <string name="welcome">Hoş Geldiniz!</string>
+    <string name="select_your_platform">Platformunuzu seçin</string>
+    <string name="continue_with">%1$s ile devam et</string>
+    <string name="select">Seç</string>
+    <string name="platform">Platform</string>
+    <string name="change_platform">Platformu Değiştir</string>
+    <string name="page_search">Ara</string>
+    <string name="drawer_legal">Yasal</string>
+    <string name="drawer_tools">Araçlar</string>
+    <string name="drawer_support">Destek</string>
+    <string name="drawer_general">Genel</string>
+    <string name="settings_enable_toolbar_events">Araç Çubuğu Olaylarını Etkinleştir</string>
+    <string name="unable_to_perform_reboot_task">Yeniden başlatmak işlemi gerçekleştirilemedi</string>
+    <string name="architecture">Yapı</string>
+    <string name="view_module_no_description">Açıklama sağlanmadı.</string>
+    <string name="create_webui_shortcut">WebUI Kısayolu Oluştur</string>
+    <string name="remove_webui_shortcut">WebUI Kısayolunu Kaldır</string>
+    <string name="settings_webui_engine_ksu">KSU WebUI</string>
+    <string name="settings_webui_engine_prefer_module">Modül Configi tarafından tanımlandı</string>
+    <string name="menu_sort_option_size">Boyut</string>
+    <string name="settings_try_wxp">WebUI X: Taşınabilir deneyin!</string>
+    <string name="external_app_required_title">Harici Uygulama Gerekli</string>
+    <string name="settings_terminal_line_numbers">Satır Numaraları</string>
+    <string name="settings_terminal_line_numbers_desc">Uç birimin sol taradında satır numaralarını gösterir</string>
+    <string name="super_user_apps">SuperUser Uygulamalar</string>
+    <string name="view_module_permissions">İzinler</string>
+    <string name="settings_always_show_update_alert">Her zaman Güncelleme Bildirimini Göster</string>
+    <string name="update_available">Güncelleme var!</string>
+    <string name="settings_terminal">Uç birim</string>
+    <string name="settings_behavior">Davranış</string>
+    <string name="settings_terminal_desc">Uç birmi kendi tercihlerine göre uyarla</string>
+    <string name="hook_mode">Kanca Modu</string>
+    <string name="kpm_support">KPM Desteği</string>
+    <string name="yes">Evet</string>
+    <string name="no">Hayır</string>
+    <string name="count_with_plus">%1$d+</string>
+    <string name="available_modules">Kullanılabilir Modüller</string>
+    <string name="module_repositories">Modül Depoları</string>
+    <string name="latest_commit_id">Son Commit ID\\\'si</string>
+    <string name="build_tools_version">Derleme Araçları Sürümü</string>
+    <string name="compile_sdk">SDK\'yı Derle</string>
+    <string name="settings_set_spoofed_wxp">WebUI X Taşınabilir Paket</string>
+    <string name="settings_set_spoofed_wxp_desc">Özel sahte WebUI X Taşınabilir Paket adı ayarla.</string>
+    <string name="page_repos">Depolar</string>
+    <string name="setup_root_note">MMRL\'ın tüm özelliklerine erişmek için, kök erişimine sahip bir cihaz gereklidir. MMRL root atmak için talimatlar sağlamaz ve root işlemi sırasında veya MMRL\'in kullanımında oluşabilecek sorunlardan sorumlu değildir.\n\n[link=https://mmrl.dev/legal/privacy]Gizlilik Politikası[/link] • [link=https://mmrl.dev/legal/terms]Kullanım Şartları[/link]</string>
+    <string name="from_other_repositories">Diğer Depolardan</string>
+    <string name="settings_date_pattern_dialog_desc">Tarih modeli olarak ayrıştırılıcaktır:\n[color=primary]%1$s[/color]</string>
+    <string name="explore_repos_discover_text">Cihazınız için [bold]%2$d[/bold] üzerinde modül içeren[bold]%1$d[/bold] güvenilir depolardan modülleri keşfedin ve yükleyin.</string>
+    <string name="external_app_required_desc">Deneyiminizi geliştirmek ve daha sağlam WebUI işlevselliği sağlamak için MMRL artık özel bir harici uygulama kullanmaktadır: WebUI X: Taşınabilir. Bu, daha iyi performans, gelişmiş güvenlik ve WebUI özellikleri için daha sık güncellemeler sağlar. WebUI X\'i yüklemeniz gerekecek: Portable\'ı yükleyerek modüllerinizin WebUI\'lerine erişmeye devam edebilirsiniz. MMRL\'yi Google Play Store üzerinden yükleyen kullanıcılar WebUI X için Google Play Store sayfasına yönlendirilecektir: Portable için Google Play Store sayfasına yönlendirilecektir.</string>
 </resources>
