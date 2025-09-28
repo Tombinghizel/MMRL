@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package com.dergoogler.mmrl.platform.hiddenApi
 
@@ -65,10 +65,12 @@ class HiddenPackageManager(
     fun getInstalledPackagesAll(userManager: HiddenUserManager, flags: Int = 0): List<PackageInfo> {
         return try {
             val packages = mutableListOf<PackageInfo>()
-            val userInfos = userManager.getUsers()
-            for (userInfo in userInfos) {
-                packages.addAll(getInstalledPackages(flags, userInfo.id))
-            }
+            val userProfileIds = userManager.getUserProfiles().map { it.hashCode() }
+
+            packages.addAll(userProfileIds.flatMap {
+                getInstalledPackages(flags, it)
+            })
+
             packages
         } catch (e: Exception) {
             Log.e(TAG, "getInstalledPackagesAll", e)

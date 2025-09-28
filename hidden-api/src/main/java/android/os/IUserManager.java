@@ -14,6 +14,10 @@ public interface IUserManager extends IInterface {
 
     UserInfo getUserInfo(int userId);
 
+    int[] getProfileIds(int userId, boolean enabledOnly);
+
+    List<UserInfo> getProfiles(int userId, boolean enabledOnly);
+
     abstract class Stub extends Binder implements IUserManager {
 
         public static IUserManager asInterface(IBinder obj) {
